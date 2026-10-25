@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../../../core/network/api_client.dart';
 import '../../../core/network/authed_dio.dart';
@@ -92,7 +93,8 @@ class HttpAuthApi implements AuthApi {
           'password': password,
           'device': {
             'fingerprint': fingerprint,
-            'model': Platform.operatingSystem,
+            // dart:io غير مدعوم على الويب — نرسل اسماً ثابتاً بدل Platform.
+            'model': kIsWeb ? 'web' : Platform.operatingSystem,
           },
         },
       );
