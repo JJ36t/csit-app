@@ -39,7 +39,6 @@ flutter pub get
 flutter gen-l10n                        # يولّد lib/l10n/app_localizations*.dart
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000
 ```
-
 - `10.0.2.2` = عنوان جهازك المضيف من داخل محاكي أندرويد.
 - على السيرفر الجامعي: `--dart-define=API_BASE_URL=https://csit.qu.edu.iq`
 - المعرّف `applicationId = iq.edu.qu.csit` مثبَّت في `android/app/build.gradle.kts` (قرار رقم 7 — لا يتغير بعد النشر).
@@ -51,6 +50,19 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000
 - لا يُكتب أي نص واجهة داخل الكود — كل النصوص في `lib/l10n/app_ar.arb`.
 - كل الأبعاد والحواشي عبر `EdgeInsetsDirectional` / `AlignmentDirectional` (RTL أصلي).
 - التخزين المحلي Drift للجدول والمواد (لاحقاً)، و`flutter_secure_storage` للتوكنات فقط.
+
+## APK (أندرويد)
+
+على ويندوز بمسارات طويلة (>260 حرفاً) يفشل البناء من مسار المشروع الأصلي؛ استخدم قرصاً قصيراً:
+
+```powershell
+subst X: <مسار csit-app المطلق>
+cd X:\app; flutter pub get; flutter build apk --release
+```
+
+الناتج `build\app\outputs\flutter-apk\app-release.apk` موقّع بمفتاح debug (للتجربة).
+الإعدادان `kotlin.incremental=false` و`kotlin.compiler.execution.strategy=in-process`
+في `android/gradle.properties` ضروريان للبناء من مسار بديل.
 
 ## الاختبارات
 

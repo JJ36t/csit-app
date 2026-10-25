@@ -10,12 +10,12 @@
 
 1. المشروع: تطبيق أندرويد لكلية علوم الحاسوب وتكنولوجيا المعلومات — جامعة القادسية، بخلفية FastAPI/PostgreSQL ولوحة تحكم ويب.
 2. المستودع: `csit-app/` وفيه `api/` و`app/` (Flutter) و`admin/` (React) و`design/` (نموذج الشاشات).
-3. **مكتمل ومتحقَّق منه:** المصادقة وربط الجهاز، استيراد الطلاب من Excel، الحضور (QR متجدد + موقع + لحظي + تقارير)، الجدول (حصص + تعارضات + تغييرات مؤرخة)، فهرس «جهاز نشط واحد»، وملف CI.
-4. الحالة الحالية للاختبارات: **43/43 على SQLite و43/43 على PostgreSQL**، و`alembic check` نظيف.
-5. تطبيق Flutter: المصادقة + **N1 الحضور منجز** (مسح QR للطالب، حصص اليوم، قائمة لحظية وQR متجدد للتدريسي)؛ بقية الشاشات الثماني في `design/screens.html` لم تُحوَّل بعد.
-6. **التالي فوراً:** N2 (الجدول والمواد والدرجات في Flutter)، ثم N3 نقاط الدرجات في الـAPI، ثم شاشات لوحة التحكم.
-7. لا يوجد `git` على الجهاز → المستودع غير مهيأ، وCI مكتوب ولم يُشغَّل بعد.
-8. لا يوجد Android SDK → لا يمكن بناء APK أو تجربة الكاميرا على هذا الجهاز.
+3. **مكتمل ومتحقَّق منه:** المصادقة وربط الجهاز، استيراد الطلاب من Excel، الحضور (QR متجدد + موقع + لحظي + تقارير)، الجدول (حصص + تعارضات + تغييرات مؤرخة)، فهرس «جهاز نشط واحد»، ودرجات ومواد وإعلانات وإشعارات (N3)، وملف CI.
+4. الحالة الحالية للاختبارات: **62/62 على SQLite و62/62 على PostgreSQL** (الترحيلات 0001–0003)، و`alembic check` نظيف، و`smoke_n3` أخضر عبر HTTP.
+5. تطبيق Flutter: المصادقة + **N1 الحضور منجز** + **أول APK ناجح** (66.5MB)؛ بقية الشاشات الثماني لم تُحوَّل بعد.
+6. **التالي فوراً:** N2 (الجدول والمواد والدرجات في Flutter)، ثم N4 شاشات لوحة التحكم، ثم N5 النشر.
+7. **git مهيأ الآن** (`git init` + أول التزام `f621fda`)؛ CI مكتوب وصالح نحوياً لكنه لم يُشغَّل على GitHub (لا مستودع بعيد).
+8. **Android SDK مثبّت** وبناء APK يعمل عبر قرص قصير `subst X:` (انظر 5.6)؛ تجربة الكاميرا على هاتف حقيقي لم تُجرّب بعد.
 9. المستخدم (صاحب المشروع) ينتظر إنجاز بنود إدارية موثّقة في القسم 8 (قواعد الغياب، الجدول الرسمي، عيّنة بيانات…).
 10. القاعدة الذهبية: **لا تسليم بدون تشغيل**، واذكر دائماً ما تحققت منه وما لم تتحقق منه.
 
@@ -80,21 +80,32 @@
 - بنية مشتركة: استُخرج منطق التجديد عند 401 إلى `core/network/authed_dio.dart` (يستخدمه HttpAuthApi وHttpAttendanceApi)، ويُحفظ `device_id` في التخزين الآمن عند كل دخول، و`SessionController.expire()` تُفرغ الجلسة عند 401 فتُعيد الموجّه لشاشة الدخول.
 - اختبارات: 27/27 ببدائل في الذاكرة (++22 اختباراً جديداً: 3 لصيغة QR، 8 للمسح، 5 للقائمة اللحظية، 4 لحصص اليوم، 2 للتخزين الآمن).
 
+**المرحلة 5 — N3: الدرجات والمواد والإعلانات والإشعارات (26 ت10 2026):**
+- **الدرجات:** `POST /assessments` (وزن + درجة عظمى، حدّ مجموع الأوزان 100)، `POST /assessments/{id}/grades` (إدخال دفعي كمسودة، تحقق التسجيل والحد الأقصى، تدقيق قبل/بعد لكل درجة)، `POST /assessments/{id}/publish` (مدير الكلية فقط + إشعار الطلاب المسجَّلين + تدقيق)، `GET /offerings/{id}/grades` (مصفوفة + مجموع موزون)، `GET /offerings/{id}/grades/export` (Excel)، `GET /grades` (الطالب: المنشور فقط)، `DELETE /assessments/{id}` (غير منشور).
+- **المواد:** رفع ملف PDF أو رابط (`POST /offerings/{id}/materials`) بتحقق النوع/الحجم (25MB افتراضياً) وتخزين بمفتاح عشوائي في `uploads/`، قراءة للطالب المسجَّل (المنشور فقط)، وتنزيل برابط موقّع HMAC عمره 10 دقائق (`GET /files/{id}/download?expires=&sig=`).
+- **الإعلانات:** `POST /admin/announcements` بنطاق (كلية/قسم/مرحلة/شعبة/مادة) وصلاحيات نطاق + جدولة `publish_at`، خلاصة موجّهة `GET /announcements` بعلامة مقروء، و`POST /announcements/{id}/read`.
+- **الإشعارات:** صندوق وارد `GET /notifications` + `read-all` + قراءة واحدة + `PUT /devices/fcm-token`؛ إنشاء جماعي عند نشر إعلان أو درجة.
+- **الترحيل `0003`:** `files.original_name`، `announcements.stage`، وطوابع `notifications.created_at/updated_at`؛
+- **CORS** لنطاقات localhost للتطوير، و`alembic check` نظيف بعد الترحيل.
+- اختبارات: 19 جديدة (7 درجات، 5 مواد، 4 إعلانات، 3 إشعارات) — **62/62** على القاعدتين + `scripts/smoke_n3.py` عبر HTTP.
+
 ---
 
 ## 3) حالة التحقق الحالية (أرقام حقيقية — أعدها قبل أي تسليم)
 
 | الفحص | الأمر | النتيجة عند كتابة الملف |
 |---|---|---|
-| اختبارات API على SQLite | `pytest tests -q` | **43/43** |
-| اختبارات API على PostgreSQL 18.6 | `DATABASE_URL=postgresql+psycopg://…` | **43/43** |
-| الترحيلات على PostgreSQL | `alembic upgrade head` + `alembic check` | 0001+0002 · «No new upgrade operations detected» |
+| اختبارات API على SQLite | `pytest tests -q` | **62/62** |
+| اختبارات API على PostgreSQL 18.6 | `DATABASE_URL=postgresql+psycopg://…` | **62/62** |
+| الترحيلات على PostgreSQL | `alembic upgrade head` + `alembic check` | 0001+0002+0003 · «No new upgrade operations detected» |
 | دورة الإرجاع | `alembic downgrade base` ثم `upgrade head` | نظيفة |
 | فحص HTTP شامل | `python scripts/smoke_e2e.py` | أخضر (مدير ← استيراد ← طالب ← منع جهاز ← إعادة ضبط ← رفض صلاحيات) |
+| فحص N3 عبر HTTP | `python scripts/smoke_n3.py` | أخضر (تقييم ← درجة ← نشر ← درجة الطالب ← إعلان/إشعار ← مادة برابط موقّع) |
 | Flutter | `flutter analyze` / `flutter test` / `flutter build web --release` | 0 ملاحظات · **27/27** · بناء ناجح |
 | لوحة التحكم | `npm run build` | ناجح |
-| APK (release) | `flutter build apk --release` من نسخة على مسار قصير (5.6) | **66.5MB · أول بناء ناجح** (موقّع بمفتاح debug) |
-| CI | قراءة YAML | صالح (أُعيد إنشاؤه 26 ت10 — كان مفقوداً)، **لم يُشغَّل على GitHub** |
+| APK (release) | `flutter build apk --release` من `X:\app` (5.6) | **66.5MB · بناء ناجح متكرر** (موقّع بمفتاح debug) |
+| git | `git log` | مستودع محلي + أول التزام `f621fda` · لا مستودع بعيد |
+| CI | قراءة YAML | صالح (ثلاث وظائف، أُعيد إنشاؤه 26 ت10)، **لم يُشغَّل على GitHub** |
 
 **غير متحقق (اذكره دائماً):** تثبيت APK وتجربة الكاميرا والماسح على جهاز حقيقي (البناء وحده لا يثبت عمل الكاميرا)، وتشغيل CI على GitHub، ومراجعة بصرية آلية لنموذج الشاشات.
 
@@ -112,10 +123,13 @@ csit-app/
 │   │   ├── db.py · deps.py · errors.py · schemas.py · security.py
 │   │   ├── main.py            ← تسجيل كل الموجّهات
 │   │   ├── models/            ← base, enums(SAEnum), identity, academic, timetable, attendance, content, comms
-│   │   ├── routers/           ← auth, admin_users, admin_students, admin_timetable, attendance, timetable, departments, health
-│   │   └── services/          ← attendance(QR/مسافة), access, audit, import_students, rate_limit, sessions
-│   ├── migrations/versions/   ← 0001_initial_schema.py · 0002_device_unique_active.py
-│   ├── scripts/               ← seed, create_admin, reset_device, import_students, inspect_db, smoke_e2e
+│   │   ├── routers/           ← auth, admin_users, admin_students, admin_timetable, attendance, timetable,
+│   │   │                        departments, health, grades, materials, announcements, notifications
+│   │   └── services/          ← attendance(QR/مسافة), access, audit, import_students, rate_limit, sessions,
+│   │                            storage(ملفات), file_links(روابط موقّعة), notifications(جمهور/إشعارات)
+│   ├── migrations/versions/   ← 0001_initial_schema · 0002_device_unique_active · 0003_materials_announcements
+│   ├── scripts/               ← seed, create_admin, reset_device, import_students, inspect_db, smoke_e2e,
+│   │                            demo_seed, smoke_n3
 │   └── tests/                 ← world.py (عالم اختباري) + 8 ملفات اختبار
 ├── app/  (Flutter)
 │   └── lib/  ← main, app/router, core/{network/{api_client,authed_dio},storage,utils,
@@ -127,7 +141,7 @@ csit-app/
 └── design/screens.html
 ```
 
-**نقاط الـAPI الحالية:** `health` · `auth/{login,refresh,logout,change-password,me}` · `departments` · `admin/students/{import,template,list}` · `admin/users/{id}/{device/reset,reset-password}` · `sessions/{id}/{open,close,live}` · `attendance/{scan,summary}` · `attendance/{id}` (PATCH) · `offerings/{id}/attendance{,/report}` · `timetable` · `timetable/changes` · `admin/timetable/{rooms,slots,changes}`.
+**نقاط الـAPI الحالية:** `health` · `auth/{login,refresh,logout,change-password,me}` · `departments` · `admin/students/{import,template,list}` · `admin/users/{id}/{device/reset,reset-password}` · `sessions/{id}/{open,close,live}` · `attendance/{scan,summary}` · `attendance/{id}` (PATCH) · `offerings/{id}/attendance{,/report}` · `timetable` · `timetable/changes` · `admin/timetable/{rooms,slots,changes}` · `assessments` · `assessments/{id}/{grades,publish}` · `offerings/{id}/grades{,/export}` · `grades` · `offerings/{id}/materials` · `materials/{id}` · `files/{id}/download` · `admin/announcements` · `announcements` · `announcements/{id}/read` · `notifications{,/{id}/read,/read-all}` · `devices/fcm-token`.
 
 ---
 
@@ -182,14 +196,34 @@ flutter pub get; flutter gen-l10n; flutter analyze; flutter test; flutter build 
 cd csit-app/admin; npm ci; npm run build
 ```
 
-### 5.6 بناء APK (Android SDK مثبّت — لكن المسار طويل)
-Flutter يضبط مسار البناء الحقيقي ولا يقبل تغييره، ومسار هذه المساحة يتجاوز حد ويندوز 260 حرفاً فيفشل
-`aot_android_asset_bundle`. لذلك يُبنى من نسخة على مسار قصير:
+### 5.6 بناء APK (Android SDK مثبّت — والمشكلة: المسار طويل)
+مسار هذه المساحة ~160 حرفاً، ومسار مجلد البناء يتجاوز حد ويندوز 260 حرفاً فيفشل
+`aot_android_asset_bundle` (خط `CupertinoIcons.ttf`). **الحل المجرَّب:** اربط المساحة بقرص قصير وابنِ منه:
 ```powershell
-robocopy app C:\csit-build\app /E /XD build .dart_tool .gradle
-cd C:\csit-build\app; flutter pub get; flutter gen-l10n; flutter build apk --release
+subst X: <مسار csit-app المطلق>
+cd X:\app; flutter build apk --release
 ```
-الناتج: `C:\csit-build\app\build\app\outputs\flutter-apk\app-release.apk` (موقّع بمفتاح debug — للتجربة لا للنشر).
+مع الإعدادين الموجودين في `app/android/gradle.properties`:
+`kotlin.incremental=false` و`kotlin.compiler.execution.strategy=in-process`
+(بلا هما يفشل Kotlin daemon بـ«different roots» عند تغيير جذر المسار).
+الناتج: `X:\app\build\app\outputs\flutter-apk\app-release.apk` — موقّع بمفتاح debug (للتجربة لا للنشر).
+البديل عند تعذّر `subst`: نسخة على `C:\csit-build` بنفس الأوامر.
+
+### 5.7 تشغيل الخدمات محلياً (عرض حي)
+```powershell
+# 1) قاعدة البيانات + بيانات العرض
+cd api; $env:PGPASSWORD='<PW>'; $env:DATABASE_URL='postgresql+psycopg://postgres@127.0.0.1:5432/csit'
+python -m alembic upgrade head; python scripts/seed.py; python scripts/demo_seed.py
+python scripts/create_admin.py ADMIN-001 "مدير الكلية" "Admin#2026"
+# 2) الـAPI
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+# 3) لوحة التحكم (نافذة أخرى) — proxy /api إلى 8000
+cd admin; npm run dev            # http://localhost:5173
+# 4) تطبيق الويب (نافذة أخرى)
+cd X:\app; flutter build web --release --dart-define=API_BASE_URL=http://127.0.0.1:8000
+cd build\web; python -m http.server 8080 --bind 127.0.0.1   # http://127.0.0.1:8080
+```
+حسابات العرض: تدريسي `T-100` / طالب `S-100` / مدير `ADMIN-001` — كلمة المرور للأولين `Test#12345` وللمدير `Admin#2026`.
 
 ---
 
@@ -200,7 +234,7 @@ cd C:\csit-build\app; flutter pub get; flutter gen-l10n; flutter build apk --rel
 3. **معرّفات UUID في الاختبارات**: مرّر `uuid.UUID(...)` لا نصاً عند `db.get(...)` أو المقارنات، وإلا ظهر `'str' object has no attribute 'hex'`.
 4. **SQLite يعيد تواريخ بلا منطقة زمنية** → استخدم `app.security.as_utc()` قبل أي مقارنة.
 5. **تهيئة الاختبارات على PostgreSQL**: `conftest._reset_schema()` يُسقط أنواع Enum بعد `drop_all` (لأن `drop_all` لا يفعلها).
-6. **مسارات أطول من 260 حرفاً**: لا يفتحها Python على ويندوز. استخدم بادئة `\\?\` مع المسار المطلق (هكذا قُرئ ملف الخطة المرفق). **ونفس القيد يضرب بناء APK**: مسار هذه المساحة طويلة (~160 حرفاً)، ومسار `build/app/intermediates/flutter/release/flutter_assets/...` يتجاوز 260 فتفشل كتابة خط `CupertinoIcons.ttf` بـ`IconTreeShakerException`. الحل المجرَّب: ابنِ من نسخة على مسار قصير (`C:\csit-build`) — انظر 5.6.
+6. **مسارات أطول من 260 حرفاً**: لا يفتحها Python على ويندوز. استخدم بادئة `\\?\` مع المسار المطلق (هكذا قُرئ ملف الخطة المرفق). **ونفس القيد يضرب بناء APK**: مسار هذه المساحة ~160 حرفاً، ومسارات `build/app/intermediates/flutter/release/flutter_assets/...` تتجاوز 260 فتسقط كتابة الخطوط بـ`IconTreeShakerException`. **الحل النهائي المجرَّب:** `subst X: <المساحة>` والبناء من `X:\app` (5.6).
 7. **PowerShell 5.1**: `>` ينتج UTF‑16؛ لا تعتمد عليه لملفات UTF‑8. والأفضل كتابة سكربتات Python بدل حشو JSON في سطر الأوامر.
 8. **ملفات المصدر العربية**: عند التعديل بمطابقة نص عربي قد تفشل المطابقة بسبب التشكيل الخفي — استخدم مرساة إنجليزية (سطر `import ...` مثلاً).
 9. **Flutter في هذه البيئة**: يحتاج `LOCALAPPDATA` و`PUB_CACHE` (وإلا «Could not find the pub cache»)، و`${env:ProgramFiles(x86)}` لأمر `flutter test`.
@@ -212,6 +246,8 @@ cd C:\csit-build\app; flutter pub get; flutter gen-l10n; flutter build apk --rel
 15. **لا تقرأ `AppLocalizations.of(context)` في `initState`**: يُرمى assertion أثناء التهيئة ويبقى المؤشر دوّاراً إلى الأبد. اقرأ الترجمة بعد `await` مع فحص `mounted`.
 16. **ARB بمعاملات**: كل مفتاح بمعامل يحتاج `@key.placeholders` وإلا يفشل `flutter gen-l10n`؛ والأعداد من نوع `int`.
 17. **خطوط Cupertino**: `flutter build web` يحذّر إن لم تضف `cupertino_icons` (mobile_scanner يشير إلى أيقوناتها) — أُضيفت.
+18. **Kotlin daemon بعد تغيير جذر المسار** (subst/نسخة): يفشل بـ«Could not close incremental caches … different roots». الحل المثبت في `android/gradle.properties`: `kotlin.incremental=false` + `kotlin.compiler.execution.strategy=in-process`، وبعدها `gradlew --stop` مرة واحدة إن بقي كاش قديم.
+19. **git غير مدرج على PATH** في هذه البيئة: استخدم `C:\Program Files\Git\cmd\git.exe` مباشرة (أو `$env:Path += ';C:\Program Files\Git\cmd'`).
 
 ---
 
@@ -223,6 +259,11 @@ cd C:\csit-build\app; flutter pub get; flutter gen-l10n; flutter build apk --rel
 - صيغة رمز QR المعروض: `csit:v1:<session_id>:<token>` — موثقة في `qr_payload.dart`، وأي شاشة عرض رمز مستقبلية تستخدمها.
 - المتبقي: تثبيت APK وتجربة الكاميرا والمسح على هاتف حقيقي (لا يُثبتها البناء) — تُجرَّب في الاعتماد التجريبي N7.
 - **APK:** بُني بنجاح أول مرة (66.5MB، موقّع debug) — يُعاد بناؤه من مسار قصير كما في 5.6.
+
+### N3 — الـAPI: المواد والإعلانات والإشعارات والدرجات — ✅ منجز (26 ت10 2026)
+- أُنجز: التقييمات وإدخال الدرجات الدفعي (مسودة) والنشر بموافقة مدير الكلية مع تدقيق كل تعديل وإشعار المسجَّلين، ومصفوفة درجات المادة وتصدير Excel، والمواد (رفع PDF/رابط + تنزيل برابط موقّع 10 دقائق)، والإعلانات بخمسة نطاقات وجدولة نشر وعلامة مقروء، وصندوق الإشعارات و`fcm-token`.
+- القبول متحقق: 19 اختباراً جديداً (المطلوب ≥12) → **62/62** على SQLite وPostgreSQL · `alembic check` نظيف بعد الترحيل 0003 · كل إدخال/تعديل درجة ونشر مسجَّل في `audit_logs` · `smoke_n3` أخضر عبر HTTP.
+- ملاحظة: الإرسال الفعلي عبر FCM مؤجّل (يُخزَّن الرمز فقط) كما في الخطة.
 
 ### N2 — تطبيق Flutter: الجدول والمواد والدرجات
 - الجدول من `GET /timetable` (+ تغييرات)، المواد من `offerings/{id}/materials` (يحتاج بناء نقاط المواد أولاً — انظر N3)، الدرجات من `GET /grades`.
@@ -244,8 +285,9 @@ cd C:\csit-build\app; flutter pub get; flutter gen-l10n; flutter build apk --rel
 - نسخ احتياطي آلي + فحص استرجاع شهري (سكربت + توثيق).
 - `docker-compose.yml` للنشر على سيرفر الجامعة + Nginx/Caddy + HTTPS + `/health`.
 
-### N6 — Git وCI
-- `git init` + أول التزام + رفع إلى GitHub، ثم التأكد من نجاح `.github/workflows/ci.yml` فعلياً.
+### N6 — Git وCI — 🟡 جزئي (26 ت10 2026)
+- ✅ `git init -b main` + أول التزام `f621fda` (166 ملفاً، بلا مخرجات بناء).
+- ⏳ الباقي: إنشاء مستودع GitHub + `git remote add` + `push`، ثم التأكد من نجاح `.github/workflows/ci.yml` فعلياً (كل أوامره الثلاثة تُنفَّذ محلياً بنجاح بالفعل).
 
 ### N7 — الاعتماد التجريبي (المرحلة 6 من الخطة)
 - شعبة واحدة لأسبوعين، درجات مادة واحدة، 20 مختبِراً في Play المغلقة (14 يوماً)، ثم تقرير أخطاء وتحسينات.
@@ -285,3 +327,4 @@ cd C:\csit-build\app; flutter pub get; flutter gen-l10n; flutter build apk --rel
 - **25 ت10 2026:** المرحلة 1 (29 جدولاً + الأقسام + لوحة أولية) والمرحلة 2 (مصادقة + استيراد + تدقيق) — 27 اختباراً على القاعدتين.
 - **26 ت10 2026:** المرحلة 3 (حضور QR + جدول + تعارضات + فهرس جزئي + CI) — **43 اختباراً** على القاعدتين، ونموذج الشاشات الثماني.
 - **26 ت10 2026 (تكملة):** N1 — الحضور في Flutter (مسح QR للطالب + قائمة لحظية وQR متجدد للتدريسي) — **27/27** اختبار واجهة، `analyze` نظيف، `build web` ناجح، **أول APK ناجح (66.5MB)**، وإعادة إنشاء `ci.yml` المفقود.
+- **26 ت10 2026 (N3):** درجات ومواد وإعلانات وإشعارات في الـAPI + ترحيل 0003 + CORS — **62/62** على القاعدتين، `smoke_n3` أخضر، حل نهائي لمسار البناء الطويل (`subst X:` + إعدادا Kotlin)، وتهيئة git بأول التزام.
