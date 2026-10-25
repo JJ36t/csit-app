@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.db
+.env
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+
+# Flutter / Dart
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# „Œ—Ã«  «·»‰«¡ (APK/AAB)
+*.apk
+*.aab
+
+# „”«Õ… ⁄„· „Õ·Ì… („—›ﬁ« ° ”Ã·« ° ⁄„·Ì«  Œ·›Ì…)
+.zwork/
+
+# „Œ—Ã«  «·—›⁄ √À‰«¡ «· ‘€Ì·/«·«Œ »«—
+api/uploads/
+api/test_uploads/

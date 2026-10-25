@@ -1,0 +1,2034 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>شاشات تطبيق كلية علوم الحاسوب وتكنولوجيا المعلومات — جامعة القادسية</title>
+<style>
+  /* ---------- أساسيات ---------- */
+  :root{
+    --primary:#1F4E79;
+    --primary-deep:#173D5E;
+    --secondary:#2E74B5;
+    --bg:#F7F9FC;
+    --surface:#FFFFFF;
+    --text:#212121;
+    --muted:#5B6875;
+    --soft:#7A8794;
+    --border:#DCE4EE;
+    --border-strong:#C6D2E0;
+    --success:#1B7A55;
+    --success-soft:#E6F4EE;
+    --warn:#8A4B00;
+    --warn-soft:#FBF0DF;
+    --danger:#B3261E;
+    --danger-soft:#FBEAE8;
+    --info-soft:#EEF4FA;
+    --radius:12px;
+    --font-ui:system-ui, Tahoma, "Segoe UI", Arial, sans-serif;
+    --font-head:Tahoma, system-ui, "Segoe UI", Arial, sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    color:var(--text);
+    background-color:#EDF2F8;
+    background-image:
+      linear-gradient(rgba(31,78,121,.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(31,78,121,.055) 1px, transparent 1px);
+    background-size:48px 48px;
+    font-family:var(--font-ui);
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  h1,h2,h3,h4,p,dl,dd,dt,figure,ul{margin:0}
+  ul{padding:0;list-style:none}
+  a{color:inherit}
+  .icon{
+    width:20px;height:20px;flex:none;
+    fill:none;stroke:currentColor;stroke-width:1.7;
+    stroke-linecap:round;stroke-linejoin:round;
+  }
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;direction:ltr;unicode-bidi:isolate}
+  .sr-only{
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+  .sprite{position:absolute;width:0;height:0;overflow:hidden}
+  a:focus-visible,button:focus-visible{
+    outline:2px solid var(--secondary);outline-offset:2px;
+  }
+
+  /* ---------- رأس الصفحة ---------- */
+  .page-head{
+    max-width:1840px;margin:0 auto;
+    padding:42px 40px 24px;
+    display:grid;grid-template-columns:minmax(0,1fr) auto;
+    gap:36px;align-items:end;
+    border-bottom:1px solid #D3DFEC;
+  }
+  .brandline{display:flex;align-items:center;gap:11px;margin-bottom:20px}
+  .crest{
+    width:42px;height:42px;border:1px solid #B9CADB;border-radius:12px;
+    display:grid;place-items:center;color:var(--primary);
+    background:rgba(255,255,255,.72);
+  }
+  .crest .icon{width:25px;height:25px}
+  .uni{font-size:10px;color:var(--muted);line-height:1.5}
+  .college{font-size:12px;font-weight:700;color:#2D4053;line-height:1.5}
+  .eyebrow{font-size:10px;font-weight:700;color:var(--secondary);line-height:1.5}
+  .page-head h1{
+    font-family:var(--font-head);
+    font-size:clamp(26px, 2.7vw, 38px);
+    font-weight:700;line-height:1.3;
+    color:var(--primary);
+    margin:6px 0 8px;
+  }
+  .lede{max-width:64ch;font-size:13px;line-height:1.75;color:var(--muted)}
+  .specs{
+    display:flex;align-items:stretch;gap:0;
+    background:rgba(255,255,255,.8);
+    border:1px solid #D3DFEC;border-radius:12px;
+    padding:13px 2px;
+  }
+  .specs > div{padding:0 15px;border-inline-start:1px solid #DCE6F1}
+  .specs > div:first-child{border-inline-start:0}
+  .specs dt{font-size:10px;color:var(--muted);line-height:1.5;white-space:nowrap}
+  .specs dd{margin:2px 0 0;font-size:12.5px;font-weight:700;line-height:1.5;white-space:nowrap}
+  .swatch-line{display:flex;align-items:center;gap:4px;min-height:19px}
+  .swatch{width:12px;height:12px;border-radius:3px;border:1px solid rgba(33,33,33,.16);display:inline-block}
+  .hex{font-size:9.5px;color:var(--muted);font-weight:600;margin-inline-start:2px}
+
+  .mockbar{
+    width:calc(100% - 80px);max-width:1760px;margin:22px auto 0;
+    display:flex;align-items:flex-start;gap:9px;
+    background:#FBF3E4;border:1px solid #E8D5AE;border-radius:12px;
+    padding:10px 14px;color:#6B4A12;
+  }
+  .mockbar .icon{width:17px;height:17px;margin-top:1px}
+  .mockbar p{font-size:11.5px;line-height:1.65}
+  .mockbar b{font-weight:700}
+  .mockbar span{color:#7C5C26}
+
+  /* ---------- شبكة الشاشات ---------- */
+  .board{
+    --scale:1;
+    max-width:1840px;margin:0 auto;
+    padding:44px 40px 56px;
+    display:grid;
+    grid-template-columns:repeat(4, calc(390px * var(--scale)));
+    justify-content:center;
+    gap:54px 40px;
+  }
+  .phone-card{
+    width:calc(390px * var(--scale));
+    margin:0;display:flex;flex-direction:column;gap:13px;
+    scroll-margin-top:24px;
+  }
+  .slot{
+    position:relative;
+    width:calc(390px * var(--scale));
+    height:calc(844px * var(--scale));
+  }
+  .phone{
+    position:absolute;top:0;inset-inline-start:0;
+    width:390px;height:844px;
+    display:flex;flex-direction:column;
+    background:var(--bg);
+    border:1px solid #B4C5D7;
+    border-radius:32px;
+    overflow:hidden;
+    box-shadow:0 30px 60px -28px rgba(23,61,94,.46), 0 3px 10px rgba(23,61,94,.08);
+    transform:scale(var(--scale));
+    transform-origin:top right;
+    direction:rtl;
+  }
+  .cap{
+    display:flex;align-items:center;gap:7px;
+    font-size:12.5px;font-weight:700;color:#223342;
+    padding-inline-start:1px;white-space:nowrap;
+  }
+  .cap::before{content:"";display:inline-block;width:14px;height:2px;background:var(--secondary);border-radius:2px;flex:none}
+  .cap-num{color:var(--secondary);font-size:12px;font-weight:700}
+
+  /* ---------- هيكل الشاشة ---------- */
+  .status{
+    flex:0 0 28px;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:7px 20px 0;
+    font-size:10px;font-weight:700;color:#33475B;
+  }
+  .status-icons{display:inline-flex;align-items:center;gap:5px;direction:ltr}
+  .stat-ico{width:16px;height:11px;fill:currentColor;stroke:none}
+  .stat-ico.battery{width:23px}
+  .appbar{
+    flex:0 0 52px;
+    display:flex;align-items:center;gap:8px;
+    padding:0 16px;
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+  }
+  .appbar-title{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+  .rule{width:3px;height:15px;border-radius:2px;background:var(--primary);flex:none}
+  .appbar h2{
+    font-family:var(--font-head);
+    font-size:16px;font-weight:700;line-height:1.4;color:var(--text);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .iconbtn{
+    position:relative;
+    width:38px;height:38px;flex:none;
+    display:grid;place-items:center;
+    border:1px solid transparent;border-radius:12px;
+    background:transparent;color:#33475B;
+    padding:0;cursor:pointer;
+  }
+  .iconbtn:hover{background:#EFF4FA}
+  .iconbtn:active{background:#E3EBF4}
+  .iconbtn .icon{width:19px;height:19px}
+  .notif-dot{
+    position:absolute;top:7px;inset-inline-end:7px;
+    width:6px;height:6px;border-radius:50%;
+    background:var(--danger);border:1px solid var(--surface);
+  }
+  .rolechip{
+    font-size:9px;font-weight:700;color:var(--primary);
+    background:#E9F1F9;border-radius:12px;padding:3px 7px;
+    white-space:nowrap;flex:none;
+  }
+  .appbar-note{font-size:9px;color:var(--muted);white-space:nowrap;flex:none}
+  .body{
+    flex:1;min-height:0;
+    padding:14px 18px 10px;
+    display:flex;flex-direction:column;gap:12px;
+    overflow:hidden;
+  }
+  .body-home{gap:14px}
+  .body-qr{gap:8px}
+
+  /* ---------- عناصر مشتركة ---------- */
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:13px;
+    box-shadow:0 1px 2px rgba(23,61,94,.035);
+  }
+  .row-between{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .label{font-size:10px;font-weight:700;color:var(--muted);line-height:1.5}
+  .meta{font-size:10px;color:var(--muted);line-height:1.55}
+  .chip{
+    display:inline-flex;align-items:center;gap:4px;
+    border:1px solid transparent;border-radius:12px;
+    padding:2px 7px;
+    font-size:8.5px;font-weight:700;line-height:1.55;
+    white-space:nowrap;
+  }
+  .chip .dot{width:5px;height:5px}
+  .chip-info{background:#E9F1F9;color:var(--primary)}
+  .chip-muted{background:#EEF2F7;color:#5B6875}
+  .chip-success{background:var(--success-soft);color:var(--success)}
+  .chip-warn{background:var(--warn-soft);color:var(--warn)}
+  .chip-danger{background:var(--danger-soft);color:var(--danger)}
+  .chip-outline{background:transparent;border-color:var(--border-strong);color:var(--muted)}
+  .dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex:none;background:currentColor}
+  .textlink{
+    font-size:9.5px;font-weight:700;color:var(--secondary);
+    text-decoration:none;white-space:nowrap;
+  }
+  .textlink:hover{text-decoration:underline}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    min-height:46px;padding:10px 14px;
+    border:1px solid transparent;border-radius:var(--radius);
+    font-family:inherit;font-size:13px;font-weight:700;line-height:1.25;
+    text-decoration:none;cursor:pointer;
+    transition:background-color .15s ease, border-color .15s ease;
+  }
+  .btn .icon{width:18px;height:18px}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:hover{background:var(--primary-deep)}
+  .btn-outline{background:var(--surface);border-color:var(--border-strong);color:var(--primary)}
+  .btn-outline:hover{background:#F0F5FA}
+  .btn-danger-outline{background:var(--surface);border-color:#E3BDB9;color:var(--danger)}
+  .btn-danger-outline:hover{background:#FDF4F3}
+  .btn[disabled],.btn.is-disabled{
+    background:#DCE5EE;color:#56646F;border-color:#DCE5EE;
+    cursor:not-allowed;
+  }
+  .progress{height:7px;background:#E4ECF5;border-radius:6px;overflow:hidden}
+  .progress > span{display:block;height:100%;background:var(--primary);border-radius:6px}
+  .sec-head{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:19px}
+  .sec-title{display:flex;align-items:center;gap:7px;min-width:0}
+  .sec-title .rule{height:13px}
+  .sec-title h2{font-size:13px;font-weight:700;line-height:1.4;white-space:nowrap}
+  .count{
+    font-size:8.5px;font-weight:700;color:var(--muted);
+    background:#EDF2F8;border-radius:12px;padding:1px 6px;
+  }
+  .screen-foot{
+    margin-top:auto;text-align:center;
+    font-size:8px;line-height:1.5;color:#5B6875;
+  }
+
+  /* ---------- التنقل السفلي ---------- */
+  .tabbar{
+    flex:0 0 58px;
+    display:grid;grid-template-columns:repeat(4,1fr);
+    background:var(--surface);
+    border-top:1px solid var(--border);
+    padding:3px 7px 0;
+  }
+  .tab{
+    position:relative;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    text-decoration:none;color:#6B7887;
+    font-size:9.5px;line-height:1.2;
+    padding-top:4px;
+  }
+  .tab .icon{width:20px;height:20px;stroke-width:1.7}
+  .tab.is-active{color:var(--primary);font-weight:700}
+  .tab.is-active .icon{stroke-width:2}
+  .tab.is-active::before{
+    content:"";position:absolute;top:-1px;inset-inline:24%;
+    height:2px;background:var(--primary);border-radius:0 0 2px 2px;
+  }
+  .tab:hover{color:var(--primary)}
+  .homebar{flex:0 0 18px;display:grid;place-items:center}
+  .homebar::after{content:"";width:118px;height:4px;border-radius:999px;background:#2C4053;opacity:.72}
+
+  /* ---------- 1. الدخول ---------- */
+  .login{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg)}
+  .login-cover{
+    flex:0 0 372px;position:relative;overflow:hidden;
+    background:var(--primary);color:#fff;
+    padding:16px 22px 34px;
+    display:flex;flex-direction:column;
+  }
+  .cover-art{
+    position:absolute;inset-inline-end:-34px;bottom:-18px;
+    width:330px;height:230px;color:#93C4EA;opacity:.34;
+    pointer-events:none;
+  }
+  .cover-top{
+    position:relative;z-index:2;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-size:9px;color:rgba(255,255,255,.76);line-height:1.5;
+  }
+  .cover-main{position:relative;z-index:2;margin-top:auto;display:flex;align-items:center;gap:12px}
+  .logo-mark{
+    width:52px;height:52px;flex:none;border:1.5px solid rgba(255,255,255,.78);
+    border-radius:12px;display:grid;place-items:center;
+    background:rgba(255,255,255,.07);
+  }
+  .logo-mark .icon{width:30px;height:30px;stroke-width:1.5}
+  .wordmark{
+    font-family:var(--font-head);
+    font-size:30px;font-weight:700;line-height:1.2;color:#fff;
+  }
+  .wordmark-sub{font-size:9.5px;line-height:1.55;color:rgba(255,255,255,.82);margin-top:3px}
+  .cover-foot{
+    position:relative;z-index:2;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    border-top:1px solid rgba(255,255,255,.2);
+    margin-top:15px;padding-top:9px;
+    font-size:8.5px;color:rgba(255,255,255,.74);
+  }
+  .login-sheet{
+    flex:1;min-height:0;position:relative;z-index:2;
+    margin-top:-22px;padding:0 18px 12px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .login-card{padding:18px 16px 16px;box-shadow:0 14px 34px -18px rgba(23,61,94,.4)}
+  .login-title{font-family:var(--font-head);font-size:19px;font-weight:700;line-height:1.4;color:var(--text)}
+  .login-sub{font-size:10px;line-height:1.65;color:var(--muted);margin-top:2px}
+  .login-form{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field label{font-size:10px;font-weight:700;color:#3D4C5C;line-height:1.5}
+  .input{
+    display:flex;align-items:center;gap:7px;
+    height:44px;padding:0 10px;
+    background:var(--surface);
+    border:1px solid var(--border-strong);border-radius:12px;
+  }
+  .input:focus-within{border-color:var(--secondary);box-shadow:0 0 0 3px rgba(46,116,181,.2)}
+  .input .icon{width:17px;height:17px;color:#748392}
+  .input input{
+    flex:1;min-width:0;height:100%;
+    border:0;outline:none;background:transparent;
+    font-family:inherit;font-size:12.5px;color:var(--text);
+    padding:0;
+  }
+  .input input::placeholder{color:#667382}
+  .id-input input{direction:ltr;text-align:right;font-variant-numeric:tabular-nums}
+  .reveal{
+    border:0;background:transparent;color:var(--secondary);
+    font-family:inherit;font-size:9px;font-weight:700;
+    padding:4px 2px;cursor:pointer;white-space:nowrap;
+  }
+  .check{display:flex;align-items:center;gap:6px;font-size:9.5px;color:#3D4C5C;line-height:1.5;cursor:pointer}
+  .check input{width:15px;height:15px;margin:0;accent-color:var(--primary)}
+  .notice{
+    display:flex;align-items:flex-start;gap:6px;
+    background:var(--info-soft);border:1px solid #D7E4F1;
+    border-radius:12px;padding:7px 9px;
+    font-size:8.5px;line-height:1.6;color:#3D556B;
+  }
+  .notice .icon{width:14px;height:14px;color:var(--secondary);margin-top:1px}
+  .forgot{font-size:8.5px;line-height:1.6;color:var(--muted);text-align:center}
+  .forgot b{color:#3D4C5C;font-weight:700}
+  .login-foot{
+    margin-top:auto;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-size:8px;color:#5B6875;line-height:1.5;padding:0 3px;
+  }
+
+  /* ---------- 2. الرئيسية ---------- */
+  .greet .date{font-size:9px;color:var(--muted);line-height:1.5}
+  .greet h1{
+    font-family:var(--font-head);
+    font-size:21px;font-weight:700;line-height:1.35;
+    color:var(--text);margin:1px 0 2px;
+  }
+  .greet .who{font-size:8.5px;color:var(--muted);line-height:1.6}
+  .att{padding:12px 13px;display:flex;flex-direction:column;gap:6px}
+  .att-main{display:flex;align-items:center;gap:10px;min-height:41px}
+  .att-pct{display:flex;align-items:flex-start;color:var(--primary);direction:ltr}
+  .att-pct .num{font-size:37px;font-weight:700;line-height:.95}
+  .pct-sign{font-size:15px;font-weight:700;line-height:1;margin-top:2px}
+  .att-copy{margin-inline-start:auto;text-align:start;font-size:9px;line-height:1.65;color:var(--muted)}
+  .att-copy b{font-size:12.5px;color:var(--text);font-weight:700}
+  .att-copy span{display:block;color:#6C7987}
+  .gauge{position:relative;height:6px;border-radius:6px;background:#E4ECF5;margin-top:1px}
+  .gauge-fill{display:block;height:100%;border-radius:6px;background:var(--primary)}
+  .gauge-mark{position:absolute;top:-3px;width:2px;height:12px;border-radius:1px;background:#8CA0B4}
+  .gauge-labels{display:flex;align-items:center;justify-content:space-between;font-size:7.5px;line-height:1.3;color:#5B6875}
+  .gauge-labels span:nth-child(2){color:#4E657A;font-weight:700}
+  .lectures{padding:0;overflow:hidden}
+  .lecture{
+    display:grid;grid-template-columns:43px 1fr auto;gap:9px;align-items:center;
+    padding:9px 11px;min-height:70px;
+  }
+  .lecture + .lecture{border-top:1px solid var(--border)}
+  .lecture.is-now{background:#EFF5FB}
+  .lect-time{
+    display:flex;flex-direction:column;align-items:center;gap:0;
+    border-inline-end:1px solid var(--border);
+    padding-inline-end:8px;
+  }
+  .lect-time b{font-size:11.5px;font-weight:700;color:#31475C;line-height:1.4}
+  .lect-time span{font-size:7.5px;color:#5B6875;line-height:1.4}
+  .lect-body h3{font-size:12px;font-weight:700;line-height:1.4;color:var(--text)}
+  .lect-body p{font-size:8.5px;line-height:1.5;color:var(--muted);margin-top:1px}
+  .lect-side{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+  .mini-link{font-size:8px;font-weight:700;color:var(--secondary);text-decoration:none}
+  .mini-link:hover{text-decoration:underline}
+  .announce{
+    position:relative;
+    background:var(--info-soft);border:1px solid #D5E3F1;
+    border-radius:12px;padding:10px 12px;
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .announce-head{display:flex;align-items:center;gap:5px;font-size:8.5px;font-weight:700;color:#3C5A74}
+  .announce-head .icon{width:13px;height:13px;color:var(--secondary)}
+  .announce-head .date{margin-inline-start:auto;font-size:8px;font-weight:500;color:#4F6B82}
+  .announce h3{font-size:12px;font-weight:700;line-height:1.5;color:#173D5E}
+  .announce p{font-size:9px;line-height:1.65;color:#3E586E}
+  .announce .src{font-size:7.5px;color:#4F6B82;line-height:1.4}
+  .screen-foot a{color:var(--secondary);text-decoration:none;font-weight:700}
+
+  /* ---------- 3. الجدول ---------- */
+  .tt-head h1{font-family:var(--font-head);font-size:17px;font-weight:700;line-height:1.4;color:var(--text)}
+  .tt-head p{font-size:8.5px;color:var(--muted);line-height:1.5;margin-top:1px}
+  .days{
+    display:grid;grid-template-columns:repeat(6,1fr);gap:3px;
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:4px;
+  }
+  .day{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+    min-height:48px;padding:4px 0;
+    border:0;border-radius:12px;background:transparent;
+    font-family:inherit;color:var(--muted);cursor:pointer;
+  }
+  .day span:first-child{font-size:8.5px;line-height:1.35;font-weight:600}
+  .day .num{font-size:12px;font-weight:700;line-height:1.4;color:#31475C}
+  .day:hover:not(.is-selected){background:#F0F5FA}
+  .day.is-selected{background:var(--primary);color:#fff}
+  .day.is-selected .num{color:#fff}
+  .day-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:9px;color:#3C4C5C}
+  .tt-stats{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:5px 0;
+  }
+  .tt-stats > div{text-align:center;border-inline-start:1px solid var(--border);line-height:1.35}
+  .tt-stats > div:first-child{border-inline-start:0}
+  .tt-stats b{display:block;font-size:13px;font-weight:700;color:var(--primary)}
+  .tt-stats span{font-size:8px;color:var(--muted)}
+  .day-summary b{font-weight:700;color:var(--text)}
+  .agenda{display:flex;flex-direction:column;gap:7px}
+  .slot{display:grid;grid-template-columns:39px 11px 1fr;gap:5px;min-height:78px}
+  .slot-time{text-align:center;padding-top:7px;display:flex;flex-direction:column;gap:0}
+  .slot-time b{font-size:10.5px;font-weight:700;color:#31475C;line-height:1.4}
+  .slot-time span{font-size:7px;color:#5B6875;line-height:1.4}
+  .slot-rail{position:relative;display:flex;justify-content:center}
+  .slot-rail::before{content:"";position:absolute;top:0;bottom:-7px;width:1px;background:#D5E0EC}
+  .slot:last-child .slot-rail::before{bottom:auto;height:26px}
+  .slot-dot{
+    position:relative;z-index:1;width:7px;height:7px;border-radius:50%;
+    border:2px solid var(--secondary);background:var(--surface);margin-top:12px;
+  }
+  .slot-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:8px 10px;
+    display:flex;flex-direction:column;gap:2px;justify-content:center;
+  }
+  .slot-top{display:flex;align-items:flex-start;justify-content:space-between;gap:5px}
+  .slot-card h3{font-size:11px;font-weight:700;line-height:1.45;color:var(--text)}
+  .slot-card p{font-size:8px;line-height:1.55;color:var(--muted)}
+  .slot-extra{display:flex;align-items:center;gap:4px;font-size:7.5px;color:var(--warn);line-height:1.4}
+  .changes{padding:9px 11px;display:flex;flex-direction:column;gap:4px}
+  .changes-head{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;color:var(--primary);line-height:1.5}
+  .changes-head .icon{width:13px;height:13px}
+  .changes li{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:8px;line-height:1.5;color:var(--muted)}
+  .changes li b{font-weight:600;color:#3B4C5C}
+
+  /* ---------- 4. مسح الحضور ---------- */
+  .qr-context{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:10px 11px}
+  .qr-context h1{font-family:var(--font-head);font-size:14px;font-weight:700;line-height:1.4;color:var(--text)}
+  .qr-context p{font-size:8.5px;line-height:1.55;color:var(--muted);margin-top:1px}
+  .pulse{width:5px;height:5px;border-radius:50%;background:currentColor;animation:pulse 2.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .scanner{
+    position:relative;height:360px;border-radius:12px;overflow:hidden;
+    background:#12293D;color:#BFDCF2;
+  }
+  .scanner::before{
+    content:"";position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size:24px 24px;
+  }
+  .scanner-top{
+    position:absolute;top:10px;left:12px;right:12px;z-index:2;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-size:7.5px;color:rgba(255,255,255,.68);
+  }
+  .scanner-top span{display:inline-flex;align-items:center;gap:4px}
+  .corner{position:absolute;width:31px;height:31px;border:2px solid #69AFDF;z-index:2}
+  .corner.tl{top:16px;left:16px;border-right:0;border-bottom:0;border-top-left-radius:10px}
+  .corner.tr{top:16px;right:16px;border-left:0;border-bottom:0;border-top-right-radius:10px}
+  .corner.bl{bottom:16px;left:16px;border-right:0;border-top:0;border-bottom-left-radius:10px}
+  .corner.br{bottom:16px;right:16px;border-left:0;border-top:0;border-bottom-right-radius:10px}
+  .qr-ghost{position:absolute;inset:0;display:grid;place-items:center;color:#B0D5EF;opacity:.32}
+  .qr-ghost svg{width:84px;height:84px}
+  .scanline{
+    position:absolute;left:11%;right:11%;top:50%;height:2px;z-index:2;
+    background:#7CC0EE;box-shadow:0 0 14px rgba(46,116,181,.9);
+    animation:scan 3.8s ease-in-out infinite;
+  }
+  @keyframes scan{0%,100%{transform:translateY(-66px);opacity:.35}50%{transform:translateY(66px);opacity:.95}}
+  .scanner-hint{
+    position:absolute;bottom:11px;left:12px;right:12px;z-index:2;
+    text-align:center;font-size:8px;color:rgba(255,255,255,.62);
+  }
+  .qr-help{font-size:9px;line-height:1.65;color:var(--muted);text-align:center;padding:0 4px}
+  .result{padding:10px 11px;display:flex;flex-direction:column;gap:6px;min-height:140px;justify-content:space-between}
+  .result-head{display:flex;align-items:center;justify-content:space-between;font-size:8px;color:var(--muted)}
+  .result-main{display:flex;align-items:center;gap:8px}
+  .state-icon{
+    width:30px;height:30px;flex:none;border-radius:50%;
+    display:grid;place-items:center;
+    background:var(--warn-soft);color:var(--warn);
+  }
+  .state-icon .icon{width:16px;height:16px}
+  .result-main h3{font-size:14px;font-weight:700;line-height:1.35;color:var(--warn)}
+  .result-main p{font-size:8px;line-height:1.5;color:var(--muted)}
+  .states{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+  .state{
+    display:flex;align-items:center;justify-content:center;gap:3px;
+    padding:3px 0;border-radius:12px;
+    font-size:7.5px;font-weight:600;color:#63717F;
+  }
+  .state.current{background:var(--warn-soft);color:var(--warn);font-weight:700}
+  .device-note{display:flex;align-items:center;justify-content:center;gap:4px;font-size:7.5px;color:#5B6875;line-height:1.5}
+  .device-note .icon{width:12px;height:12px}
+
+  /* ---------- 5. قائمة الحاضرين ---------- */
+  .course-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+  .course-head h1{font-family:var(--font-head);font-size:15px;font-weight:700;line-height:1.4;color:var(--text)}
+  .course-head p{font-size:8.5px;line-height:1.55;color:var(--muted);margin-top:1px}
+  .counter{padding:12px 13px;display:flex;flex-direction:column;gap:6px}
+  .counter-main{display:flex;align-items:flex-end;gap:6px}
+  .big-num{font-size:33px;font-weight:700;line-height:1;color:var(--primary)}
+  .counter-label{font-size:10px;line-height:1.5;color:var(--muted);padding-bottom:2px}
+  .counter-label b{color:var(--text);font-weight:700}
+  .counter-pct{margin-inline-start:auto;font-size:11px;font-weight:700;color:var(--primary);padding-bottom:5px}
+  .counter-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:7.5px;color:var(--muted)}
+  .key{display:inline-flex;align-items:center;gap:3px}
+  .key .dot{width:5px;height:5px}
+  .filters{display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none;padding-bottom:1px}
+  .filters::-webkit-scrollbar{display:none}
+  .filter{
+    flex:none;display:inline-flex;align-items:center;gap:3px;
+    height:26px;padding:0 8px;
+    border:1px solid transparent;border-radius:12px;
+    background:transparent;color:var(--muted);
+    font-family:inherit;font-size:8.5px;font-weight:600;cursor:pointer;
+  }
+  .filter:hover{background:#EDF2F8}
+  .filter b{font-weight:700;color:#3B4C5C}
+  .filter.is-active{background:var(--primary);color:#fff}
+  .filter.is-active b{color:#fff}
+  .roster{padding:0;overflow:hidden}
+  .person{
+    display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;
+    min-height:46px;padding:6px 10px;
+  }
+  .person + .person{border-top:1px solid var(--border)}
+  .avatar{
+    width:28px;height:28px;border-radius:50%;
+    display:grid;place-items:center;
+    background:#EDF2F8;color:var(--primary);
+    font-size:9px;font-weight:700;
+  }
+  .pname{font-size:10.5px;font-weight:700;line-height:1.4;color:var(--text)}
+  .pmeta{display:flex;align-items:center;gap:4px;font-size:7.5px;line-height:1.45;color:var(--muted)}
+  .pmeta .num{font-size:7.5px}
+  .state-label{display:inline-flex;align-items:center;gap:4px;font-size:8.5px;font-weight:700;white-space:nowrap}
+  .state-label.present{color:var(--success)}
+  .state-label.late{color:var(--warn)}
+  .state-label.flagged{color:var(--danger)}
+  .state-label.absent{color:#5B6875}
+  .state-label .dot{width:5px;height:5px}
+  .more-link{
+    display:flex;align-items:center;justify-content:center;gap:3px;
+    border-top:1px solid var(--border);
+    padding:6px;font-size:8px;font-weight:700;color:var(--secondary);
+    text-decoration:none;
+  }
+  .more-link:hover{background:#F6F9FC}
+  .close-box{margin-top:auto;display:flex;flex-direction:column;gap:5px}
+  .close-note{font-size:7.5px;line-height:1.5;color:var(--muted);text-align:center}
+  .close-box .btn{min-height:44px;font-size:12px}
+
+  /* ---------- 6. المواد ---------- */
+  .lib-head h1{font-family:var(--font-head);font-size:17px;font-weight:700;line-height:1.4;color:var(--text)}
+  .lib-head p{font-size:8.5px;line-height:1.5;color:var(--muted);margin-top:1px}
+  .lib-stats{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:6px 0;
+  }
+  .lib-stat{text-align:center;border-inline-start:1px solid var(--border);line-height:1.35}
+  .lib-stat:first-child{border-inline-start:0}
+  .lib-stat b{display:block;font-size:13px;font-weight:700;color:var(--primary)}
+  .lib-stat span{font-size:7.5px;color:var(--muted)}
+  .files{padding:0;overflow:hidden}
+  .file{
+    display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;
+    min-height:74px;padding:7px 10px;
+  }
+  .file + .file{border-top:1px solid var(--border)}
+  .pdf{
+    width:34px;height:40px;flex:none;
+    border:1px solid #C9D8E7;border-radius:12px;background:#F1F6FB;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    color:var(--primary);
+  }
+  .pdf .icon{width:16px;height:16px}
+  .pdf span{font-size:6px;font-weight:700;line-height:1}
+  .ftitle{font-size:10.5px;font-weight:700;line-height:1.4;color:var(--text)}
+  .fmeta{font-size:7.5px;line-height:1.55;color:var(--muted);margin-top:1px}
+  .file-side{display:flex;align-items:center;gap:4px}
+  .badge-new{background:var(--primary);color:#fff;font-size:6.5px;font-weight:700;border-radius:12px;padding:2px 5px;line-height:1.2;white-space:nowrap}
+  .dl{
+    width:23px;height:23px;flex:none;border:1px solid var(--border);
+    border-radius:12px;background:#fff;color:#6A7A8A;
+    display:grid;place-items:center;
+  }
+  .dl .icon{width:12px;height:12px}
+  .lib-note{display:flex;align-items:flex-start;gap:5px;font-size:7.5px;line-height:1.6;color:var(--muted);padding:0 2px}
+  .lib-note .icon{width:12px;height:12px;color:var(--secondary);margin-top:1px}
+
+  /* ---------- 7. الدرجات ---------- */
+  .grades-head h1{font-family:var(--font-head);font-size:17px;font-weight:700;line-height:1.4;color:var(--text)}
+  .grades-head p{font-size:8.5px;line-height:1.5;color:var(--muted);margin-top:1px}
+  .hero{padding:12px 13px;display:flex;flex-direction:column;gap:7px;min-height:180px;justify-content:space-between}
+  .hero-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .hero-main{display:flex;align-items:center;gap:8px;min-height:45px}
+  .avg{display:flex;align-items:flex-start;color:var(--primary)}
+  .avg .num{font-size:40px;font-weight:700;line-height:.95}
+  .avg small{font-size:9px;font-weight:600;color:var(--muted);margin-top:4px;margin-inline-start:3px}
+  .stamp{
+    margin-inline-start:auto;
+    border:1.5px solid var(--secondary);border-radius:6px;
+    color:var(--secondary);padding:2px 7px;
+    font-size:9px;font-weight:700;line-height:1.4;text-align:center;
+    transform:rotate(-4deg);
+  }
+  .stamp span{display:block;font-size:6.5px;font-weight:600;opacity:.8}
+  .hero-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:7.5px;color:var(--muted)}
+  .hero-bar{height:5px;background:#E7EEF6;border-radius:5px;overflow:hidden}
+  .hero-bar span{display:block;height:100%;background:var(--secondary);border-radius:5px}
+  .assessments{padding:0;overflow:hidden}
+  .assess{padding:8px 11px;display:flex;flex-direction:column;gap:3px;min-height:92px;justify-content:center}
+  .assess + .assess{border-top:1px solid var(--border)}
+  .assess-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .assess h3{font-size:11px;font-weight:700;line-height:1.4;color:var(--text)}
+  .score{display:flex;align-items:baseline;gap:1px;direction:ltr}
+  .score b{font-size:14px;font-weight:700;color:var(--primary);line-height:1.3}
+  .score span{font-size:8px;color:var(--muted)}
+  .assess-meta{display:flex;align-items:center;gap:5px;font-size:7.5px;color:var(--muted);line-height:1.5}
+  .assess-meta .sep{color:#B4C0CD}
+  .assess-meta b{font-weight:700;color:#3E5163}
+  .microbar{height:4px;border-radius:4px;background:#E9EFF6;overflow:hidden;margin-top:2px}
+  .microbar span{display:block;height:100%;background:var(--secondary);border-radius:4px}
+  .final{
+    border:1px dashed #C4D4E4;background:#FBFCFE;
+    border-radius:12px;padding:11px 12px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .final .icon{width:18px;height:18px;color:var(--muted)}
+  .final h3{font-size:10.5px;font-weight:700;line-height:1.4;color:#3B4C5C}
+  .final p{font-size:7.5px;color:var(--muted);line-height:1.5}
+  .final .chip{margin-inline-start:auto}
+  .grades-note{font-size:7.5px;line-height:1.6;color:#5B6875;padding:0 2px}
+
+  /* ---------- 8. إدخال الدرجات ---------- */
+  .entry-head h1{font-family:var(--font-head);font-size:15px;font-weight:700;line-height:1.4;color:var(--text)}
+  .entry-head p{font-size:8.5px;line-height:1.5;color:var(--muted);margin-top:1px}
+  .settings{padding:9px 10px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mini-field{display:flex;flex-direction:column;gap:3px}
+  .mini-field label{font-size:8px;font-weight:700;color:#3D4C5C;line-height:1.4}
+  .mini-field .input{height:33px;border-radius:12px;padding:0 6px;justify-content:center}
+  .mini-field .input input{font-size:11.5px;font-weight:700;text-align:center;direction:ltr}
+  .mini-field .suffix{font-size:8px;color:var(--muted);flex:none}
+  .entry-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:8px;color:var(--muted)}
+  .entry-summary b{font-weight:700;color:var(--primary)}
+  .entry-progress{width:82px;height:4px;border-radius:4px;background:#E4ECF5;overflow:hidden}
+  .entry-progress span{display:block;height:100%;background:var(--primary);border-radius:4px}
+  .grade-table{padding:0;overflow:hidden}
+  .ghead{
+    display:grid;grid-template-columns:18px 1fr 56px 24px;gap:5px;
+    padding:6px 9px 4px;border-bottom:1px solid var(--border);
+    font-size:7px;color:#5B6875;line-height:1.4;
+  }
+  .ghead span:nth-child(3),.ghead span:nth-child(4){text-align:center}
+  .grow{
+    display:grid;grid-template-columns:18px 1fr 56px 24px;gap:5px;align-items:center;
+    min-height:46px;padding:5px 9px;border-bottom:1px solid var(--border);
+  }
+  .grow:last-child{border-bottom:0}
+  .grow .idx{font-size:7px;color:#5B6875;text-align:center}
+  .gname{font-size:9.5px;font-weight:700;line-height:1.35;color:var(--text)}
+  .gsub{font-size:9px;line-height:1.4;color:#5B6875;margin-top:1px}
+  .grow .input{height:28px;border-radius:8px;padding:0;justify-content:center}
+  .score-input{
+    width:100%;height:100%;border:0;outline:none;background:transparent;
+    font-family:inherit;font-size:11px;font-weight:700;color:var(--text);
+    text-align:center;direction:ltr;font-variant-numeric:tabular-nums;
+    padding:0;
+  }
+  .score-input::placeholder{color:#667382}
+  .grow .of{font-size:7px;color:#5B6875;text-align:center}
+  .grow.has-error{background:#FDF4F3}
+  .grow.has-error .gname{color:var(--danger)}
+  .grow.has-error .input{border-color:#D89A94}
+  .grow.has-error .error{display:block;font-size:6.5px;line-height:1.4;color:var(--danger);margin-top:1px}
+  .grow.pending .input{border-style:dashed}
+  .error{display:none}
+  .entry-more{
+    display:flex;align-items:center;justify-content:center;gap:3px;
+    border-top:1px solid var(--border);padding:5px;
+    font-size:7.5px;font-weight:700;color:var(--secondary);text-decoration:none;
+  }
+  .entry-more:hover{background:#F6F9FC}
+  .publish{
+    margin-top:auto;padding-top:7px;border-top:1px solid var(--border);
+    display:flex;flex-direction:column;gap:5px;
+  }
+  .publish-note{display:flex;align-items:center;gap:4px;font-size:7.5px;line-height:1.5;color:var(--warn)}
+  .publish-note .icon{width:12px;height:12px}
+  .publish-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:6px}
+  .publish-actions .btn{min-height:42px;font-size:10.5px;padding:8px 6px;border-radius:12px}
+  .entry-foot{display:flex;align-items:center;justify-content:space-between;font-size:8.5px;color:#5B6875;line-height:1.4}
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{appearance:textfield;-moz-appearance:textfield}
+
+  /* ---------- ذيل الصفحة ---------- */
+  .page-foot{
+    max-width:1840px;margin:0 auto;
+    padding:0 40px 36px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    font-size:10px;color:#4F5F6E;line-height:1.6;
+  }
+  .page-foot .num{font-size:10px}
+
+  /* ---------- ضبط أحجام النص للقراءة عند 390px ---------- */
+  .status{font-size:10.5px}
+  .rolechip{font-size:10px}
+  .appbar-note{font-size:10px}
+  .chip{font-size:9.5px;padding:3px 7px}
+  .textlink{font-size:10.5px}
+  .sec-title h2{font-size:14px}
+  .count{font-size:9.5px}
+  .screen-foot{font-size:9px}
+  .tab{font-size:10.5px}
+  .cover-top{font-size:10px}
+  .wordmark-sub{font-size:10.5px}
+  .cover-foot{font-size:9.5px}
+  .login-sub{font-size:11px}
+  .field label{font-size:11px}
+  .input input{font-size:13.5px}
+  .reveal{font-size:10px}
+  .check{font-size:10.5px}
+  .notice{font-size:10px}
+  .forgot{font-size:9.5px}
+  .login-foot{font-size:9px}
+  .greet .date{font-size:10.5px}
+  .greet .who{font-size:10px}
+  .att-copy{font-size:10.5px}
+  .att-copy b{font-size:13.5px}
+  .gauge-labels{font-size:9px}
+  .lect-time b{font-size:12.5px}
+  .lect-time span{font-size:9px}
+  .lect-body h3{font-size:13.5px}
+  .lect-body p{font-size:10.5px}
+  .mini-link{font-size:9.5px}
+  .announce-head{font-size:9.5px}
+  .announce-head .date{font-size:9px}
+  .announce h3{font-size:13.5px}
+  .announce p{font-size:11px}
+  .announce .src{font-size:9px}
+  .tt-head p{font-size:10px}
+  .day span:first-child{font-size:9.5px}
+  .day .num{font-size:13px}
+  .day-summary{font-size:10.5px}
+  .tt-stats b{font-size:14px}
+  .tt-stats span{font-size:9px}
+  .slot-time b{font-size:11.5px}
+  .slot-time span{font-size:8.5px}
+  .slot-card h3{font-size:12.5px}
+  .slot-card p{font-size:9.5px}
+  .slot-extra{font-size:9px}
+  .changes-head{font-size:10px}
+  .changes li{font-size:9.5px}
+  .qr-context h1{font-size:15px}
+  .qr-context p{font-size:10px}
+  .scanner-top{font-size:9px}
+  .scanner-hint{font-size:9.5px}
+  .qr-help{font-size:10.5px}
+  .result-head{font-size:9.5px}
+  .result-main p{font-size:10px}
+  .state{font-size:9px}
+  .device-note{font-size:9px}
+  .course-head h1{font-size:16px}
+  .course-head p{font-size:10px}
+  .counter-label{font-size:11px}
+  .counter-pct{font-size:12px}
+  .counter-foot{font-size:9px}
+  .filter{font-size:9.5px;height:27px}
+  .pname{font-size:12px}
+  .pmeta,.pmeta .num{font-size:9px}
+  .state-label{font-size:9.5px}
+  .avatar{font-size:10px}
+  .more-link{font-size:9.5px}
+  .close-note{font-size:9px}
+  .close-box .btn{font-size:13px}
+  .lib-head p{font-size:10px}
+  .lib-stat b{font-size:14px}
+  .lib-stat span{font-size:9px}
+  .ftitle{font-size:12px}
+  .fmeta{font-size:9.5px}
+  .badge-new{font-size:8px}
+  .pdf span{font-size:7.5px}
+  .lib-note{font-size:9px}
+  .grades-head p{font-size:10px}
+  .avg small{font-size:10px}
+  .stamp{font-size:10px}
+  .hero-meta{font-size:9px}
+  .assess h3{font-size:12.5px}
+  .score b{font-size:16px}
+  .score span{font-size:9.5px}
+  .assess-meta{font-size:9.5px}
+  .final h3{font-size:12px}
+  .final p{font-size:9px}
+  .grades-note{font-size:9px}
+  .entry-head h1{font-size:16px}
+  .entry-head p{font-size:10px}
+  .mini-field label{font-size:9.5px}
+  .mini-field .input input{font-size:12.5px}
+  .mini-field .suffix{font-size:9px}
+  .entry-summary{font-size:9.5px}
+  .ghead{font-size:8.5px}
+  .grow .idx{font-size:8.5px}
+  .gname{font-size:11px}
+  .gsub{font-size:9px}
+  .grow .of{font-size:8.5px}
+  .score-input{font-size:12px}
+  .grow.has-error .error{font-size:8px}
+  .entry-more{font-size:9px}
+  .publish-note{font-size:9px}
+  .publish-actions .btn{font-size:11.5px}
+  .entry-foot{font-size:8.5px}
+
+  /* ---------- تكييف المقاسات ---------- */
+  @media (max-width:1799px){
+    .board{--scale:.9;grid-template-columns:repeat(3, calc(390px * var(--scale)));gap:48px 36px}
+  }
+  @media (min-width:1360px) and (max-width:1799px){
+    .board{--scale:1;grid-template-columns:repeat(3, 390px)}
+  }
+  @media (max-width:1279px){
+    .board{grid-template-columns:repeat(2, calc(390px * var(--scale)))}
+    .page-head{grid-template-columns:1fr;gap:20px;align-items:start}
+    .specs{justify-self:start}
+  }
+  @media (max-width:979px){
+    .page-head{padding:32px 24px 20px}
+    .mockbar{margin-inline:24px;max-width:none;width:calc(100% - 48px)}
+    .board{--scale:.8;grid-template-columns:repeat(2, calc(390px * var(--scale)));gap:40px 26px;padding:34px 24px 44px}
+    .page-foot{padding:0 24px 30px}
+  }
+  @media (max-width:719px){
+    .board{--scale:.84;grid-template-columns:calc(390px * var(--scale));gap:36px;padding:30px 16px 42px}
+    .page-head{padding:28px 16px 18px}
+    .mockbar{margin-inline:16px;width:calc(100% - 32px)}
+    .page-foot{padding:0 16px 26px;flex-direction:column;align-items:flex-start;gap:4px}
+    .specs{flex-wrap:wrap;gap:8px 0}
+    .specs > div{padding:0 12px}
+  }
+  @media (max-width:430px){
+    .board{--scale:.8;grid-template-columns:calc(390px * var(--scale));padding-inline:12px}
+    .page-head,.mockbar{padding-inline:12px}
+    .mockbar{margin-inline:12px;width:calc(100% - 24px)}
+    .specs{width:100%}
+    .specs > div{flex:1 1 auto}
+  }
+  @media (max-width:360px){
+    .board{--scale:.7;grid-template-columns:calc(390px * var(--scale))}
+    .page-head h1{font-size:24px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-mark" viewBox="0 0 32 32">
+      <rect x="5" y="5" width="9" height="9" rx="1.6"/>
+      <rect x="5" y="18" width="9" height="9" rx="1.6"/>
+      <rect x="21" y="12" width="6" height="15" rx="1.6"/>
+      <path d="M14 9.5h4.5M14 22.5h4.5M24 9.5h3.5M24 27.5h3.5"/>
+    </symbol>
+    <symbol id="i-signal" viewBox="0 0 18 12">
+      <rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/>
+      <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="currentColor"/>
+      <rect x="10" y="3" width="3" height="9" rx="1" fill="currentColor"/>
+      <rect x="15" y="0.5" width="3" height="11.5" rx="1" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-wifi" viewBox="0 0 18 12">
+      <path d="M9 2C6.1 2 3.5 3.1 1.4 5l1.4 1.4C4.5 4.8 6.7 4 9 4s4.5.8 6.2 2.4L16.6 5C14.5 3.1 11.9 2 9 2zM4.1 8.1 5.5 9.5C6.4 8.7 7.6 8.2 9 8.2s2.6.5 3.5 1.3l1.4-1.4C12.6 6.9 10.9 6.2 9 6.2s-3.6.7-4.9 1.9zM6.8 10.9 9 13l2.2-2.1c-.6-.5-1.4-.8-2.2-.8s-1.6.3-2.2.8z" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-battery" viewBox="0 0 25 12">
+      <rect x="0.5" y="0.5" width="21" height="11" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".5"/>
+      <rect x="22.5" y="3.6" width="1.6" height="4.8" rx=".5" fill="currentColor" fill-opacity=".5"/>
+      <rect x="2" y="2" width="18" height="8" rx="1.5" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-home" viewBox="0 0 24 24">
+      <path d="M3.5 11.2 12 4l8.5 7.2"/>
+      <path d="M5.5 9.8V20h13V9.8"/>
+      <path d="M9.5 20v-5.2h5V20"/>
+    </symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24">
+      <rect x="3.5" y="5" width="17" height="15" rx="2"/>
+      <path d="M3.5 9.5h17M8 3.5v3M16 3.5v3"/>
+      <path d="M7.5 13h3M13.5 13h3M7.5 16.5h3"/>
+    </symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24">
+      <path d="M3.5 6.5h6l2 2h9v11h-17z"/>
+      <path d="M3.5 10.5h17"/>
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24">
+      <path d="M4 4v16h16"/>
+      <path d="M8 16v-4M12 16V8M16 16v-6"/>
+    </symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24">
+      <path d="M6.5 16.5v-4a5.5 5.5 0 0 1 11 0v4l1.5 2h-14z"/>
+      <path d="M10 21a2 2 0 0 0 4 0"/>
+    </symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24">
+      <path d="M4 8V5h3M20 8V5h-3M4 16v3h3M20 16v3h-3"/>
+      <path d="M4 12h16"/>
+    </symbol>
+    <symbol id="i-back" viewBox="0 0 24 24">
+      <path d="M9 5l7 7-7 7"/>
+    </symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24">
+      <path d="M14 6l-6 6 6 6"/>
+    </symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24">
+      <path d="M9 4h6l-1 6 4 4H6l4-4z"/>
+      <path d="M12 14v6"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8"/>
+      <path d="M12 8v4.5l3 1.5"/>
+    </symbol>
+    <symbol id="i-room" viewBox="0 0 24 24">
+      <path d="M12 21s6-5 6-10a6 6 0 1 0-12 0c0 5 6 10 6 10z"/>
+      <circle cx="12" cy="11" r="2.2"/>
+    </symbol>
+    <symbol id="i-user" viewBox="0 0 24 24">
+      <circle cx="12" cy="8.5" r="3.5"/>
+      <path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/>
+    </symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24">
+      <path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/>
+      <circle cx="12" cy="12" r="2.5"/>
+    </symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24">
+      <rect x="5" y="10" width="14" height="10" rx="2"/>
+      <path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10"/>
+      <path d="M12 14v2.5"/>
+    </symbol>
+    <symbol id="i-id" viewBox="0 0 24 24">
+      <rect x="3" y="6" width="18" height="12" rx="2"/>
+      <circle cx="8" cy="11" r="1.8"/>
+      <path d="M5.8 15c.2-1.4 1.1-2 2.2-2s2 .6 2.2 2M14.5 10.5h4M14.5 13.5h3"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <path d="M4 12.5l5 5L20 6.5"/>
+    </symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24">
+      <path d="M12 3.5 21 20H3z"/>
+      <path d="M12 9v5M12 17.2v.3"/>
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24">
+      <path d="M12 4v11M7.5 11l4.5 4.5L16.5 11"/>
+      <path d="M4 20h16"/>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="6.5"/>
+      <path d="M16 16l4.5 4.5"/>
+    </symbol>
+    <symbol id="i-info" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5"/>
+      <path d="M12 11v5M12 8v.3"/>
+    </symbol>
+    <symbol id="i-file" viewBox="0 0 24 24">
+      <path d="M6 3.5h7l5 5v12H6z"/>
+      <path d="M13 3.5v5h5M9 12h6M9 15.5h6"/>
+    </symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24">
+      <path d="M4 20l4-1 10-10-3-3L5 16z"/>
+      <path d="M14 6l3 3"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="page-head">
+  <div class="head-copy">
+    <div class="brandline">
+      <span class="crest"><svg class="icon"><use href="#i-mark"/></svg></span>
+      <div>
+        <p class="uni">جامعة القادسية</p>
+        <p class="college">كلية علوم الحاسوب وتكنولوجيا المعلومات</p>
+      </div>
+    </div>
+    <p class="eyebrow">نموذج بصري · الإصدار 1.0</p>
+    <h1>ثماني شاشات لتطبيق الكلية</h1>
+    <p class="lede">رحلة الطالب من الدخول إلى الدرجات، وواجهتا التدريسي للحضور وإدخال الدرجات. كل الأسماء والأرقام والدرجات هنا وهمية.</p>
+  </div>
+  <dl class="specs">
+    <div><dt>الشاشات</dt><dd class="num">8</dd></div>
+    <div><dt>مقاس الإطار</dt><dd class="num">390 × 844</dd></div>
+    <div><dt>الاتجاه</dt><dd>RTL · عربي</dd></div>
+    <div>
+      <dt>الهوية</dt>
+      <dd class="swatch-line">
+        <span class="swatch" style="background:#1F4E79"></span>
+        <span class="swatch" style="background:#2E74B5"></span>
+        <span class="swatch" style="background:#F7F9FC"></span>
+        <span class="swatch" style="background:#212121"></span>
+        <span class="hex num">1F4E79</span>
+      </dd>
+    </div>
+  </dl>
+</header>
+
+<div class="mockbar" role="note">
+  <svg class="icon" aria-hidden="true"><use href="#i-info"/></svg>
+  <p><b>بيانات وهمية:</b> النماذج تعرض أسماء ودرجات وأرقاماً افتراضية للعرض فقط. <span>الدخول مشترك · شاشات الطالب: 2–4 و6–7 · شاشات التدريسي: 5 و8.</span></p>
+</div>
+
+<main class="board">
+
+  <!-- ============ 1 — الدخول ============ -->
+  <figure class="phone-card" id="s1">
+    <div class="slot">
+      <div class="phone" role="group" aria-label="شاشة الدخول">
+        <div class="status" aria-hidden="true">
+          <span class="clock num">9:41</span>
+          <span class="status-icons">
+            <svg class="stat-ico"><use href="#i-signal"/></svg>
+            <svg class="stat-ico"><use href="#i-wifi"/></svg>
+            <svg class="stat-ico battery"><use href="#i-battery"/></svg>
+          </span>
+        </div>
+
+        <div class="login">
+          <div class="login-cover">
+            <svg class="cover-art" viewBox="0 0 330 230" aria-hidden="true">
+              <g fill="none" stroke="currentColor" stroke-width="1">
+                <path d="M22 188 94 120 166 158 240 82 312 124"/>
+                <path d="M94 120 84 48M166 158 154 216M240 82 278 24"/>
+                <path d="M22 188 42 92M166 158 206 220"/>
+                <rect x="58" y="74" width="38" height="26" rx="4"/>
+                <rect x="204" y="128" width="44" height="28" rx="4"/>
+                <rect x="270" y="66" width="30" height="22" rx="4"/>
+              </g>
+              <g fill="currentColor">
+                <circle cx="22" cy="188" r="3.2"/>
+                <circle cx="94" cy="120" r="3.6"/>
+                <circle cx="166" cy="158" r="3.2"/>
+                <circle cx="240" cy="82" r="3.6"/>
+                <circle cx="312" cy="124" r="2.8"/>
+                <circle cx="84" cy="48" r="2.4"/>
+                <circle cx="154" cy="216" r="2.4"/>
+                <circle cx="278" cy="24" r="2.4"/>
+                <circle cx="42" cy="92" r="2.2"/>
+                <circle cx="206" cy="220" r="2.2"/>
+              </g>
+            </svg>
+            <div class="cover-top">
+              <span>جامعة القادسية</span>
+              <span class="num">2026–2027</span>
+            </div>
+            <div class="cover-main">
+              <span class="logo-mark"><svg class="icon"><use href="#i-mark"/></svg></span>
+              <div>
+                <p class="wordmark">علوم الحاسوب</p>
+                <p class="wordmark-sub">كلية علوم الحاسوب وتكنولوجيا المعلومات</p>
+              </div>
+            </div>
+            <div class="cover-foot">
+              <span>تطبيق الطالب والتدريسي</span>
+              <span>الإصدار 1.0</span>
+            </div>
+          </div>
+
+          <div class="login-sheet">
+            <div class="card login-card">
+              <h2 class="login-title">تسجيل الدخول</h2>
+              <p class="login-sub">استخدم الرقم الجامعي وكلمة المرور اللذين زوّدك بهما قسمك.</p>
+
+              <div class="login-form">
+                <div class="field">
+                  <label for="uni-id">الرقم الجامعي</label>
+                  <div class="input id-input">
+                    <svg class="icon" aria-hidden="true"><use href="#i-id"/></svg>
+                    <input id="uni-id" type="text" inputmode="numeric" value="202310417" autocomplete="username" dir="ltr" aria-describedby="uni-hint">
+                  </div>
+                  <span id="uni-hint" class="sr-only">أدخل الرقم الجامعي المكوّن من تسعة أرقام</span>
+                </div>
+
+                <div class="field">
+                  <label for="password">كلمة المرور</label>
+                  <div class="input">
+                    <svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg>
+                    <input id="password" type="password" value="csit2026" autocomplete="current-password">
+                    <button class="reveal" type="button" aria-label="إظهار كلمة المرور">إظهار</button>
+                  </div>
+                </div>
+
+                <label class="check">
+                  <input type="checkbox" checked>
+                  <span>تذكّر هذا الجهاز</span>
+                </label>
+
+                <div class="notice">
+                  <svg class="icon" aria-hidden="true"><use href="#i-info"/></svg>
+                  <span>جهاز واحد نشط لكل حساب. لتغيير الجهاز راجع شعبة القسم.</span>
+                </div>
+
+                <a class="btn btn-primary" href="#s2" aria-label="دخول إلى الشاشة الرئيسية">دخول</a>
+                <p class="forgot">نسيت كلمة المرور؟ <b>راجع شعبة القسم</b> لإعادة تعيينها.</p>
+              </div>
+            </div>
+
+            <div class="login-foot">
+              <span>الدخول للطلاب والتدريسيين فقط</span>
+              <span>بيانات وهمية</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="homebar" aria-hidden="true"></div>
+      </div>
+    </div>
+    <figcaption class="cap"><span class="cap-num">1</span> — الدخول</figcaption>
+  </figure>
+
+  <!-- ============ 2 — الرئيسية ============ -->
+  <figure class="phone-card" id="s2">
+    <div class="slot">
+      <div class="phone" role="group" aria-label="الشاشة الرئيسية ليوم الطالب">
+        <div class="status" aria-hidden="true">
+          <span class="clock num">10:41</span>
+          <span class="status-icons">
+            <svg class="stat-ico"><use href="#i-signal"/></svg>
+            <svg class="stat-ico"><use href="#i-wifi"/></svg>
+            <svg class="stat-ico battery"><use href="#i-battery"/></svg>
+          </span>
+        </div>
+
+        <header class="appbar">
+          <div class="appbar-title"><span class="rule"></span><h2>الرئيسية</h2></div>
+          <button class="iconbtn" type="button" aria-label="الإشعارات">
+            <svg class="icon"><use href="#i-bell"/></svg>
+            <span class="notif-dot"></span>
+          </button>
+        </header>
+
+        <div class="body body-home">
+          <div class="greet">
+            <p class="date">الأحد 25 تشرين الأول 2026</p>
+            <h1>صباح الخير، مصطفى</h1>
+            <p class="who">مصطفى كاظم العبيدي · المرحلة الثالثة — شعبة أ · <span class="num">202310417</span></p>
+          </div>
+
+          <section class="card att" aria-label="نسبة الحضور">
+            <div class="row-between">
+              <span class="label">نسبة الحضور</span>
+              <span class="chip chip-success"><span class="dot"></span>فوق الحد</span>
+            </div>
+            <div class="att-main">
+              <div class="att-pct"><span class="num">86</span><span class="pct-sign">%</span></div>
+              <div class="att-copy">
+                <b>43</b> حضوراً من <b>50</b> محاضرة
+                <span>4 تأخير · 3 غياب</span>
+              </div>
+            </div>
+            <div class="gauge">
+              <span class="gauge-fill" style="width:86%"></span>
+              <span class="gauge-mark" style="inset-inline-start:75%"></span>
+            </div>
+            <div class="gauge-labels">
+              <span class="num">0</span>
+              <span>الحد الأدنى 75%</span>
+              <span class="num">100</span>
+            </div>
+          </section>
+
+          <div class="sec-head">
+            <div class="sec-title"><span class="rule"></span><h2>محاضرات اليوم</h2><span class="count">3</span></div>
+            <a class="textlink" href="#s3">الجدول</a>
+          </div>
+
+          <div class="card lectures">
+            <div class="lecture">
+              <div class="lect-time"><b class="num">08:30</b><span>10:30</span></div>
+              <div class="lect-body">
+                <h3>هياكل البيانات</h3>
+                <p>قاعة 204 · د. علي الحسيني</p>
+              </div>
+              <div class="lect-side"><span class="chip chip-muted">انتهت</span></div>
+            </div>
+
+            <div class="lecture is-now">
+              <div class="lect-time"><b class="num">10:30</b><span>12:30</span></div>
+              <div class="lect-body">
+                <h3>قواعد البيانات</h3>
+                <p>مختبر 3 · د. هدى الجبوري</p>
+              </div>
+              <div class="lect-side">
+                <span class="chip chip-info"><span class="dot"></span>الآن</span>
+                <a class="mini-link" href="#s4">مسح الحضور</a>
+              </div>
+            </div>
+
+            <div class="lecture">
+              <div class="lect-time"><b class="num">12:30</b><span>14:30</span></div>
+              <div class="lect-body">
+                <h3>شبكات الحاسوب</h3>
+                <p>قاعة 108 · د. سعد الموسوي</p>
+              </div>
+              <div class="lect-side"><span class="chip chip-outline">قادمة</span></div>
+            </div>
+          </div>
+
+          <article class="announce">
+            <div class="announce-head">
+              <svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg>
+              <span>إعلان مثبت</span>
+              <span class="date">23 تشرين الأول</span>
+            </div>
+            <h3>تأجيل مختبر الشبكات إلى الخميس</h3>
+            <p>لمجموعة «ب» فقط، في مختبر 3 الساعة 10:30. يُلغى موعد الأحد.</p>
+            <span class="src">شعبة القسم</span>
+          </article>
+
+          <p class="screen-foot">آخر تحديث للبيانات 10:38 ص · <a href="#s7">درجاتك</a></p>
+        </div>
+
+        <nav class="tabbar" aria-label="التنقل الرئيسي">
+          <a class="tab is-active" href="#s2" aria-current="page"><svg class="icon"><use href="#i-home"/></svg><span>الرئيسية</span></a>
+          <a class="tab" href="#s3"><svg class="icon"><use href="#i-calendar"/></svg><span>الجدول</span></a>
+          <a class="tab" href="#s6"><svg class="icon"><use href="#i-folder"/></svg><span>المواد</span></a>
+          <a class="tab" href="#s7"><svg class="icon"><use href="#i-chart"/></svg><span>الدرجات</span></a>
+        </nav>
+        <div class="homebar" aria-hidden="true"></div>
+      </div>
+    </div>
+    <figcaption class="cap"><span class="cap-num">2</span> — الرئيسية</figcaption>
+  </figure>
+
+  <!-- ============ 3 — الجدول الأسبوعي ============ -->
+  <figure class="phone-card" id="s3">
+    <div class="slot">
+      <div class="phone" role="group" aria-label="شاشة الجدول الأسبوعي">
+        <div class="status" aria-hidden="true">
+          <span class="clock num">9:41</span>
+          <span class="status-icons">
+            <svg class="stat-ico"><use href="#i-signal"/></svg>
+            <svg class="stat-ico"><use href="#i-wifi"/></svg>
+            <svg class="stat-ico battery"><use href="#i-battery"/></svg>
+          </span>
+        </div>
+
+        <header class="appbar">
+          <div class="appbar-title"><span class="rule"></span><h2>الجدول الأسبوعي</h2></div>
+          <span class="appbar-note">شعبة أ</span>
+        </header>
+
+        <div class="body">
+          <div class="tt-head">
+            <h1>المرحلة الثالثة — شعبة أ</h1>
+            <p>الفصل الأول <span class="num">2026–2027</span> · 4 مواعيد في اليوم المحدد</p>
+          </div>
+
+          <div class="days" role="group" aria-label="أيام الأسبوع">
+            <button class="day" type="button" aria-pressed="false"><span>السبت</span><span class="num">24</span></button>
+            <button class="day is-selected" type="button" aria-pressed="true"><span>الأحد</span><span class="num">25</span></button>
+            <button class="day" type="button" aria-pressed="false"><span>الاثنين</span><span class="num">26</span></button>
+            <button class="day" type="button" aria-pressed="false"><span>الثلاثاء</span><span class="num">27</span></button>
+            <button class="day" type="button" aria-pressed="false"><span>الأربعاء</span><span class="num">28</span></button>
+            <button class="day" type="button" aria-pressed="false"><span>الخميس</span><span class="num">29</span></button>
+          </div>
+
+          <div class="day-summary">
+            <span><b>الأحد 25 تشرين الأول</b> · <span class="num">08:30 — 15:30</span></span>
+            <span class="chip chip-info">4 مواعيد</span>
+          </div>
+
+          <div class="tt-stats" role="group" aria-label="ملخص اليوم">
+            <div><b class="num">4</b><span>مواعيد</span></div>
+            <div><b class="num">7</b><span>ساعات</span></div>
+            <div><b class="num">4</b><span>قاعات</span></div>
+          </div>
+
+          <div class="agenda">
+            <div class="slot">
+              <div class="slot-time"><b class="num">08:30</b><span>ساعتان</span></div>
+              <div class="slot-rail"><span class="slot-dot"></span></div>
+              <div class="slot-card">
+                <div class="slot-top"><h3>هياكل البيانات</h3><span class="chip chip-outline">محاضرة</span></div>
+                <p>قاعة 204 · د. علي الحسيني</p>
+              </div>
+            </div>
+
+            <div class="slot">
+              <div class="slot-time"><b class="num">10:30</b><span>ساعتان</span></div>
+              <div class="slot-rail"><span class="slot-dot"></span></div>
+              <div class="slot-card">
+                <div class="slot-top"><h3>قواعد البيانات</h3><span class="chip chip-outline">مختبر</span></div>
+                <p>مختبر 3 · د. هدى الجبوري</p>
+              </div>
+            </div>
+
+            <div class="slot">
+              <div class="slot-time"><b class="num">12:30</b><span>ساعتان</span></div>
+              <div class="slot-rail"><span class="slot-dot"></span></div>
+              <div class="slot-card">
+                <div class="slot-top"><h3>شبكات الحاسوب</h3><span class="chip chip-outline">محاضرة</span></div>
+                <p>قاعة 108 · د. سعد الموسوي</p>
+                <span class="slot-extra"><span class="dot"></span>القاعة محدّثة من 105 إلى 108</span>
+              </div>
+            </div>
+
+            <div class="slot">
+              <div class="slot-time"><b class="num">14:30</b><span>ساعة</span></div>
+              <div class="slot-rail"><span class="slot-dot"></span></div>
+              <div class="slot-card">
+                <div class="slot-top"><h3>مشروع التخرج</h3><span class="chip chip-outline">حلقة بحث</span></div>
+                <p>قاعة 210 · د. نور الهدى الموسوي</p>
+              </div>
+            </div>
+          </div>
+
+          <aside class="card changes" aria-label="تغييرات هذا الأسبوع">
+            <div class="changes-head">
+              <svg class="icon" aria-hidden="true"><use href="#i-info"/></svg>
+              <span>تغييرات هذا الأسبوع</span>
+            </div>
+            <ul>
+              <li><span>شبكات الحاسوب — الأحد</span><b>القاعة 108</b></li>
+              <li><span>مختبر قواعد البيانات — الاثنين</span><b>10:45 بدل 10:30</b></li>
+            </ul>
+          </aside>
+
+          <p class="screen-foot">الجدول الرسمي للقسم · آخر تحديث 22 تشرين الأول</p>
+        </div>
+
+        <nav class="tabbar" aria-label="التنقل الرئيسي">
+          <a class="tab" href="#s2"><svg class="icon"><use href="#i-home"/></svg><span>الرئيسية</span></a>
+          <a class="tab is-active" href="#s3" aria-current="page"><svg class="icon"><use href="#i-calendar"/></svg><span>الجدول</span></a>
+          <a class="tab" href="#s6"><svg class="icon"><use href="#i-folder"/></svg><span>المواد</span></a>
+          <a class="tab" href="#s7"><svg class="icon"><use href="#i-chart"/></svg><span>الدرجات</span></a>
+        </nav>
+        <div class="homebar" aria-hidden="true"></div>
+      </div>
+    </div>
+    <figcaption class="cap"><span class="cap-num">3</span> — الجدول الأسبوعي</figcaption>
+  </figure>
+
+  <!-- ============ 4 — مسح الحضور QR ============ -->
+  <figure class="phone-card" id="s4">
+    <div class="slot">
+      <div class="phone" role="group" aria-label="شاشة مسح الحضور">
+        <div class="status" aria-hidden="true">
+          <span class="clock num">10:47</span>
+          <span class="status-icons">
+            <svg class="stat-ico"><use href="#i-signal"/></svg>
+            <svg class="stat-ico"><use href="#i-wifi"/></svg>
+            <svg class="stat-ico battery"><use href="#i-battery"/></svg>
+          </span>
+        </div>
+
+        <header class="appbar">
+          <button class="iconbtn" type="button" aria-label="رجوع">
+            <svg class="icon"><use href="#i-back"/></svg>
+          </button>
+          <div class="appbar-title"><span class="rule"></span><h2>مسح الحضور</h2></div>
+          <span class="rolechip">طالب</span>
+        </header>
+
+        <div class="body body-qr">
+          <div class="card qr-context">
+            <div>
+              <h1>قواعد البيانات</h1>
+              <p>مختبر 3 · <span class="num">10:30–12:30</span> · د. هدى الجبوري</p>
+            </div>
+            <span class="chip chip-success"><span class="pulse"></span>جارية الآن</span>
+          </div>
+
+          <div class="scanner" role="img" aria-label="إطار كاميرا لمسح رمز الحضور">
+            <div class="scanner-top">
+              <span><span class="dot" style="color:#7ED0A9"></span>الكاميرا مفعّلة</span>
+              <span>إضاءة جيدة</span>
+            </div>
+            <span class="corner tl"></span>
+            <span class="corner tr"></span>
+            <span class="corner bl"></span>
+            <span class="corner br"></span>
+            <div class="qr-ghost" aria-hidden="true">
+              <svg viewBox="0 0 64 64">
+                <g fill="none" stroke="currentColor" stroke-width="3">
+                  <rect x="3" y="3" width="16" height="16" rx="2"/>
+                  <rect x="45" y="3" width="16" height="16" rx="2"/>
+                  <rect x="3" y="45" width="16" height="16" rx="2"/>
+                </g>
+                <g fill="currentColor">
+                  <rect x="8" y="8" width="6" height="6"/>
+                  <rect x="50" y="8" width="6" height="6"/>
+                  <rect x="8" y="50" width="6" height="6"/>
+                  <rect x="27" y="6" width="4" height="4"/>
+                  <rect x="35" y="14" width="4" height="4"/>
+                  <rect x="27" y="25" width="4" height="4"/>
+                  <rect x="39" y="29" width="4" height="4"/>
+                  <rect x="50" y="27" width="4" height="4"/>
+                  <rect x="24" y="37" width="4" height="4"/>
+                  <rect x="34" y="41" width="4" height="4"/>
+                  <rect x="48" y="39" width="4" height="4"/>
+                  <rect x="55" y="48" width="4" height="4"/>
+                  <rect x="44" y="54" width="4" height="4"/>
+                  <rect x="26" y="52" width="4" height="4"/>
+                </g>
+              </svg>
+            </div>
+            <span class="scanline"></span>
+            <span class="scanner-hint">ضع رمز الجلسة داخل الإطار</span>
+          </div>
+
+          <p class="qr-help">وجّه الكاميرا إلى رمز الجلسة المعروض عند التدريسي. يتجدد الرمز كل 20 ثانية.</p>
+
+          <button class="btn btn-primary" type="button">
+            <svg class="icon" aria-hidden="true"><use href="#i-scan"/></svg>
+            مسح
+          </button>
+
+          <section class="card result" aria-label="نتيجة آخر مسح">
+            <div class="result-head">
+              <span>نتيجة آخر مسح</span>
+              <span class="num">10:47</span>
+            </div>
+            <div class="result-main">
+              <span class="state-icon"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg></span>
+              <div>
+                <h3>متأخر</h3>
+                <p>سُجّل حضورك بعد 17 دقيقة من بدء المحاضرة.</p>
+              </div>
+            </div>
+            <div class="states" role="group" aria-label="حالات الحضور">
+              <span class="state"><span class="dot" style="color:#1B7A55"></span>حاضر</span>
+              <span class="state current"><span class="dot" style="color:#8A4B00"></span>متأخر</span>
+              <span class="state"><span class="dot" style="color:#B3261E"></span>مشكوك</span>
+            </div>
+          </section>
+
+          <p class="device-note">
+            <svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg>
+            المسح مرتبط بجهازك المسجّل · لا يمكن المسح من جهاز آخر
+          </p>
+        </div>
+
+        <div class="homebar" aria-hidden="true"></div>
+      </div>
+    </div>
+    <figcaption class="cap"><span class="cap-num">4</span> — مسح الحضور QR</figcaption>
+  </figure>
+
+  <!-- ============ 5 — قائمة الحاضرين ============ -->
+  <figure class="phone-card" id="s5">
+    <div class="slot">
+      <div class="phone" role="group" aria-label="شاشة قائمة الحاضرين للتدريسي">
+        <div class="status" aria-hidden="true">
+          <span class="clock num">12:46</span>
+          <span class="status-icons">
+            <svg class="stat-ico"><use href="#i-signal"/></svg>
+            <svg class="stat-ico"><use href="#i-wifi"/></svg>
+            <svg class="stat-ico battery"><use href="#i-battery"/></svg>
+          </span>
+        </div>
+
+        <header class="appbar">
+          <button class="iconbtn" type="button" aria-label="رجوع">
+            <svg class="icon"><use href="#i-back"/></svg>
+          </button>
+          <div class="appbar-title"><span class="rule"></span><h2>قائمة الحاضرين</h2></div>
+          <span class="rolechip">تدريسي</span>
+        </header>
+
+        <div class="body">
+          <div class="course-head">
+            <div>
+              <h1>شبكات الحاسوب</h1>
+              <p>قاعة 108 · الأحد 25 تشرين الأول · 12:30</p>
+            </div>
+            <span class="chip chip-success"><span class="pulse"></span>الجلسة مفتوحة</span>
+          </div>
+
+          <section class="card counter" aria-label="عدّاد الحضور">
+            <div class="row-between">
+              <span class="label">الحضور اللحظي</span>
+              <span class="chip chip-info">الرمز يتجدد · <span class="num">00:18</span></span>
+            </div>
+            <div class="counter-main">
+              <span class="big-num num">12</span>
+              <span class="counter-label">حاضراً من <b class="num">30</b></span>
+              <span class="counter-pct num">40%</span>
+            </div>
+            <div class="progress" role="progressbar" aria-valuenow="12" aria-valuemin="0" aria-valuemax="30" aria-label="12 حاضراً من 30">
+              <span style="width:40%"></span>
+            </div>
+            <div class="counter-foot">
+              <span class="key"><span class="dot" style="color:#8A4B00"></span>متأخر 2</span>
+              <span class="key"><span class="dot" style="color:#B3261E"></span>مشكوك 1</span>
+              <span class="key"><span class="dot" style="color:#9AA6B3"></span>غائب 15</span>
+              <span>آخر مسح <span class="num">12:46</span></span>
+            </div>
+          </section>
+
+          <div class="filters" role="group" aria-label="تصفية القائمة">
+            <button class="filter is-active" type="button" aria-pressed="true">الكل <b class="num">30</b></button>
+            <button class="filter" type="button" aria-pressed="false">حاضر <b class="num">12</b></button>
+            <button class="filter" type="button" aria-pressed="false">متأخر <b class="num">2</b></button>
+            <button class="filter" type="button" aria-pressed="false">مشكوك <b class="num">1</b></button>
+            <button class="filter" type="button" aria-pressed="false">غائب <b class="num">15</b></button>
+          </div>
+
+          <div class="card roster">
+            <div class="person">
+              <span class="avatar" aria-hidden="true">أ</span>
+              <div>
+                <p class="pname">أحمد ناصر</p>
+                <p class="pmeta"><span class="num">202310401</span> · <span class="num">12:31</span></p>
+              </div>
+              <span class="state-label present"><span class="dot"></span>حاضر</span>
+            </div>
+
+            <div class="person">
+              <span class="avatar" aria-hidden="true">ب</span>
+              <div>
+                <p class="pname">براء سعد</p>
+                <p class="pmeta"><span class="num">202310428</span> · <span class="num">12:32</span></p>
+              </div>
+              <span class="state-label present"><span class="dot"></span>حاضر</span>
+            </div>
+
+            <div class="person">
+              <span class="avatar" aria-hidden="true">ت</span>
+              <div>
+                <p class="pname">تارة علي</p>
+                <p class="pmeta"><span class="num">202310455</span> · <span class="num">12:44</span></p>
+              </div>
+              <span class="state-label late"><span class="dot"></span>متأخر</span>
+            </div>
+
+            <div class="person">
+              <span class="avatar" aria-hidden="true">ح</span>
+              <div>
+                <p class="pname">حسنين كريم</p>
+                <p class="pmeta"><span class="num">202310461</span> · <span class="num">12:46</span> · موقع مختلف</p>
+              </div>
+              <span class="state-label flagged"><span class="dot"></span>مشكوك</span>
+            </div>
+
+            <div class="person">
+              <span class="avatar" aria-hidden="true">ز</span>
+              <div>
+                <p class="pname">زهراء مهدي</p>
+                <p class="pmeta"><span class="num">202310470</span> · <span class="num">12:33</span></p>
+              </div>
+              <span class="state-label present"><span class="dot"></span>حاضر</span>
+            </div>
+
+            <div class="person">
+              <span class="avatar" aria-hidden="true">س</span>
+              <div>
+                <p class="pname">سجاد رعد</p>
+                <p class="pmeta"><span class="num">202310489</span> · لم يُسجّل</p>
+              </div>
+              <span class="state-label absent"><span class="dot"></span>غائب</span>
+            </div>
+
+            <div class="person">
+              <span class="avatar" aria-hidden="true">م</span>
+              <div>
+                <p class="pname">مريم حسام</p>
+                <p class="pmeta"><span class="num">202310492</span> · <span class="num">12:35</span></p>
+              </div>
+              <span class="state-label present"><span class="dot"></span>حاضر</span>
+            </div>
+
+            <a class="more-link" href="#s5">عرض بقية الأسماء <span class="num">(23)</span><svg class="icon" style="width:11px;height:11px"><use href="#i-chevron"/></svg></a>
+          </div>
+
+          <div class="close-box">
+            <p class="close-note">إغلاق الجلسة يوقف استقبال المسح فوراً.</p>
+            <button class="btn btn-danger-outline" type="button">إغلاق الجلسة</button>
+          </div>
+        </div>
+
+        <div class="homebar" aria-hidden="true"></div>
+      </div>
+    </div>
+    <figcaption class="cap"><span class="cap-num">5</span> — قائمة الحاضرين</figcaption>
+  </figure>
+
+  <!-- ============ 6 — المواد ============ -->
+  <figure class="phone-card" id="s6">
+    <div class="slot">
+      <div class="phone" role="group" aria-label="شاشة مواد المقررات">
+        <div class="status" aria-hidden="true">
+          <span class="clock num">9:41</span>
+          <span class="status-icons">
+            <svg class="stat-ico"><use href="#i-signal"/></svg>
+            <svg class="stat-ico"><use href="#i-wifi"/></svg>
+            <svg class="stat-ico battery"><use href="#i-battery"/></svg>
+          </span>
+        </div>
+
+        <header class="appbar">
+          <div class="appbar-title"><span class="rule"></span><h2>المواد</h2></div>
+          <button class="iconbtn" type="button" aria-label="البحث في المواد">
+            <svg class="icon"><use href="#i-search"/></svg>
+          </button>
+        </header>
+
+        <div class="body">
+          <div class="lib-head">
+            <h1>مقررات الفصل الأول</h1>
+            <p>المرحلة الثالثة — شعبة أ · تُحدَّث الملفات أسبوعياً</p>
+          </div>
+
+          <div class="lib-stats" role="group" aria-label="ملخص المكتبة">
+            <div class="lib-stat"><b class="num">18</b><span>ملفاً</span></div>
+            <div class="lib-stat"><b class="num">3</b><span>جديد</span></div>
+            <div class="lib-stat"><b class="num">42</b><span>م.ب مستخدمة</span></div>
+          </div>
+
+          <div class="filters" role="group" aria-label="تصفية المواد">
+            <button class="filter is-active" type="button" aria-pressed="true">الكل</button>
+            <button class="filter" type="button" aria-pressed="false">قواعد البيانات</button>
+            <button class="filter" type="button" aria-pressed="false">الشبكات</button>
+            <button class="filter" type="button" aria-pressed="false">هياكل البيانات</button>
+          </div>
+
+          <div class="card files">
+            <div class="file">
+              <span class="pdf" aria-hidden="true"><svg class="icon"><use href="#i-file"/></svg><span>PDF</span></span>
+              <div>
+                <p class="ftitle">محاضرة 6 — تطبيع قواعد البيانات</p>
+                <p class="fmeta">الأسبوع 6 · 1.8 م.ب · 24 صفحة</p>
+              </div>
+              <div class="file-side">
+                <span class="badge-new">جديد</span>
+                <span class="dl" aria-hidden="true"><svg class="icon"><use href="#i-download"/></svg></span>
+              </div>
+            </div>
+
+            <div class="file">
+              <span class="pdf" aria-hidden="true"><svg class="icon"><use href="#i-file"/></svg><span>PDF</span></span>
+              <div>
+                <p class="ftitle">محاضرة 5 — النماذج العلائقية</p>
+                <p class="fmeta">الأسبوع 5 · 2.1 م.ب · 31 صفحة</p>
+              </div>
+              <div class="file-side">
+                <span class="badge-new">جديد</span>
+                <span class="dl" aria-hidden="true"><svg class="icon"><use href="#i-download"/></svg></span>
+              </div>
+            </div>
+
+            <div class="file">
+              <span class="pdf" aria-hidden="true"><svg class="icon"><use href="#i-file"/></svg><span>PDF</span></span>
+              <div>
+                <p class="ftitle">واجب مختبر 3 — استعلامات SQL</p>
+                <p class="fmeta">الأسبوع 5 · 420 ك.ب · 3 صفحات</p>
+              </div>
+              <div class="file-side">
+                <span class="badge-new">جديد</span>
+                <span class="dl" aria-hidden="true"><svg class="icon"><use href="#i-download"/></svg></span>
+              </div>
+            </div>
+
+            <div class="file">
+              <span class="pdf" aria-hidden="true"><svg class="icon"><use href="#i-file"/></svg><span>PDF</span></span>
+              <div>
+                <p class="ftitle">محاضرة 4 — الجبر العلائقي</p>
+                <p class="fmeta">الأسبوع 4 · 1.4 م.ب · 18 صفحة · مقروء</p>
+              </div>
+              <div class="file-side">
+                <span class="dl" aria-hidden="true"><svg class="icon"><use href="#i-download"/></svg></span>
+              </div>
+            </div>
+
+            <div class="file">
+              <span class="pdf" aria-hidden="true"><svg class="icon"><use href="#i-file"/></svg><span>PDF</span></span>
+              <div>
+                <p class="ftitle">محاضرة 3 — مخطط ER</p>
+                <p class="fmeta">الأسبوع 3 · 2.6 م.ب · 28 صفحة · مقروء</p>
+              </div>
+              <div class="file-side">
+                <span class="dl" aria-hidden="true"><svg class="icon"><use href="#i-download"/></svg></span>
+              </div>
+            </div>
+
+            <div class="file">
+              <span class="pdf" aria-hidden="true"><svg class="icon"><use href="#i-file"/></svg><span>PDF</span></span>
+              <div>
+                <p class="ftitle">دليل مختبر PostgreSQL</p>
+                <p class="fmeta">مرجع · 3.2 م.ب · 46 صفحة · مقروء</p>
+              </div>
+              <div class="file-side">
+                <span class="dl" aria-hidden="true"><svg class="icon"><use href="#i-download"/></svg></span>
+              </div>
+            </div>
+          </div>
+
+          <p class="lib-note">
+            <svg class="icon" aria-hidden="true"><use href="#i-info"/></svg>
+            تُرفع الملفات من التدريسي. آخر تحديث: أمس 18:20.
+          </p>
+
+          <p class="screen-foot">المكتبة الرقمية للكلية · بيانات تجريبية</p>
+        </div>
+
+        <nav class="tabbar" aria-label="التنقل الرئيسي">
+          <a class="tab" href="#s2"><svg class="icon"><use href="#i-home"/></svg><span>الرئيسية</span></a>
+          <a class="tab" href="#s3"><svg class="icon"><use href="#i-calendar"/></svg><span>الجدول</span></a>
+          <a class="tab is-active" href="#s6" aria-current="page"><svg class="icon"><use href="#i-folder"/></svg><span>المواد</span></a>
+          <a class="tab" href="#s7"><svg class="icon"><use href="#i-chart"/></svg><span>الدرجات</span></a>
+        </nav>
+        <div class="homebar" aria-hidden="true"></div>
+      </div>
+    </div>
+    <figcaption class="cap"><span class="cap-num">6</span> — المواد</figcaption>
+  </figure>
+
+  <!-- ============ 7 — درجات الطالب ============ -->
+  <figure class="phone-card" id="s7">
+    <div class="slot">
+      <div class="phone" role="group" aria-label="شاشة درجات الطالب">
+        <div class="status" aria-hidden="true">
+          <span class="clock num">9:41</span>
+          <span class="status-icons">
+            <svg class="stat-ico"><use href="#i-signal"/></svg>
+            <svg class="stat-ico"><use href="#i-wifi"/></svg>
+            <svg class="stat-ico battery"><use href="#i-battery"/></svg>
+          </span>
+        </div>
+
+        <header class="appbar">
+          <div class="appbar-title"><span class="rule"></span><h2>درجاتي</h2></div>
+          <button class="iconbtn" type="button" aria-label="معلومات عن حساب الدرجات">
+            <svg class="icon"><use href="#i-info"/></svg>
+          </button>
+        </header>
+
+        <div class="body">
+          <div class="grades-head">
+            <h1>شبكات الحاسوب</h1>
+            <p>المرحلة الثالثة · الفصل الأول · 3 تقييمات منجزة</p>
+          </div>
+
+          <section class="card hero" aria-label="المعدل الحالي">
+            <div class="hero-top">
+              <span class="label">المعدل الحالي</span>
+              <span class="chip chip-success">محسوب من 60%</span>
+            </div>
+            <div class="hero-main">
+              <div class="avg"><span class="num">80.8</span><small>من 100</small></div>
+              <div class="stamp">جيد جداً<span>التقدير</span></div>
+            </div>
+            <div class="hero-meta">
+              <span>المجموع الموزون <b class="num">48.5</b> من <b class="num">60</b></span>
+              <span>الامتحان النهائي <b class="num">40%</b></span>
+            </div>
+            <div class="hero-bar" role="img" aria-label="المعدل 80.8 من 100"><span style="width:80.8%"></span></div>
+          </section>
+
+          <div class="sec-head">
+            <div class="sec-title"><span class="rule"></span><h2>التقييمات</h2></div>
+            <span class="count">3 من 4</span>
+          </div>
+
+          <div class="card assessments">
+            <div class="assess">
+              <div class="assess-top">
+                <h3>كوز 1</h3>
+                <div class="score"><b class="num">18</b><span class="num">/20</span></div>
+              </div>
+              <div class="assess-meta">
+                <span>12 تشرين الأول</span><span class="sep">·</span><span>الوزن <b class="num">15%</b></span>
+                <span class="sep">·</span><span class="num">90%</span>
+              </div>
+              <div class="microbar"><span style="width:90%"></span></div>
+            </div>
+
+            <div class="assess">
+              <div class="assess-top">
+                <h3>مختبر</h3>
+                <div class="score"><b class="num">27</b><span class="num">/30</span></div>
+              </div>
+              <div class="assess-meta">
+                <span>19 تشرين الأول</span><span class="sep">·</span><span>الوزن <b class="num">20%</b></span>
+                <span class="sep">·</span><span class="num">90%</span>
+              </div>
+              <div class="microbar"><span style="width:90%"></span></div>
+            </div>
+
+            <div class="assess">
+              <div class="assess-top">
+                <h3>النصفية</h3>
+                <div class="score"><b class="num">34</b><span class="num">/50</span></div>
+              </div>
+              <div class="assess-meta">
+                <span>22 تشرين الأول</span><span class="sep">·</span><span>الوزن <b class="num">25%</b></span>
+                <span class="sep">·</span><span class="num">68%</span>
+              </div>
+              <div class="microbar"><span style="width:68%"></span></div>
+            </div>
+          </div>
+
+          <div class="final">
+            <svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>
+            <div>
+              <h3>الامتحان النهائي</h3>
+              <p>لم تُرصد بعد · الوزن <span class="num">40%</span></p>
+            </div>
+            <span class="chip chip-outline">قادم</span>
+          </div>
+
+          <p class="grades-note">الدرجات المعروضة تجريبية، والمرجع النهائي سجل القسم.</p>
+        </div>
+
+        <nav class="tabbar" aria-label="التنقل الرئيسي">
+          <a class="tab" href="#s2"><svg class="icon"><use href="#i-home"/></svg><span>الرئيسية</span></a>
+          <a class="tab" href="#s3"><svg class="icon"><use href="#i-calendar"/></svg><span>الجدول</span></a>
+          <a class="tab" href="#s6"><svg class="icon"><use href="#i-folder"/></svg><span>المواد</span></a>
+          <a class="tab is-active" href="#s7" aria-current="page"><svg class="icon"><use href="#i-chart"/></svg><span>الدرجات</span></a>
+        </nav>
+        <div class="homebar" aria-hidden="true"></div>
+      </div>
+    </div>
+    <figcaption class="cap"><span class="cap-num">7</span> — درجات الطالب</figcaption>
+  </figure>
+
+  <!-- ============ 8 — إدخال الدرجات ============ -->
+  <figure class="phone-card" id="s8">
+    <div class="slot">
+      <div class="phone" role="group" aria-label="شاشة إدخال الدرجات للتدريسي">
+        <div class="status" aria-hidden="true">
+          <span class="clock num">9:41</span>
+          <span class="status-icons">
+            <svg class="stat-ico"><use href="#i-signal"/></svg>
+            <svg class="stat-ico"><use href="#i-wifi"/></svg>
+            <svg class="stat-ico battery"><use href="#i-battery"/></svg>
+          </span>
+        </div>
+
+        <header class="appbar">
+          <button class="iconbtn" type="button" aria-label="رجوع">
+            <svg class="icon"><use href="#i-back"/></svg>
+          </button>
+          <div class="appbar-title"><span class="rule"></span><h2>إدخال الدرجات</h2></div>
+          <span class="rolechip">تدريسي</span>
+        </header>
+
+        <div class="body">
+          <div class="entry-head">
+            <h1>قواعد البيانات — كوز 1</h1>
+            <p>شعبة أ · 30 طالباً · 25 تشرين الأول</p>
+          </div>
+
+          <div class="card settings">
+            <div class="mini-field">
+              <label for="max-grade">الدرجة العظمى</label>
+              <div class="input">
+                <input id="max-grade" class="num" type="number" value="20" min="1" max="100" inputmode="numeric">
+                <span class="suffix">درجة</span>
+              </div>
+            </div>
+            <div class="mini-field">
+              <label for="weight">الوزن</label>
+              <div class="input">
+                <input id="weight" class="num" type="number" value="15" min="1" max="100" inputmode="numeric">
+                <span class="suffix">%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="entry-summary">
+            <span>أُدخلت <b class="num">24</b> من <b class="num">30</b> درجة</span>
+            <span class="entry-progress" role="img" aria-label="اكتمل 80%"><span style="width:80%"></span></span>
+          </div>
+
+          <div class="grade-table">
+            <div class="ghead" aria-hidden="true">
+              <span>#</span><span>الطالب</span><span>الدرجة</span><span>من 20</span>
+            </div>
+
+            <div class="grow">
+              <span class="idx num">1</span>
+              <div><p class="gname">أحمد ناصر</p><p class="gsub num">202310401</p></div>
+              <label class="sr-only" for="grade-1">درجة أحمد ناصر</label>
+              <div class="input"><input id="grade-1" class="score-input" type="number" min="0" max="20" value="18" inputmode="numeric" aria-label="درجة أحمد ناصر من 20"></div>
+              <span class="of num">20</span>
+            </div>
+
+            <div class="grow">
+              <span class="idx num">2</span>
+              <div><p class="gname">براء سعد</p><p class="gsub num">202310428</p></div>
+              <label class="sr-only" for="grade-2">درجة براء سعد</label>
+              <div class="input"><input id="grade-2" class="score-input" type="number" min="0" max="20" value="15" inputmode="numeric" aria-label="درجة براء سعد من 20"></div>
+              <span class="of num">20</span>
+            </div>
+
+            <div class="grow">
+              <span class="idx num">3</span>
+              <div><p class="gname">تارة علي</p><p class="gsub num">202310455</p></div>
+              <label class="sr-only" for="grade-3">درجة تارة علي</label>
+              <div class="input"><input id="grade-3" class="score-input" type="number" min="0" max="20" value="12" inputmode="numeric" aria-label="درجة تارة علي من 20"></div>
+              <span class="of num">20</span>
+            </div>
+
+            <div class="grow has-error">
+              <span class="idx num">4</span>
+              <div>
+                <p class="gname">حسنين كريم</p>
+                <p class="gsub num">202310461</p>
+                <span class="error" id="grade-4-error">تتجاوز الدرجة العظمى 20</span>
+              </div>
+              <div class="input"><input id="grade-4" class="score-input" type="number" min="0" max="20" value="22" inputmode="numeric" aria-invalid="true" aria-describedby="grade-4-error" aria-label="درجة حسنين كريم من 20"></div>
+              <span class="of num">20</span>
+            </div>
+
+            <div class="grow">
+              <span class="idx num">5</span>
+              <div><p class="gname">زهراء مهدي</p><p class="gsub num">202310470</p></div>
+              <label class="sr-only" for="grade-5">درجة زهراء مهدي</label>
+              <div class="input"><input id="grade-5" class="score-input" type="number" min="0" max="20" value="17" inputmode="numeric" aria-label="درجة زهراء مهدي من 20"></div>
+              <span class="of num">20</span>
+            </div>
+
+            <div class="grow">
+              <span class="idx num">6</span>
+              <div><p class="gname">سجاد رعد</p><p class="gsub num">202310489</p></div>
+              <label class="sr-only" for="grade-6">درجة سجاد رعد</label>
+              <div class="input"><input id="grade-6" class="score-input" type="number" min="0" max="20" value="9" inputmode="numeric" aria-label="درجة سجاد رعد من 20"></div>
+              <span class="of num">20</span>
+            </div>
+
+            <div class="grow pending">
+              <span class="idx num">7</span>
+              <div><p class="gname">مريم حسام</p><p class="gsub num">202310492</p></div>
+              <label class="sr-only" for="grade-7">درجة مريم حسام</label>
+              <div class="input"><input id="grade-7" class="score-input" type="number" min="0" max="20" placeholder="—" inputmode="numeric" aria-label="درجة مريم حسام من 20"></div>
+              <span class="of num">20</span>
+            </div>
+
+            <a class="entry-more" href="#s8">عرض بقية الطلاب <span class="num">(23)</span><svg class="icon" style="width:11px;height:11px"><use href="#i-chevron"/></svg></a>
+          </div>
+
+          <div class="publish">
+            <p class="publish-note">
+              <svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg>
+              صف واحد يحتاج تصحيحاً — النشر معطّل حتى الإصلاح.
+            </p>
+            <div class="publish-actions">
+              <button class="btn btn-outline" type="button">حفظ كمسودة</button>
+              <button class="btn btn-primary" type="button" disabled aria-describedby="publish-reason">نشر الدرجات</button>
+            </div>
+            <p class="entry-foot"><span>آخر حفظ تلقائي <span class="num">12:41</span></span><span>لن تُرسل إشعارات قبل النشر</span></p>
+          </div>
+          <span id="publish-reason" class="sr-only">لا يمكن النشر لوجود درجة تتجاوز الدرجة العظمى</span>
+        </div>
+
+        <div class="homebar" aria-hidden="true"></div>
+      </div>
+    </div>
+    <figcaption class="cap"><span class="cap-num">8</span> — إدخال الدرجات</figcaption>
+  </figure>
+
+</main>
+
+<footer class="page-foot">
+  <p>نموذج بصري · كلية علوم الحاسوب وتكنولوجيا المعلومات — جامعة القادسية</p>
+  <p class="num">#1F4E79 · #2E74B5 · #F7F9FC · #212121 · 12px</p>
+</footer>
+
+</body>
+</html>

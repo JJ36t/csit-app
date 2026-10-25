@@ -1,0 +1,111 @@
+{
+  "@@locale": "ar",
+  "appTitle": "علوم الحاسوب",
+  "collegeName": "كلية علوم الحاسوب وتكنولوجيا المعلومات — جامعة القادسية",
+  "loginTitle": "تسجيل الدخول",
+  "loginSubtitle": "استخدم الرقم الجامعي وكلمة المرور التي زوّدك بها قسمك",
+  "universityIdLabel": "الرقم الجامعي",
+  "passwordLabel": "كلمة المرور",
+  "loginButton": "دخول",
+  "fieldRequired": "هذا الحقل مطلوب",
+  "universityIdInvalid": "الرقم الجامعي يجب أن يكون 3 محارف على الأقل",
+  "networkUnreachable": "تعذر الاتصال بالخادم؛ تحقق من الإنترنت وحاول مجدداً",
+  "unexpectedError": "حدث خطأ غير متوقع؛ أعد المحاولة",
+  "sessionExpired": "انتهت الجلسة؛ يرجى تسجيل الدخول من جديد",
+  "homeTitle": "الرئيسية",
+  "welcome": "أهلاً",
+  "logoutButton": "تسجيل الخروج",
+  "mustChangePasswordNotice": "يُطلب منك تغيير كلمة المرور الأولية",
+  "changePasswordTitle": "تغيير كلمة المرور",
+  "changePasswordButton": "حفظ كلمة المرور",
+  "currentPasswordLabel": "كلمة المرور الحالية",
+  "newPasswordLabel": "كلمة المرور الجديدة",
+  "passwordTooShort": "كلمة المرور يجب ألا تقل عن 8 محارف",
+  "passwordChanged": "تم تغيير كلمة المرور؛ سجّل الدخول من جديد",
+  "departmentLabel": "القسم",
+  "stageLabel": "المرحلة",
+  "groupLabel": "الشعبة",
+  "scanAttendanceCard": "مسح الحضور",
+  "scanAttendanceCardHint": "امسح رمز الجلسة لتسجيل حضورك",
+  "todaySessionsCard": "حصص اليوم",
+  "todaySessionsCardHint": "افتح الجلسة وتابع الحضور لحظياً",
+  "todaySessionsTitle": "حصص اليوم",
+  "noSessionsToday": "لا توجد حصص مجدولة لك اليوم",
+  "noStudentsInFilter": "لا يوجد طلاب في هذه الحالة",
+  "retryButton": "إعادة المحاولة",
+  "scanTitle": "مسح الحضور",
+  "scannerHint": "ضع رمز الجلسة داخل الإطار",
+  "scanHelp": "وجّه الكاميرا إلى رمز الجلسة المعروض عند التدريسي. يتجدد الرمز كل 20 ثانية.",
+  "lastScanResult": "نتيجة آخر مسح",
+  "presentStatus": "حاضر",
+  "lateStatus": "متأخر",
+  "absentStatus": "غائب",
+  "excusedStatus": "غياب بعذر",
+  "flaggedStatus": "مشكوك",
+  "notRecordedStatus": "لم يُسجّل",
+  "deviceNote": "المسح مرتبط بجهازك المسجّل · لا يمكن المسح من جهاز آخر",
+  "invalidQrError": "الرمز الممسوح ليس رمز حضور صالحاً لهذا التطبيق",
+  "missingDeviceError": "معلومات جهازك غير مكتملة؛ سجّل الدخول من جديد ثم أعد المحاولة",
+  "flagNoLocation": "لم يُرسَل موقع الجهاز مع المسح؛ سيراجع التدريسي الحضور",
+  "flagOutsideCampus": "الموقع خارج نطاق القاعة (نحو {meters}م)؛ سيراجع التدريسي الحضور",
+  "@flagOutsideCampus": {
+    "placeholders": {
+      "meters": {"type": "int"}
+    }
+  },
+  "liveTitle": "قائمة الحاضرين",
+  "liveAttendance": "الحضور اللحظي",
+  "qrRenewsChip": "الرمز يتجدد تلقائياً",
+  "presentOfTotal": "{present} حاضراً من {total}",
+  "@presentOfTotal": {
+    "placeholders": {
+      "present": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "percentValue": "{percent}%",
+  "@percentValue": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "lateCount": "متأخر {count}",
+  "@lateCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "flaggedCount": "مشكوك {count}",
+  "@flaggedCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "absentCount": "غائب {count}",
+  "@absentCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "filterAll": "الكل",
+  "sessionKindTheory": "نظري",
+  "sessionKindLab": "مختبر",
+  "sessionStatusOpen": "الجلسة مفتوحة",
+  "sessionStatusClosed": "أُغلقت الجلسة",
+  "sessionStatusScheduled": "لم تُفتح بعد",
+  "sessionStatusCancelled": "ملغاة",
+  "openSessionButton": "فتح الجلسة",
+  "openSessionHint": "افتح الجلسة عند بدء المحاضرة ليبدأ استقبال المسح ويظهر الرمز للطلبة.",
+  "closeSessionButton": "إغلاق الجلسة",
+  "closeSessionNote": "إغلاق الجلسة يوقف استقبال المسح فوراً.",
+  "closeSessionConfirmTitle": "إغلاق الجلسة؟",
+  "closeSessionConfirmBody": "سيُسجَّل غياب من لم يسجّل حضوره، ويتوقف استقبال المسح فوراً.",
+  "confirmButton": "تأكيد",
+  "cancelButton": "إلغاء",
+  "absentMarkedNote": "سُجّل غياب {count} طالباً لم يسجّلوا حضورهم.",
+  "@absentMarkedNote": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  }
+}
