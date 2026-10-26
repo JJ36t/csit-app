@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/app_services.dart';
 import '../../../core/network/api_client.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../attendance/data/attendance_api.dart';
 import '../../attendance/presentation/scan_page.dart';
 import '../../attendance/presentation/sessions_page.dart';
 import '../../auth/presentation/session.dart';
+import '../../grades/presentation/grades_page.dart';
+import '../../materials/presentation/materials_page.dart';
+import '../../timetable/presentation/timetable_page.dart';
 
-/// الرئيسية: ترحيب بالمستخدم وبياناته الأساسية ومداخل ميزات اليوم
-/// (مسح الحضور للطالب، حصص اليوم للتدريسي) وزر الخروج.
+/// الرئيسية: ترحيب بالمستخدم وبياناته ومداخل «يوم الطالب»
+/// (الحضور، الجدول، المواد، الدرجات) وزر الخروج.
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, required this.session, required this.attendance});
+  const HomePage({super.key, required this.session, required this.services});
 
   final SessionController session;
-  final AttendanceApi attendance;
+  final AppServices services;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +62,7 @@ class HomePage extends StatelessWidget {
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
                           builder: (_) => ScanPage(
-                            api: attendance,
+                            api: services.attendance,
                             session: session,
                           ),
                         ),
@@ -77,7 +80,59 @@ class HomePage extends StatelessWidget {
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
                           builder: (_) => SessionsPage(
-                            api: attendance,
+                            api: services.attendance,
+                            session: session,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                Card(
+                  child: ListTile(
+                    key: const Key('timetableCard'),
+                    leading: const Icon(Icons.calendar_month_outlined),
+                    title: Text(l10n.timetableCard),
+                    subtitle: Text(l10n.timetableCardHint),
+                    trailing: const Icon(Icons.chevron_left),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => TimetablePage(
+                          api: services.timetable,
+                          session: session,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Card(
+                  child: ListTile(
+                    key: const Key('materialsCard'),
+                    leading: const Icon(Icons.folder_open_outlined),
+                    title: Text(l10n.courseMaterialsTitle),
+                    subtitle: Text(l10n.materialsCardHint),
+                    trailing: const Icon(Icons.chevron_left),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => MaterialsPage(
+                          api: services.materials,
+                          session: session,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                if (profile.isStudent)
+                  Card(
+                    child: ListTile(
+                      key: const Key('gradesCard'),
+                      leading: const Icon(Icons.insights_outlined),
+                      title: Text(l10n.gradesTitle),
+                      subtitle: Text(l10n.gradesCardHint),
+                      trailing: const Icon(Icons.chevron_left),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => GradesPage(
+                            api: services.grades,
                             session: session,
                           ),
                         ),

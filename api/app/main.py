@@ -17,6 +17,7 @@ from app.routers import (
     health,
     materials,
     notifications,
+    offerings,
     timetable,
 )
 
@@ -51,6 +52,7 @@ app.include_router(attendance.router, prefix=settings.api_v1_prefix)
 app.include_router(grades.router, prefix=settings.api_v1_prefix)
 app.include_router(materials.router, prefix=settings.api_v1_prefix)
 app.include_router(notifications.router, prefix=settings.api_v1_prefix)
+app.include_router(offerings.router, prefix=settings.api_v1_prefix)
 app.include_router(timetable.router, prefix=settings.api_v1_prefix)
 
 

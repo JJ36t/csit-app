@@ -11,9 +11,9 @@
 1. المشروع: تطبيق أندرويد لكلية علوم الحاسوب وتكنولوجيا المعلومات — جامعة القادسية، بخلفية FastAPI/PostgreSQL ولوحة تحكم ويب.
 2. المستودع: `csit-app/` وفيه `api/` و`app/` (Flutter) و`admin/` (React) و`design/` (نموذج الشاشات).
 3. **مكتمل ومتحقَّق منه:** المصادقة وربط الجهاز، استيراد الطلاب من Excel، الحضور (QR متجدد + موقع + لحظي + تقارير)، الجدول (حصص + تعارضات + تغييرات مؤرخة)، فهرس «جهاز نشط واحد»، ودرجات ومواد وإعلانات وإشعارات (N3)، وملف CI.
-4. الحالة الحالية للاختبارات: **62/62 على SQLite و62/62 على PostgreSQL** (الترحيلات 0001–0003)، و`alembic check` نظيف، و`smoke_n3` أخضر عبر HTTP.
-5. تطبيق Flutter: المصادقة + **N1 الحضور منجز** + **أول APK ناجح** (66.5MB)؛ بقية الشاشات الثماني لم تُحوَّل بعد.
-6. **التالي فوراً:** N2 (الجدول والمواد والدرجات في Flutter)، ثم N4 شاشات لوحة التحكم، ثم N5 النشر.
+4. الحالة الحالية للاختبارات: **65/65 على SQLite و65/65 على PostgreSQL** (الترحيلات 0001–0003)، و`alembic check` نظيف، و`smoke_n3` أخضر عبر HTTP؛ وFlutter **43/43**.
+5. تطبيق Flutter: المصادقة + **N1 الحضور** + **N2 الجدول والمواد والدرجات** + **APK ناجح** (67.5MB)؛ تبقى الإعلانات والملف الشخصي.
+6. **التالي فوراً:** N4 (شاشات لوحة التحكم: الطلاب/الجدول/الدرجات)، ثم N5 النشر.
 7. **git مهيأ ومدفوع إلى GitHub**: المستودع `https://github.com/JJ36t/csit-app` — و**CI يعمل فعلياً ونجح بالكامل (3/3 وظائف)** في أول تشغيل.
 8. **Android SDK مثبّت** وبناء APK يعمل عبر قرص قصير `subst X:` (انظر 5.6)؛ تجربة الكاميرا على هاتف حقيقي لم تُجرّب بعد.
 9. المستخدم (صاحب المشروع) ينتظر إنجاز بنود إدارية موثّقة في القسم 8 (قواعد الغياب، الجدول الرسمي، عيّنة بيانات…).
@@ -89,21 +89,28 @@
 - **CORS** لنطاقات localhost للتطوير، و`alembic check` نظيف بعد الترحيل.
 - اختبارات: 19 جديدة (7 درجات، 5 مواد، 4 إعلانات، 3 إشعارات) — **62/62** على القاعدتين + `scripts/smoke_n3.py` عبر HTTP.
 
+**المرحلة 6 — N2: الجدول والمواد والدرجات في Flutter (26 ت10 2026):**
+- **الجدول:** شاشة بأيام (شرائح) تُقرأ من `GET /timetable` + `GET /timetable/changes`، مع لافتة تغييرات مؤرخة (إلغاء/نقل/إضافة) لكل يوم، و**تخزين محلي** (shared_preferences) يُعرض عند تعذر الشبكة مع لافتة «بيانات محفوظة من HH:mm».
+- **المواد:** `GET /offerings` (نقطة جديدة: مواد المستخدم حسب دوره) ثم `GET /offerings/{id}/materials`، وفتح PDF برابط موقّع أو رابط فيديو عبر `url_launcher`.
+- **الدرجات:** `GET /grades` — التقييمات المنشورة والدرجة والمجموع الموزون لكل مادة.
+- **بنية مشتركة:** `AppServices` تحقن الواجهات الخمس في الموجّه/الرئيسية؛ `offering_id` أُضيف لعنصر الجدول؛ منطق نطاق العروض نُقل إلى `access.user_offering_ids` (شترك بين `/timetable` و`/offerings`).
+- اختبارات: 16 جديدة في Flutter (5 جدول، 5 مواد، 4 درجات، 2 تخزين) → **43/43**، و3 جديدة في الـAPI → **65/65** على القاعدتين.
+
 ---
 
 ## 3) حالة التحقق الحالية (أرقام حقيقية — أعدها قبل أي تسليم)
 
 | الفحص | الأمر | النتيجة عند كتابة الملف |
 |---|---|---|
-| اختبارات API على SQLite | `pytest tests -q` | **62/62** |
-| اختبارات API على PostgreSQL 18.6 | `DATABASE_URL=postgresql+psycopg://…` | **62/62** |
+| اختبارات API على SQLite | `pytest tests -q` | **65/65** |
+| اختبارات API على PostgreSQL 18.6 | `DATABASE_URL=postgresql+psycopg://…` | **65/65** |
 | الترحيلات على PostgreSQL | `alembic upgrade head` + `alembic check` | 0001+0002+0003 · «No new upgrade operations detected» |
 | دورة الإرجاع | `alembic downgrade base` ثم `upgrade head` | نظيفة |
 | فحص HTTP شامل | `python scripts/smoke_e2e.py` | أخضر (مدير ← استيراد ← طالب ← منع جهاز ← إعادة ضبط ← رفض صلاحيات) |
 | فحص N3 عبر HTTP | `python scripts/smoke_n3.py` | أخضر (تقييم ← درجة ← نشر ← درجة الطالب ← إعلان/إشعار ← مادة برابط موقّع) |
-| Flutter | `flutter analyze` / `flutter test` / `flutter build web --release` | 0 ملاحظات · **27/27** · بناء ناجح |
+| Flutter | `flutter analyze` / `flutter test` / `flutter build web --release` | 0 ملاحظات · **43/43** · بناء ناجح |
 | لوحة التحكم | `npm run build` | ناجح |
-| APK (release) | `flutter build apk --release` من `X:\app` (5.6) | **66.5MB · بناء ناجح متكرر** (موقّع بمفتاح debug) |
+| APK (release) | `flutter build apk --release` من `X:\app` (5.6) | **67.5MB · بناء ناجح متكرر** (موقّع بمفتاح debug) |
 | git | `git log` | مستودع محلي + 3 التزامات · مدفوع للمستودع البعيد `JJ36t/csit-app` |
 | CI | GitHub Actions | ✅ **نجح فعلياً من أول تشغيل** — 3/3 وظائف (API على PostgreSQL 16 + Flutter + لوحة التحكم) |
 
@@ -141,7 +148,7 @@ csit-app/
 └── design/screens.html
 ```
 
-**نقاط الـAPI الحالية:** `health` · `auth/{login,refresh,logout,change-password,me}` · `departments` · `admin/students/{import,template,list}` · `admin/users/{id}/{device/reset,reset-password}` · `sessions/{id}/{open,close,live}` · `attendance/{scan,summary}` · `attendance/{id}` (PATCH) · `offerings/{id}/attendance{,/report}` · `timetable` · `timetable/changes` · `admin/timetable/{rooms,slots,changes}` · `assessments` · `assessments/{id}/{grades,publish}` · `offerings/{id}/grades{,/export}` · `grades` · `offerings/{id}/materials` · `materials/{id}` · `files/{id}/download` · `admin/announcements` · `announcements` · `announcements/{id}/read` · `notifications{,/{id}/read,/read-all}` · `devices/fcm-token`.
+**نقاط الـAPI الحالية:** `health` · `auth/{login,refresh,logout,change-password,me}` · `departments` · `offerings` · `admin/students/{import,template,list}` · `admin/users/{id}/{device/reset,reset-password}` · `sessions/{id}/{open,close,live}` · `attendance/{scan,summary}` · `attendance/{id}` (PATCH) · `offerings/{id}/attendance{,/report}` · `timetable` · `timetable/changes` · `admin/timetable/{rooms,slots,changes}` · `assessments` · `assessments/{id}/{grades,publish}` · `offerings/{id}/grades{,/export}` · `grades` · `offerings/{id}/materials` · `materials/{id}` · `files/{id}/download` · `admin/announcements` · `announcements` · `announcements/{id}/read` · `notifications{,/{id}/read,/read-all}` · `devices/fcm-token`.
 
 ---
 
@@ -272,15 +279,14 @@ cd api; python scripts/dev_reset_devices.py S-100  # حساب واحد
 - القبول متحقق: 19 اختباراً جديداً (المطلوب ≥12) → **62/62** على SQLite وPostgreSQL · `alembic check` نظيف بعد الترحيل 0003 · كل إدخال/تعديل درجة ونشر مسجَّل في `audit_logs` · `smoke_n3` أخضر عبر HTTP.
 - ملاحظة: الإرسال الفعلي عبر FCM مؤجّل (يُخزَّن الرمز فقط) كما في الخطة.
 
-### N2 — تطبيق Flutter: الجدول والمواد والدرجات
-- الجدول من `GET /timetable` (+ تغييرات)، المواد من `offerings/{id}/materials` (يحتاج بناء نقاط المواد أولاً — انظر N3)، الدرجات من `GET /grades`.
-- **قبول:** نفس معايير N1 + تعمل بلا إنترنت على الأقل للجدول (تخزين محلي لاحقاً).
+### N2 — تطبيق Flutter: الجدول والمواد والدرجات — ✅ منجز (26 ت10 2026)
+- أُنجز: شاشة جدول بأيام وشرائح بتوقيت بغداد + لافتة تغييرات مؤرخة + **قراءة من ذاكرة محلية** عند تعذر الشبكة (shared_preferences)؛ شاشة المواد (مواد المستخدم من `GET /offerings` ← ملفاتها)، وفتح PDF برابط موقّع/روابط الفيديو عبر `url_launcher`؛ شاشة الدرجات (المنشور فقط + المجموع الموزون).
+- القبول متحقق: `flutter analyze` صفر ملاحظات · **43/43** اختباراً (16 جديدة) · لا نصوص عربية في الكود · يعمل بلا إنترنت للجدول (ذاكرة محلية).
+- إضافة API مرافقة: `GET /offerings` + `offering_id` في عناصر `/timetable` (3 اختبارات → 65/65).
 
-### N3 — الـAPI: المواد والإعلانات والإشعارات والدرجات
-- **الدرجات (المرحلة 5 من الخطة — قرار #3):** `POST /assessments` وإنشاء تقييمات للمادة، `POST /assessments/{id}/grades` (إدخال دفعي كمسودة)، `POST /assessments/{id}/publish` (بموافقة الكلية + سجل تدقيق)، `GET /grades` للطالب، `GET /offerings/{id}/grades` للتدريسي، تصدير Excel.
-- **المواد:** رفع ملف (تحقق نوع/حجم)، `POST /offerings/{id}/materials`، `GET .../materials`، `GET /files/{id}/download` برابط موقّع قصير العمر.
-- **الإعلانات:** CRUD بنطاق (كلية/قسم/مرحلة/شعبة/مادة) + جدولة نشر + `POST /announcements/{id}/read`.
-- **الإشعارات:** صندوق وارد `GET /notifications` + `read-all` + `PUT /devices/fcm-token` (الإرسال الفعلي عبر FCM لاحقاً).
+### N3 — الـAPI: المواد والإعلانات والإشعارات والدرجات — ✅ منجز (26 ت10 2026)
+- أُنجز: التقييمات وإدخال الدرجات الدفعي (مسودة) والنشر بموافقة مدير الكلية مع تدقيق وإشعار المسجَّلين، ومصفوفة درجات المادة وتصدير Excel، والمواد (رفع PDF/رابط + تنزيل برابط موقّع)، والإعلانات بخمسة نطاقات وجدولة، وصندوق الإشعارات و`fcm-token`.
+- القبول متحقق: 19 اختباراً جديداً · `alembic check` نظيف بعد الترحيل 0003 · كل إدخال/نشر مدقَّق · `smoke_n3` أخضر.
 - **قبول:** اختبارات ≥12 حالة جديدة، `alembic check` نظيف، كل تعديل درجة/نشر مدقَّق، والاختبارات تمر على القاعدتين.
 
 ### N4 — لوحة التحكم: ثلاث شاشات وظيفية
@@ -336,5 +342,5 @@ cd api; python scripts/dev_reset_devices.py S-100  # حساب واحد
 - **25 ت10 2026:** المرحلة 1 (29 جدولاً + الأقسام + لوحة أولية) والمرحلة 2 (مصادقة + استيراد + تدقيق) — 27 اختباراً على القاعدتين.
 - **26 ت10 2026:** المرحلة 3 (حضور QR + جدول + تعارضات + فهرس جزئي + CI) — **43 اختباراً** على القاعدتين، ونموذج الشاشات الثماني.
 - **26 ت10 2026 (تكملة):** N1 — الحضور في Flutter (مسح QR للطالب + قائمة لحظية وQR متجدد للتدريسي) — **27/27** اختبار واجهة، `analyze` نظيف، `build web` ناجح، **أول APK ناجح (66.5MB)**، وإعادة إنشاء `ci.yml` المفقود.
-- **26 ت10 2026 (N3):** درجات ومواد وإعلانات وإشعارات في الـAPI + ترحيل 0003 + CORS — **62/62** على القاعدتين، `smoke_n3` أخضر، حل نهائي لمسار البناء الطويل (`subst X:` + إعدادا Kotlin)، وتهيئة git بأول التزام.
+- **26 ت10 2026 (N2):** الجدول والمواد والدرجات في Flutter + `GET /offerings` — **43/43** اختبار واجهة و**65/65** على القاعدتين، وAPK 67.5MB.
 - **26 ت10 2026 (GitHub):** رفع المستودع إلى `JJ36t/csit-app` — **CI أخضر 3/3 من أول تشغيل فعلي**.

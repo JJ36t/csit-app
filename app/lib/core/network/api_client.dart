@@ -39,13 +39,26 @@ class ApiException implements Exception {
 /// عميل HTTP موحد.
 /// المحاكي على نفس الجهاز: 10.0.2.2؛ والسيرفر الجامعي عبر:
 /// `flutter run --dart-define=API_BASE_URL=https://csit.qu.edu.iq`
+const apiBaseUrl = String.fromEnvironment(
+  'API_BASE_URL',
+  defaultValue: 'http://10.0.2.2:8000',
+);
+
+/// يحوّل مساراً نسبياً من الخادم إلى رابط مطلق (لروابط التنزيل الموقّعة).
+String absoluteApiUrl(String path) {
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+  final base = apiBaseUrl.endsWith('/')
+      ? apiBaseUrl.substring(0, apiBaseUrl.length - 1)
+      : apiBaseUrl;
+  return '$base$path';
+}
+
 Dio buildDio() {
   return Dio(
     BaseOptions(
-      baseUrl: const String.fromEnvironment(
-        'API_BASE_URL',
-        defaultValue: 'http://10.0.2.2:8000',
-      ),
+      baseUrl: apiBaseUrl,
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 20),
       headers: {'Accept': 'application/json'},

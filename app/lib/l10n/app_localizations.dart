@@ -525,6 +525,186 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'سُجّل غياب {count} طالباً لم يسجّلوا حضورهم.'**
   String absentMarkedNote(int count);
+
+  /// No description provided for @timetableTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجدول الأسبوعي'**
+  String get timetableTitle;
+
+  /// No description provided for @timetableEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد محاضرات في هذه الفترة'**
+  String get timetableEmpty;
+
+  /// No description provided for @timetableOffline.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر الاتصال؛ تُعرض بيانات محفوظة من {time}'**
+  String timetableOffline(String time);
+
+  /// No description provided for @changeCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملغاة'**
+  String get changeCancelled;
+
+  /// No description provided for @changeMoved.
+  ///
+  /// In ar, this message translates to:
+  /// **'نُقلت'**
+  String get changeMoved;
+
+  /// No description provided for @changeExtra.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة'**
+  String get changeExtra;
+
+  /// No description provided for @weekdaySunday.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأحد'**
+  String get weekdaySunday;
+
+  /// No description provided for @weekdayMonday.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاثنين'**
+  String get weekdayMonday;
+
+  /// No description provided for @weekdayTuesday.
+  ///
+  /// In ar, this message translates to:
+  /// **'الثلاثاء'**
+  String get weekdayTuesday;
+
+  /// No description provided for @weekdayWednesday.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأربعاء'**
+  String get weekdayWednesday;
+
+  /// No description provided for @weekdayThursday.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخميس'**
+  String get weekdayThursday;
+
+  /// No description provided for @weekdayFriday.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجمعة'**
+  String get weekdayFriday;
+
+  /// No description provided for @weekdaySaturday.
+  ///
+  /// In ar, this message translates to:
+  /// **'السبت'**
+  String get weekdaySaturday;
+
+  /// No description provided for @courseMaterialsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'مواد المقررات'**
+  String get courseMaterialsTitle;
+
+  /// No description provided for @noOfferings.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مواد دراسية مسجَّلة'**
+  String get noOfferings;
+
+  /// No description provided for @courseMaterialsEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا مواد منشورة بعد'**
+  String get courseMaterialsEmpty;
+
+  /// No description provided for @materialsDownload.
+  ///
+  /// In ar, this message translates to:
+  /// **'تنزيل'**
+  String get materialsDownload;
+
+  /// No description provided for @materialsOpenLink.
+  ///
+  /// In ar, this message translates to:
+  /// **'فتح'**
+  String get materialsOpenLink;
+
+  /// No description provided for @materialsLinkOpenFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر فتح الرابط؛ حاول مجدداً'**
+  String get materialsLinkOpenFailed;
+
+  /// No description provided for @materialsWeek.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأسبوع {week}'**
+  String materialsWeek(int week);
+
+  /// No description provided for @gradesTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'درجاتك'**
+  String get gradesTitle;
+
+  /// No description provided for @gradesEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا درجات منشورة بعد'**
+  String get gradesEmpty;
+
+  /// No description provided for @notGradedYet.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم تُرصد'**
+  String get notGradedYet;
+
+  /// No description provided for @weightedOfTotal.
+  ///
+  /// In ar, this message translates to:
+  /// **'{total} من {sum}'**
+  String weightedOfTotal(String total, String sum);
+
+  /// No description provided for @scoreOfMax.
+  ///
+  /// In ar, this message translates to:
+  /// **'{score} / {max}'**
+  String scoreOfMax(String score, String max);
+
+  /// No description provided for @weightShort.
+  ///
+  /// In ar, this message translates to:
+  /// **'وزن {weight}%'**
+  String weightShort(String weight);
+
+  /// No description provided for @timetableCard.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجدول'**
+  String get timetableCard;
+
+  /// No description provided for @timetableCardHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'محاضراتك وتغييراتها المؤرخة'**
+  String get timetableCardHint;
+
+  /// No description provided for @materialsCardHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملفات المحاضرات وروابطها'**
+  String get materialsCardHint;
+
+  /// No description provided for @gradesCardHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'نتائجك المنشورة والمجموع الموزون'**
+  String get gradesCardHint;
 }
 
 class _AppLocalizationsDelegate

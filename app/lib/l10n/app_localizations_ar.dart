@@ -247,4 +247,104 @@ class AppLocalizationsAr extends AppLocalizations {
   String absentMarkedNote(int count) {
     return 'سُجّل غياب $count طالباً لم يسجّلوا حضورهم.';
   }
+
+  @override
+  String get timetableTitle => 'الجدول الأسبوعي';
+
+  @override
+  String get timetableEmpty => 'لا توجد محاضرات في هذه الفترة';
+
+  @override
+  String timetableOffline(String time) {
+    return 'تعذر الاتصال؛ تُعرض بيانات محفوظة من $time';
+  }
+
+  @override
+  String get changeCancelled => 'ملغاة';
+
+  @override
+  String get changeMoved => 'نُقلت';
+
+  @override
+  String get changeExtra => 'إضافة';
+
+  @override
+  String get weekdaySunday => 'الأحد';
+
+  @override
+  String get weekdayMonday => 'الاثنين';
+
+  @override
+  String get weekdayTuesday => 'الثلاثاء';
+
+  @override
+  String get weekdayWednesday => 'الأربعاء';
+
+  @override
+  String get weekdayThursday => 'الخميس';
+
+  @override
+  String get weekdayFriday => 'الجمعة';
+
+  @override
+  String get weekdaySaturday => 'السبت';
+
+  @override
+  String get courseMaterialsTitle => 'مواد المقررات';
+
+  @override
+  String get noOfferings => 'لا توجد مواد دراسية مسجَّلة';
+
+  @override
+  String get courseMaterialsEmpty => 'لا مواد منشورة بعد';
+
+  @override
+  String get materialsDownload => 'تنزيل';
+
+  @override
+  String get materialsOpenLink => 'فتح';
+
+  @override
+  String get materialsLinkOpenFailed => 'تعذر فتح الرابط؛ حاول مجدداً';
+
+  @override
+  String materialsWeek(int week) {
+    return 'الأسبوع $week';
+  }
+
+  @override
+  String get gradesTitle => 'درجاتك';
+
+  @override
+  String get gradesEmpty => 'لا درجات منشورة بعد';
+
+  @override
+  String get notGradedYet => 'لم تُرصد';
+
+  @override
+  String weightedOfTotal(String total, String sum) {
+    return '$total من $sum';
+  }
+
+  @override
+  String scoreOfMax(String score, String max) {
+    return '$score / $max';
+  }
+
+  @override
+  String weightShort(String weight) {
+    return 'وزن $weight%';
+  }
+
+  @override
+  String get timetableCard => 'الجدول';
+
+  @override
+  String get timetableCardHint => 'محاضراتك وتغييراتها المؤرخة';
+
+  @override
+  String get materialsCardHint => 'ملفات المحاضرات وروابطها';
+
+  @override
+  String get gradesCardHint => 'نتائجك المنشورة والمجموع الموزون';
 }

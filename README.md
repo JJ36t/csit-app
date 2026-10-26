@@ -48,6 +48,11 @@ csit-app/
 - **المواد:** رفع PDF أو رابط (تحقق نوع/حجم 25MB) بمفتاح تخزين عشوائي، وتنزيل برابط موقّع HMAC عمره 10 دقائق — الطالب يرى المنشور فقط.
 - **الإعلانات والإشعارات:** خمسة نطاقات (كلية/قسم/مرحلة/شعبة/مادة) + جدولة نشر، خلاصة موجّهة بعلامة مقروء، وصندوق إشعارات مع `read-all` و`fcm-token`.
 
+**المرحلة 6 — N2: الجدول والمواد والدرجات في التطبيق:**
+- **الجدول:** شرائح أيام بتوقيت بغداد + تغييرات مؤرخة + **قراءة بلا إنترنت** من ذاكرة محلية مع لافتة «بيانات محفوظة».
+- **المواد:** قائمة موادك الدراسية (`GET /offerings`) ثم ملفاتها، وفتح PDF برابط موقّع/روابط الفيديو عبر المتصفح.
+- **الدرجات:** التقييمات المنشورة مع الدرجة والمجموع الموزون لكل مادة.
+
 ## نقاط الـAPI
 
 | النقطة | الوصف |
@@ -62,8 +67,7 @@ csit-app/
 | `GET /offerings/{id}/attendance` · `/attendance/report` | سجلي وتقرير المادة |
 | `GET /timetable?from=&to=` · `GET /timetable/changes` | جدول المستخدم وتغييراته |
 | `POST /admin/timetable/rooms` · `/slots` · `/changes` | القاعات والحصص والتغييرات (بكشف تعارض) |
-| `POST /assessments` · `POST /assessments/{id}/grades` · `/publish` | تقييمات، إدخال دفعي مدقَّق، نشر بموافقة الكلية |
-| `GET /grades` · `GET /offerings/{id}/grades` · `/grades/export` | درجات الطالب (المنشورة)، مصفوفة التدريسي، تصدير Excel |
+| `POST /assessments` · `POST /assessments/{id}/grades` · `/publish` | تقييمات، إدخال دفعي مدقَّق، نشر بموافقة الكلية || `GET /grades` · `GET /offerings/{id}/grades` · `/grades/export` | درجات الطالب (المنشورة)، مصفوفة التدريسي، تصدير Excel |
 | `POST /offerings/{id}/materials` · `GET …/materials` · `GET /files/{id}/download` | المواد وروابط التنزيل الموقّعة |
 | `POST /admin/announcements` · `GET /announcements` · `POST /announcements/{id}/read` | الإعلانات بنطاق وجدولة وعلامة مقروء |
 | `GET /notifications` · `/read-all` · `PUT /devices/fcm-token` | صندوق الإشعارات ورمز FCM |
@@ -79,15 +83,15 @@ csit-app/
 
 | الطبقة | ما نُفِّذ | النتيجة |
 |---|---|---|
-| api · SQLite | `pytest tests` | ✅ **62/62** (مصادقة، أجهزة، تدقيق، استيراد، حضور، جدول، درجات/مواد/إعلانات/إشعارات، ترحيل، قيود) |
-| api · PostgreSQL 18.6 | `pytest tests` | ✅ **62/62** على PostgreSQL أيضاً |
+| api · SQLite | `pytest tests` | ✅ **65/65** (مصادقة، أجهزة، تدقيق، استيراد، حضور، جدول، عروض، درجات/مواد/إعلانات/إشعارات، ترحيل، قيود) |
+| api · PostgreSQL 18.6 | `pytest tests` | ✅ **65/65** على PostgreSQL أيضاً |
 | api · PostgreSQL | `alembic upgrade head` + `check` | ✅ الترحيلات 0001–0003 · لا انحراف |
 | api · PostgreSQL | الفهرس الجزئي | ✅ `CREATE UNIQUE INDEX … (user_id) WHERE (status = 'active')` |
 | api · PostgreSQL | دورة `downgrade base` ← `upgrade head` | ✅ نظيفة (مع إسقاط أنواع Enum) |
 | api · PostgreSQL | فحص HTTP شامل (`smoke_e2e.py`) | ✅ مدير ← استيراد ← دخول طالب ← منع جهاز ثانٍ ← إعادة ضبط ← رفض رمز الطالب على الإدارة |
 | api · PostgreSQL | فحص N3 (`smoke_n3.py`) | ✅ تقييم ← درجة ← نشر ← درجة الطالب ← إعلان/إشعار ← مادة برابط موقّع |
-| app · Flutter 3.47.8 | `flutter analyze` / `flutter test` / `flutter build web` | ✅ 0 ملاحظات · **27/27** · بناء ناجح |
-| app · Android | `flutter build apk --release` (من `X:\app`) | ✅ **66.5MB** · موقّع debug (لم يُثبَّت على جهاز) |
+| app · Flutter 3.47.8 | `flutter analyze` / `flutter test` / `flutter build web` | ✅ 0 ملاحظات · **43/43** · بناء ناجح |
+| app · Android | `flutter build apk --release` (من `X:\app`) | ✅ **67.5MB** · موقّع debug (لم يُثبَّت على جهاز) |
 | admin | `npm install` + `npm run build` | ✅ بناء ناجح |
 | git | `git log` | ✅ مستودع محلي مدفوع إلى `github.com/JJ36t/csit-app` |
 | CI | GitHub Actions | ✅ **نجح فعلياً 3/3** (API على PostgreSQL + Flutter + لوحة التحكم) |
@@ -107,8 +111,7 @@ csit-app/
 
 ## الخطوات التالية
 
-1. **N2 — تطبيق Flutter:** الجدول الأسبوعي والمواد والدرجات (نقاط الـAPI جاهزة الآن).
-2. **N4 — لوحة التحكم:** شاشات الطلاب والجدول والدرجات (إدخال دفعي + نشر) على الـAPI.
-3. **N5 — التشغيل:** Redis لحدّ المحاولات، نسخ احتياطي + فحص استرجاع، `docker-compose` وNginx/HTTPS على سيرفر الجامعة.
-4. **إكمال N6:** مستودع GitHub + تشغيل CI فعلياً.
+1. **N4 — لوحة التحكم:** شاشات الطلاب والجدول والدرجات (إدخال دفعي + نشر) على الـAPI.
+2. **N5 — التشغيل:** Redis لحدّ المحاولات، نسخ احتياطي + فحص استرجاع، `docker-compose` وNginx/HTTPS على سيرفر الجامعة.
+3. **إكمال N6:** مستودع GitHub يعمل وCI أخضر — يتبقى فقط متابعة الـpush لكل تغيير.
 5. الإداري (على المستخدم): لقاء العمادة/وحدة تقنية المعلومات، عينة بيانات، موافقة البيانات.

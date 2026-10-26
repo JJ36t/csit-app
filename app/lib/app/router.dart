@@ -1,12 +1,12 @@
 import 'package:go_router/go_router.dart';
 
-import '../../features/attendance/data/attendance_api.dart';
 import '../../features/auth/presentation/login_page.dart';
 import '../../features/auth/presentation/session.dart';
 import '../../features/home/presentation/home_page.dart';
+import '../core/app_services.dart';
 
 /// ملاحة محمية بالجلسة: لا وصول للرئيسية قبل الدخول، ولا رجوع للدخول بعد نجاحه.
-GoRouter createRouter(SessionController session, AttendanceApi attendance) {
+GoRouter createRouter(SessionController session, AppServices services) {
   return GoRouter(
     initialLocation: '/login',
     refreshListenable: session,
@@ -22,7 +22,7 @@ GoRouter createRouter(SessionController session, AttendanceApi attendance) {
       GoRoute(
         path: '/home',
         builder: (context, state) =>
-            HomePage(session: session, attendance: attendance),
+            HomePage(session: session, services: services),
       ),
     ],
   );

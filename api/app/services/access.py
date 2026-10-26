@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """فحوصات الوصول المشتركة: تدريسي المادة، رئيس القسم، وتسجيل الطالب."""
+import uuid
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -11,6 +13,43 @@ from app.models.enums import EnrollmentStatus, UserRole
 def staff_department_id(db: Session, user: User) -> object | None:
     staff = db.get(Staff, user.id)
     return staff.department_id if staff is not None else None
+
+
+def user_offering_ids(db: Session, user: User) -> list[uuid.UUID]:
+    """معرّفات العروض التي يراها المستخدم حسب دوره (نطاق الجدول والمواد).
+
+    الطالب: عروض تسجيله النشط فقط، التدريسي: عروضه، رئيس القسم: شعب قسمه،
+    مدير الكلية: الكل. أي دور آخر أو غياب بيانات: قائمة فارغة.
+    """
+    if user.role == UserRole.STUDENT:
+        return list(
+            db.scalars(
+                select(Enrollment.offering_id).where(
+                    Enrollment.student_id == user.id,
+                    Enrollment.status == EnrollmentStatus.ACTIVE,
+                )
+            )
+        )
+    if user.role == UserRole.INSTRUCTOR:
+        return list(
+            db.scalars(
+                select(CourseOffering.id).where(CourseOffering.instructor_id == user.id)
+            )
+        )
+    if user.role == UserRole.DEPARTMENT_HEAD:
+        department_id = staff_department_id(db, user)
+        if department_id is None:
+            return []
+        return list(
+            db.scalars(
+                select(CourseOffering.id)
+                .join(Group, Group.id == CourseOffering.group_id)
+                .where(Group.department_id == department_id)
+            )
+        )
+    if user.role == UserRole.COLLEGE_ADMIN:
+        return list(db.scalars(select(CourseOffering.id)))
+    return []
 
 
 def is_department_head_of(db: Session, user: User, department_id) -> bool:

@@ -107,5 +107,62 @@
     "placeholders": {
       "count": {"type": "int"}
     }
-  }
+  },
+  "timetableTitle": "الجدول الأسبوعي",
+  "timetableEmpty": "لا توجد محاضرات في هذه الفترة",
+  "timetableOffline": "تعذر الاتصال؛ تُعرض بيانات محفوظة من {time}",
+  "@timetableOffline": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "changeCancelled": "ملغاة",
+  "changeMoved": "نُقلت",
+  "changeExtra": "إضافة",
+  "weekdaySunday": "الأحد",
+  "weekdayMonday": "الاثنين",
+  "weekdayTuesday": "الثلاثاء",
+  "weekdayWednesday": "الأربعاء",
+  "weekdayThursday": "الخميس",
+  "weekdayFriday": "الجمعة",
+  "weekdaySaturday": "السبت",
+  "courseMaterialsTitle": "مواد المقررات",
+  "noOfferings": "لا توجد مواد دراسية مسجَّلة",
+  "courseMaterialsEmpty": "لا مواد منشورة بعد",
+  "materialsDownload": "تنزيل",
+  "materialsOpenLink": "فتح",
+  "materialsLinkOpenFailed": "تعذر فتح الرابط؛ حاول مجدداً",
+  "materialsWeek": "الأسبوع {week}",
+  "@materialsWeek": {
+    "placeholders": {
+      "week": {"type": "int"}
+    }
+  },
+  "gradesTitle": "درجاتك",
+  "gradesEmpty": "لا درجات منشورة بعد",
+  "notGradedYet": "لم تُرصد",
+  "weightedOfTotal": "{total} من {sum}",
+  "@weightedOfTotal": {
+    "placeholders": {
+      "total": {"type": "String"},
+      "sum": {"type": "String"}
+    }
+  },
+  "scoreOfMax": "{score} / {max}",
+  "@scoreOfMax": {
+    "placeholders": {
+      "score": {"type": "String"},
+      "max": {"type": "String"}
+    }
+  },
+  "weightShort": "وزن {weight}%",
+  "@weightShort": {
+    "placeholders": {
+      "weight": {"type": "String"}
+    }
+  },
+  "timetableCard": "الجدول",
+  "timetableCardHint": "محاضراتك وتغييراتها المؤرخة",
+  "materialsCardHint": "ملفات المحاضرات وروابطها",
+  "gradesCardHint": "نتائجك المنشورة والمجموع الموزون"
 }
