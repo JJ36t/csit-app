@@ -121,12 +121,13 @@ csit-app/
 
 | الطبقة | ما نُفِّذ | النتيجة |
 |---|---|---|
-| api · SQLite | `pytest tests` | ✅ **93/93** (مصادقة، أجهزة، تدقيق، استيراد، حضور، جدول، عروض، درجات/مواد/إعلانات/إشعارات، مستخدمون، سجل تدقيق، ملخص، ترحيل، قيود، حدّ محاولات، health) |
-| api · PostgreSQL 18.6 | `pytest tests` | ✅ **93/93** على PostgreSQL أيضاً |
-| api · Redis | `pytest tests/test_rate_limit_redis.py` | ✅ **4/4** بـfakeredis (لا خدمة Redis على الجهاز) |
+| api · SQLite | `pytest tests` | ✅ **94/94** (مصادقة، أجهزة، تدقيق، استيراد، حضور، جدول، عروض، درجات/مواد/إعلانات/إشعارات، مستخدمون، سجل تدقيق، ملخص، ترحيل، قيود، حدّ محاولات، health) |
+| api · PostgreSQL 18.6 | `pytest tests` | ✅ **94/94** على PostgreSQL أيضاً |
+| api · Redis (حقيقي) | `scripts/check_redis.py` + محاولات دخول | ✅ Redis 5.0.14.1 محلي: عدّاد/TTL/حجب/تصفير، و5 محاولات 401 ثم **429** |
+| api · Redis (وحدات) | `pytest tests/test_rate_limit_redis.py` | ✅ **4/4** بـfakeredis |
 | api · PostgreSQL | `backup_db.py` + `verify_restore.py` | ✅ نسخة 94.6KB ← استرجاع مطابق (5/0/1) ← `0003 (head)` |
 | api · PostgreSQL | `GET /health` حيّاً | ✅ 200 · `{"status":"ok","database":"ok","revision":"0003"}` |
-| نشر · Docker | `docker compose up` | ⚠️ **غير متحقق** — Docker غير مثبت على جهاز التطوير |
+| نشر · Docker | `docker compose config` | ⚠️ **جزئي** — Docker Desktop مثبّت وملف compose صالح، لكن المحرّك يحتاج مديراً + WSL2 (لا بناء صور) |
 | api · PostgreSQL | `alembic upgrade head` + `check` | ✅ الترحيلات 0001–0004 · لا انحراف |
 | api · PostgreSQL | الفهرس الجزئي | ✅ `CREATE UNIQUE INDEX … (user_id) WHERE (status = 'active')` |
 | api · PostgreSQL | دورة `downgrade base` ← `upgrade head` | ✅ نظيفة (مع إسقاط أنواع Enum) |

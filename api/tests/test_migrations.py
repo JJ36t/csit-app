@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import create_engine, inspect, text
 
 API_DIR = Path(__file__).resolve().parents[1]
 
@@ -68,4 +68,46 @@ def test_key_constraints(tmp_path):
 
     slot_indexes = {ix["name"] for ix in insp.get_indexes("timetable_slots")}
     assert "ix_timetable_slots_offering_weekday" in slot_indexes
+    eng.dispose()
+
+
+def test_upgrade_0004_with_existing_rows(tmp_path):
+    """SQLite القديم: إضافة created_at إلى جدول فيه صفوف (كان يفشل قبل إصلاح batch)."""
+    db = tmp_path / "existing.db"
+    url = f"sqlite:///{db}"
+
+    r = _run_alembic(url, "upgrade", "0003")
+    assert r.returncode == 0, r.stdout + r.stderr
+
+    eng = create_engine(url)
+    with eng.begin() as conn:
+        conn.execute(
+            text(
+                "INSERT INTO audit_logs (id, action, entity, entity_id) "
+                "VALUES ('seed0001', 'seed', 'table', 'x')"
+            )
+        )
+    eng.dispose()
+
+    r = _run_alembic(url, "upgrade", "head")
+    assert r.returncode == 0, r.stdout + r.stderr
+
+    eng = create_engine(url)
+    columns = {col["name"] for col in inspect(eng).get_columns("audit_logs")}
+    assert "created_at" in columns
+    with eng.connect() as conn:
+        value = conn.execute(text("SELECT created_at FROM audit_logs")).scalar()
+    assert value is not None, "الصفوف القديمة يجب أن تحصل على وقت افتراضي"
+
+    # الفهارس تبقى بعد إعادة بناء الجدول
+    indexes = {ix["name"] for ix in inspect(eng).get_indexes("audit_logs")}
+    assert "ix_audit_logs_action" in indexes and "ix_audit_logs_entity" in indexes
+    eng.dispose()
+
+    r = _run_alembic(url, "downgrade", "0003")
+    assert r.returncode == 0, r.stdout + r.stderr
+
+    eng = create_engine(url)
+    columns = {col["name"] for col in inspect(eng).get_columns("audit_logs")}
+    assert "created_at" not in columns
     eng.dispose()

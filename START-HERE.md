@@ -13,10 +13,11 @@
 **التالي:** N7 — الاعتماد التجريبي (شعبة واحدة لأسبوعين و20 مختبِراً في Play المغلقة).
 لوحة التحكم اكتملت (سبع شاشات). متبقٍّ من النشر: صور Docker (Docker غير مثبت) وTLS (يحتاج سيرفر الجامعة).
 
-الأرقام الحقيقية الآن: **API 93/93 على SQLite و93/93 على PostgreSQL** (ترحيلات 0001–0004) ·
+الأرقام الحقيقية الآن: **API 94/94 على SQLite و94/94 على PostgreSQL** (ترحيلات 0001–0004) ·
 **Flutter 65/65** و`analyze` نظيف و**APK 67.8MB** · **لوحة التحكم**: سبع شاشات، بناء ناجح، والأربع الجديدة مُجرَّبة يدوياً ·
 **نسخ/استرجاع مُجرَّب** (5/0/1 · 0003) · `/health` عميق (revision 0004) · `alembic` نظيف · **CI أخضر 3/3**.
-غير متحقق: صور Docker، Redis فعلي، TLS، وعرض الشاشات على سطح مكتب عريض.
+**Redis حقيقي مُختبَر** (5→429→تصفير) · Docker Desktop مثبّت لكن محرّكه يحتاج مديراً + WSL2 → بناء الصور غير متحقق ·
+غير متحقق أيضاً: TLS، وعرض شاشات اللوحة على سطح مكتب عريض.
 
 ---
 
@@ -58,10 +59,10 @@ $env:Path="C:\Users\hmt1\develop\flutter\bin;C:\Program Files\Git\cmd;C:\Windows
 ## 3) التحقق السريع (نفّذه فعلاً قبل أي تعديل — 6 دقائق)
 
 ```powershell
-# API على SQLite — يجب 93/93
+# API على SQLite — يجب 94/94
 cd api; $env:DATABASE_URL='sqlite:///./test_api.db'; python -m pytest tests -q
 
-# API على PostgreSQL — يجب 93/93 (يحتاج كلمة مرور postgres من صاحب المشروع)
+# API على PostgreSQL — يجب 94/94 (يحتاج كلمة مرور postgres من صاحب المشروع)
 $env:PGPASSWORD='<من صاحب المشروع>'
 $env:DATABASE_URL='postgresql+psycopg://postgres@127.0.0.1:5432/csit_test'; python -m pytest tests -q
 
@@ -161,6 +162,8 @@ admin/src/   App.tsx, api.ts, pages/{LoginPage, StudentsPage, TimetablePage, Gra
 12. **`audit_logs` بلا طابع زمني قبل ترحيل `0004`:** أي قاعدة قديمة تحتاج `alembic upgrade head` قبل شاشة سجل التدقيق، وإلا فشل الاستعلام على العمود الجديد.
 13. **اختبار يعتمد على `DateTime.now()` قد يعبر منتصف الليل** (فشل اختبار الجدول بعد 22:00 بغداد):
     ثبّت اللحظات على صباح اليوم بتوقيت بغداد (`todayUtc.add(hours: 5)`) بدل `now.add(hours: 2)`.
+14. **SQLite لا يقبل `ADD COLUMN` بقيمة افتراضية غير ثابتة** على جدول فيه صفوف — استخدم
+    `op.batch_alter_table` على SQLite (كما في ترحيل `0004`)، وأضف اختبار انحدار على قاعدة فيها بيانات.
 
 ---
 

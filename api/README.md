@@ -61,7 +61,9 @@ python scripts/smoke_n3.py      # يتطلب خدمة تعمل على 8000
 - عند ضبط `REDIS_URL=redis://host:6379/0` يصبح العدّاد في Redis، وتبقى الواجهة العامة كما هي
   (`guard` / `record` / `clear`) فلا يتغير أي router.
 - أي عطل (حزمة غائبة، اتصال، مهلة ثانية واحدة) يُسجَّل تحذيراً واحداً ثم يعمل العدّاد في الذاكرة.
-- مغطّى بـ4 اختبارات على مسار Redis عبر `fakeredis` (بلا خدمة خارجية) + اختبارات الذاكرة الحالية.
+- مغطّى بـ4 اختبارات على مسار Redis عبر `fakeredis`، ومُتحقَّق فعلياً على Redis 5.0.14.1 محلي:
+  `$env:REDIS_URL='redis://127.0.0.1:6379/0'; python scripts/check_redis.py`.
+- للتطوير المحلي على ويندوز: `api/redis-dev.conf` (استماع 127.0.0.1 فقط، بلا حفظ على القرص).
 
 ## النسخ الاحتياطي والاسترجاع
 
@@ -93,6 +95,7 @@ python scripts/verify_restore.py
 | `scripts/backup_db.py` | نسخة احتياطية `pg_dump -Fc` إلى `api/backups/` (مستثناة من git) |
 | `scripts/verify_restore.py` | استرجاع تحقّقي إلى `csit_restore_check` + مقارنة الأعداد + حذف القاعدة |
 | `scripts/smoke_n4.py` | فحص شاشات اللوحة (طلاب/جدول/درجات) عبر HTTP |
+| `scripts/check_redis.py` | فحص Redis الحقيقي (عدّاد/TTL/حجب/تصفير) — يتطلب `REDIS_URL` |
 
 ## النقاط
 
