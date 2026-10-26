@@ -36,3 +36,6 @@ api/test_uploads/
 
 # Database backups (pg_dump)
 api/backups/
+
+# سكربتات مؤقتة
+tmp_*.py
