@@ -1,0 +1,16 @@
+# -*- coding: utf-8 -*-
+# مؤقّت فحص الاسترجاع الشهري (أول كل شهر 03:30 بتوقيت الخادم).
+#
+# التثبيت: sudo cp /opt/csit/deploy/systemd/csit-restore-check.timer /etc/systemd/system/
+#          sudo systemctl daemon-reload && sudo systemctl enable --now csit-restore-check.timer
+
+[Unit]
+Description=CSIT — مؤقّت فحص الاسترجاع الشهري
+
+[Timer]
+OnCalendar=*-*-01 03:30:00
+Persistent=true
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,38 @@
+# -*- coding: utf-8 -*-
+# نسخة احتياطية يومية لقاعدة PostgreSQL عبر api/scripts/backup_db.py (pg_dump -Fc).
+# يُشغَّل بواسطة csit-backup.timer — لا تُفعّله مباشرة عند الإقلاع.
+#
+# تشغيل يدوي للاختبار:
+#   sudo systemctl start csit-backup.service
+#   journalctl -u csit-backup -n 30 --no-pager
+#
+# المخرجات: /opt/csit/api/backups/csit-YYYYMMDD-HHMMSS.dump (يُنشأ المجلد تلقائياً).
+
+[Unit]
+Description=CSIT — نسخة احتياطية لقاعدة PostgreSQL (pg_dump)
+Documentation=file:/opt/csit/deploy/DEPLOY.md
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=csit
+Group=csit
+WorkingDirectory=/opt/csit/api
+EnvironmentFile=/etc/csit/api.env
+# systemd لا يرث PATH الجلسة؛ pg_dump من الحزمة postgresql-client يكون في /usr/bin
+Environment=PYTHONUNBUFFERED=1 PATH=/usr/local/bin:/usr/bin:/bin
+
+ExecStart=/opt/csit/api/venv/bin/python scripts/backup_db.py
+
+# النسخ يحوي بيانات شخصية (طلاب/درجات): ملفات لا يقرأها إلا csit
+UMask=0077
+# نسخة قاعدة كبيرة قد تتجاوز المهلة الافتراضية (90s) فتُقتل بلا سجل واضح
+TimeoutStartSec=30min
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full

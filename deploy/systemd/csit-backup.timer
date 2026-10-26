@@ -1,0 +1,20 @@
+# -*- coding: utf-8 -*-
+# مؤقّت النسخة الاحتياطية اليومية لـcsit.
+#
+# التثبيت: sudo cp /opt/csit/deploy/systemd/csit-backup.timer /etc/systemd/system/
+#          sudo systemctl daemon-reload && sudo systemctl enable --now csit-backup.timer
+# الفحص:   systemctl list-timers 'csit-*'
+
+[Unit]
+Description=CSIT — مؤقّت النسخة الاحتياطية اليومية
+
+[Timer]
+# كل يوم 02:30 بتوقيت الخادم المحلي (اضبطه بـ timedatectl، مثلاً Asia/Baghdad)
+OnCalendar=*-*-* 02:30:00
+# إن كان الخادم مطفأً في الموعد تُنفَّذ النسخة عند الإقلاع التالي
+Persistent=true
+# توزيع عشوائي بسيط كي لا تتزامن مع مهام ثقيلة أخرى في نفس الدقيقة
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

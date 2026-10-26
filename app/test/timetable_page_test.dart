@@ -51,15 +51,21 @@ Future<void> _pump(WidgetTester tester, FakeTimetableApi api) async {
 
 void main() {
   testWidgets('تعرض محاضرات اليوم مع الوقت والقاعة', (tester) async {
-    final now = DateTime.now().toUtc();
+    // نثبّت الحصتين في صباح اليوم بتوقيت بغداد كي لا يعبر الاختبار منتصف الليل.
+    final baghdadToday = toBaghdad(DateTime.now().toUtc());
+    final todayUtc = DateTime.utc(baghdadToday.year, baghdadToday.month, baghdadToday.day);
     final api = FakeTimetableApi(
       data: TimetableData(
         sessions: [
-          _session(id: 's1', course: 'قواعد البيانات', start: now),
+          _session(
+            id: 's1',
+            course: 'قواعد البيانات',
+            start: todayUtc.add(const Duration(hours: 5)), // 08:00 بغداد
+          ),
           _session(
             id: 's2',
             course: 'شبكات الحاسوب',
-            start: now.add(const Duration(hours: 2)),
+            start: todayUtc.add(const Duration(hours: 7)), // 10:00 بغداد
             room: 'قاعة 204',
             kind: 'lab',
           ),

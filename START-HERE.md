@@ -14,7 +14,7 @@
 لوحة التحكم اكتملت (سبع شاشات). متبقٍّ من النشر: صور Docker (Docker غير مثبت) وTLS (يحتاج سيرفر الجامعة).
 
 الأرقام الحقيقية الآن: **API 93/93 على SQLite و93/93 على PostgreSQL** (ترحيلات 0001–0004) ·
-**Flutter 43/43** و`analyze` نظيف · **لوحة التحكم**: سبع شاشات، بناء ناجح، والأربع الجديدة مُجرَّبة يدوياً ·
+**Flutter 65/65** و`analyze` نظيف و**APK 67.8MB** · **لوحة التحكم**: سبع شاشات، بناء ناجح، والأربع الجديدة مُجرَّبة يدوياً ·
 **نسخ/استرجاع مُجرَّب** (5/0/1 · 0003) · `/health` عميق (revision 0004) · `alembic` نظيف · **CI أخضر 3/3**.
 غير متحقق: صور Docker، Redis فعلي، TLS، وعرض الشاشات على سطح مكتب عريض.
 
@@ -68,7 +68,7 @@ $env:DATABASE_URL='postgresql+psycopg://postgres@127.0.0.1:5432/csit_test'; pyth
 # الترحيلات — يجب: No new upgrade operations detected
 $env:DATABASE_URL='postgresql+psycopg://postgres@127.0.0.1:5432/csit'; python -m alembic upgrade head; python -m alembic check
 
-# التطبيق — يجب 0 ملاحظات و43/43
+# التطبيق — يجب 0 ملاحظات و65/65
 cd ../app; flutter pub get; flutter gen-l10n; flutter analyze; flutter test
 
 # لوحة التحكم — يجب بناء ناجح
@@ -119,7 +119,7 @@ app/lib/
   core/      network(api_client, authed_dio), storage(token_store), platform(link_opener),
              app_services.dart, utils/date_utils.dart
   features/  auth, home, attendance{scan, live, sessions}, timetable{data, presentation},
-             materials, grades
+             materials, grades, announcements, notifications, profile_settings
   l10n/app_ar.arb   ← كل النصوص العربية هنا حصراً
 admin/src/   App.tsx, api.ts, pages/{LoginPage, StudentsPage, TimetablePage, GradesPage,
                                     AnnouncementsPage, UsersPage, AuditPage, DashboardPage}
@@ -159,6 +159,8 @@ admin/src/   App.tsx, api.ts, pages/{LoginPage, StudentsPage, TimetablePage, Gra
     مفحوصة ملفياً فقط. و**pg_dump/pg_restore ليسا على PATH**: السكربتات تكتشفان `C:\Program Files\PostgreSQL\18\bin`.
 11. **Redis غير مثبت** محلياً: مسار Redis مغطّى بـ`fakeredis` في الاختبارات، وليس بخدمة حقيقية.
 12. **`audit_logs` بلا طابع زمني قبل ترحيل `0004`:** أي قاعدة قديمة تحتاج `alembic upgrade head` قبل شاشة سجل التدقيق، وإلا فشل الاستعلام على العمود الجديد.
+13. **اختبار يعتمد على `DateTime.now()` قد يعبر منتصف الليل** (فشل اختبار الجدول بعد 22:00 بغداد):
+    ثبّت اللحظات على صباح اليوم بتوقيت بغداد (`todayUtc.add(hours: 5)`) بدل `now.add(hours: 2)`.
 
 ---
 

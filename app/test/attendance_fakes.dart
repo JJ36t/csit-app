@@ -12,6 +12,11 @@ import 'package:csit/features/auth/data/auth_repository.dart';
 
 /// مصادقة وهمية: تكفي لإنشاء SessionController وتفعيل/إفراغ الجلسة.
 class StubAuthApi implements AuthApi {
+  StubAuthApi({this.profile = defaultProfile});
+
+  /// الملف الذي يعيده الدخول — يتيح للاختبارات تخصيص القسم/المرحلة/الشعبة.
+  final UserProfile profile;
+
   UserProfile? _profile;
 
   static const defaultProfile = UserProfile(
@@ -29,7 +34,7 @@ class StubAuthApi implements AuthApi {
     required String universityId,
     required String password,
   }) async =>
-      _profile ??= defaultProfile;
+      _profile ??= profile;
 
   @override
   Future<UserProfile> me() async {

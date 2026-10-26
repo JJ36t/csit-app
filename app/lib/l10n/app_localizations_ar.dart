@@ -347,4 +347,63 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get gradesCardHint => 'نتائجك المنشورة والمجموع الموزون';
+
+  @override
+  String get announcementsTitle => 'الإعلانات';
+
+  @override
+  String get announcementsCardHint => 'إعلانات الكلية والقسم والمواد';
+
+  @override
+  String get announcementsEmpty => 'لا توجد إعلانات موجهة إليك';
+
+  @override
+  String get announcementPinned => 'مثبّت';
+
+  @override
+  String get announcementPriorityHigh => 'عاجل';
+
+  @override
+  String get notificationsTitle => 'الإشعارات';
+
+  @override
+  String get notificationsCardHint => 'تنبيهات الحضور والإعلانات';
+
+  @override
+  String get notificationsEmpty => 'لا إشعارات بعد';
+
+  @override
+  String notificationsUnread(int count) {
+    return '$count غير مقروء';
+  }
+
+  @override
+  String get markAllReadButton => 'تعليم الكل مقروءاً';
+
+  @override
+  String get markAllReadDone => 'تم تعليم كل الإشعارات مقروءة';
+
+  @override
+  String get profileTitle => 'الملف الشخصي';
+
+  @override
+  String get profileCardHint => 'بياناتك وتغيير كلمة المرور';
+
+  @override
+  String get fullNameLabel => 'الاسم';
+
+  @override
+  String get roleLabel => 'الدور';
+
+  @override
+  String get roleStudent => 'طالب';
+
+  @override
+  String get roleInstructor => 'تدريسي';
+
+  @override
+  String get roleDepartmentHead => 'رئيس قسم';
+
+  @override
+  String get roleCollegeAdmin => 'مدير الكلية';
 }

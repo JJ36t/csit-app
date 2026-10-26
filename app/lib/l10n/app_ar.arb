@@ -164,5 +164,29 @@
   "timetableCard": "الجدول",
   "timetableCardHint": "محاضراتك وتغييراتها المؤرخة",
   "materialsCardHint": "ملفات المحاضرات وروابطها",
-  "gradesCardHint": "نتائجك المنشورة والمجموع الموزون"
+  "gradesCardHint": "نتائجك المنشورة والمجموع الموزون",
+  "announcementsTitle": "الإعلانات",
+  "announcementsCardHint": "إعلانات الكلية والقسم والمواد",
+  "announcementsEmpty": "لا توجد إعلانات موجهة إليك",
+  "announcementPinned": "مثبّت",
+  "announcementPriorityHigh": "عاجل",
+  "notificationsTitle": "الإشعارات",
+  "notificationsCardHint": "تنبيهات الحضور والإعلانات",
+  "notificationsEmpty": "لا إشعارات بعد",
+  "notificationsUnread": "{count} غير مقروء",
+  "@notificationsUnread": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "markAllReadButton": "تعليم الكل مقروءاً",
+  "markAllReadDone": "تم تعليم كل الإشعارات مقروءة",
+  "profileTitle": "الملف الشخصي",
+  "profileCardHint": "بياناتك وتغيير كلمة المرور",
+  "fullNameLabel": "الاسم",
+  "roleLabel": "الدور",
+  "roleStudent": "طالب",
+  "roleInstructor": "تدريسي",
+  "roleDepartmentHead": "رئيس قسم",
+  "roleCollegeAdmin": "مدير الكلية"
 }

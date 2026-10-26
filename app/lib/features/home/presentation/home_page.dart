@@ -1,27 +1,73 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/app_services.dart';
-import '../../../core/network/api_client.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../announcements/presentation/announcements_page.dart';
 import '../../attendance/presentation/scan_page.dart';
 import '../../attendance/presentation/sessions_page.dart';
+import '../../auth/presentation/change_password_page.dart';
 import '../../auth/presentation/session.dart';
 import '../../grades/presentation/grades_page.dart';
 import '../../materials/presentation/materials_page.dart';
+import '../../notifications/presentation/notifications_page.dart';
+import '../../profile_settings/presentation/profile_page.dart';
 import '../../timetable/presentation/timetable_page.dart';
 
-/// الرئيسية: ترحيب بالمستخدم وبياناته ومداخل «يوم الطالب»
-/// (الحضور، الجدول، المواد، الدرجات) وزر الخروج.
-class HomePage extends StatelessWidget {
+/// الرئيسية: ترحيب بالمستخدم ومداخل «يوم الطالب»
+/// (الحضور، الجدول، المواد، الدرجات، الإعلانات، الإشعارات، الملف الشخصي).
+class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.session, required this.services});
 
   final SessionController session;
   final AppServices services;
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _unreadNotifications = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUnreadNotifications();
+  }
+
+  /// شارة صندوق الوارد تحسينية: فشل التحميل يُبقيها مخفية ولا يعطّل الرئيسية.
+  Future<void> _loadUnreadNotifications() async {
+    try {
+      final inbox = await widget.services.notifications.inbox();
+      if (!mounted) {
+        return;
+      }
+      setState(() => _unreadNotifications = inbox.unreadCount);
+    } catch (_) {
+      // تجاهل: الشارة اختيارية.
+    }
+  }
+
+  Future<void> _openNotifications() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => NotificationsPage(
+          api: widget.services.notifications,
+          session: widget.session,
+        ),
+      ),
+    );
+    if (!mounted) {
+      return;
+    }
+    await _loadUnreadNotifications();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final session = widget.session;
+    final services = widget.services;
     final profile = session.profile;
 
     return Scaffold(
@@ -139,6 +185,57 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                   ),
+                Card(
+                  child: ListTile(
+                    key: const Key('announcementsCard'),
+                    leading: const Icon(Icons.campaign_outlined),
+                    title: Text(l10n.announcementsTitle),
+                    subtitle: Text(l10n.announcementsCardHint),
+                    trailing: const Icon(Icons.chevron_left),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => AnnouncementsPage(
+                          api: services.announcements,
+                          session: session,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Card(
+                  child: ListTile(
+                    key: const Key('notificationsCard'),
+                    leading: const Icon(Icons.notifications_none),
+                    title: Text(l10n.notificationsTitle),
+                    subtitle: Text(l10n.notificationsCardHint),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_unreadNotifications > 0)
+                          Badge(
+                            key: const Key('notificationsBadge'),
+                            label: Text('$_unreadNotifications'),
+                          ),
+                        const Icon(Icons.chevron_left),
+                      ],
+                    ),
+                    onTap: _openNotifications,
+                  ),
+                ),
+                Card(
+                  child: ListTile(
+                    key: const Key('profileCard'),
+                    leading: const Icon(Icons.person_outline),
+                    title: Text(l10n.profileTitle),
+                    subtitle: Text(l10n.profileCardHint),
+                    trailing: const Icon(Icons.chevron_left),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => ProfilePage(session: session),
+                      ),
+                    ),
+                  ),
+                ),
                 if (profile.departmentName != null)
                   Card(
                     child: ListTile(
@@ -179,117 +276,6 @@ class HomePage extends StatelessWidget {
                   ),
               ],
             ),
-    );
-  }
-}
-
-/// شاشة تغيير كلمة المرور — إجبارية بعد أول دخول بحسب الخطة.
-class ChangePasswordPage extends StatefulWidget {
-  const ChangePasswordPage({super.key, required this.session});
-
-  final SessionController session;
-
-  @override
-  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
-}
-
-class _ChangePasswordPageState extends State<ChangePasswordPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _currentController = TextEditingController();
-  final _newController = TextEditingController();
-  String? _error;
-  bool _submitting = false;
-
-  @override
-  void dispose() {
-    _currentController.dispose();
-    _newController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    final l10n = AppLocalizations.of(context)!;
-    setState(() => _error = null);
-    if (!(_formKey.currentState?.validate() ?? false)) {
-      return;
-    }
-    setState(() => _submitting = true);
-    try {
-      await widget.session.changePassword(
-        currentPassword: _currentController.text,
-        newPassword: _newController.text,
-      );
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.passwordChanged)),
-      );
-      Navigator.of(context).pop();
-    } on ApiException catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() => _error = error.messageAr ?? l10n.unexpectedError);
-    } finally {
-      if (mounted) {
-        setState(() => _submitting = false);
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.changePasswordTitle)),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextFormField(
-              key: const Key('currentPasswordField'),
-              controller: _currentController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: l10n.currentPasswordLabel,
-                border: const OutlineInputBorder(),
-              ),
-              validator: (value) =>
-                  (value == null || value.isEmpty) ? l10n.fieldRequired : null,
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              key: const Key('newPasswordField'),
-              controller: _newController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: l10n.newPasswordLabel,
-                border: const OutlineInputBorder(),
-              ),
-              validator: (value) => (value == null || value.length < 8)
-                  ? l10n.passwordTooShort
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            if (_error != null) ...[
-              Text(
-                _error!,
-                key: const Key('changePasswordError'),
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-              const SizedBox(height: 12),
-            ],
-            FilledButton(
-              key: const Key('changePasswordButton'),
-              onPressed: _submitting ? null : _submit,
-              child: Text(l10n.changePasswordButton),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

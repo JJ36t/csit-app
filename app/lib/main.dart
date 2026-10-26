@@ -6,11 +6,13 @@ import 'app/theme/app_theme.dart';
 import 'core/app_services.dart';
 import 'core/network/api_client.dart';
 import 'core/storage/token_store.dart';
+import 'features/announcements/data/announcements_api.dart';
 import 'features/attendance/data/attendance_api.dart';
 import 'features/auth/data/auth_repository.dart';
 import 'features/auth/presentation/session.dart';
 import 'features/grades/data/grades_api.dart';
 import 'features/materials/data/materials_api.dart';
+import 'features/notifications/data/notifications_api.dart';
 import 'features/timetable/data/timetable_api.dart';
 import 'l10n/app_localizations.dart';
 
@@ -24,6 +26,8 @@ void main() {
     timetable: HttpTimetableApi(dio: dio, store: store),
     materials: HttpMaterialsApi(dio: dio, store: store),
     grades: HttpGradesApi(dio: dio, store: store),
+    announcements: HttpAnnouncementsApi(dio: dio, store: store),
+    notifications: HttpNotificationsApi(dio: dio, store: store),
   );
   runApp(CsitApp(session: SessionController(authApi), services: services));
 }

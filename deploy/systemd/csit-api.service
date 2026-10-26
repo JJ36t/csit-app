@@ -1,0 +1,41 @@
+# -*- coding: utf-8 -*-
+# خدمة FastAPI لمستودع csit-app — نشر بلا Docker على سيرفر الجامعة.
+#
+# التثبيت:
+#   sudo cp /opt/csit/deploy/systemd/csit-api.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now csit-api
+#
+# كل الأسرار في /etc/csit/api.env (صلاحية 600، يقرأه systemd نفسه) — لا أسرار هنا.
+# المتغيّرات المتوقّعة: DATABASE_URL، JWT_SECRET، CORS_ORIGIN_REGEX، UPLOAD_DIR، REDIS_URL.
+
+[Unit]
+Description=CSIT College App API (FastAPI/uvicorn)
+Documentation=file:/opt/csit/deploy/DEPLOY.md
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=csit
+Group=csit
+WorkingDirectory=/opt/csit/api
+EnvironmentFile=/etc/csit/api.env
+Environment=PYTHONUNBUFFERED=1
+
+# مسار مطلق إلزامي في systemd؛ وهو uvicorn المثبّت داخل venv المشروع.
+ExecStart=/opt/csit/api/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+# المنفذ على الحلقة المحلية فقط: الوصول العام يمر عبر Nginx، ولا يُعرَّض 8000 خارجياً.
+Restart=always
+RestartSec=3
+TimeoutStopSec=20
+
+# تصلّب بسيط: لا صلاحيات إضافية، /tmp خاص، ونظام الملفات للنظام للقراءة فقط.
+# /opt يبقى قابلاً للكتابة (uploads/backups)؛ لتشديد أكبر لاحقاً:
+# ProtectSystem=strict + ReadWritePaths=/opt/csit/api/uploads /opt/csit/api/backups
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

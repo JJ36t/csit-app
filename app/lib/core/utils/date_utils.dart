@@ -36,3 +36,12 @@ bool isSameBaghdadDay(DateTime a, DateTime b) {
       first.month == other.month &&
       first.day == other.day;
 }
+
+/// التاريخ والوقت بتوقيت بغداد بصيغة YYYY/MM/DD HH:mm — لطوابع الإعلانات والإشعارات.
+String formatYmdHm(DateTime moment) {
+  final local = toBaghdad(moment);
+  final year = local.year.toString().padLeft(4, '0');
+  final month = local.month.toString().padLeft(2, '0');
+  final day = local.day.toString().padLeft(2, '0');
+  return '$year/$month/$day ${formatHm(moment)}';
+}

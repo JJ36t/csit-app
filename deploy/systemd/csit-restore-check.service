@@ -1,0 +1,38 @@
+# -*- coding: utf-8 -*-
+# فحص استرجاع شهري: api/scripts/verify_restore.py يسترجع أحدث نسخة إلى قاعدة
+# csit_restore_check المؤقتة، يقارن أعداد users/attendance_records/grades، ثم يحذفها.
+# يُشغَّل بواسطة csit-restore-check.timer.
+#
+# متطلّب: دور قاعدة البيانات csit يملك CREATEDB (انظر DEPLOY.md) لأنه ينشئ/يحذف
+# قاعدة الفحص عبر اتصال بقاعدة postgres. قاعدة المصدر لا تُعدَّل.
+#
+# تشغيل يدوي:
+#   sudo systemctl start csit-restore-check.service
+#   journalctl -u csit-restore-check -n 40 --no-pager
+
+[Unit]
+Description=CSIT — فحص استرجاع النسخة الاحتياطية إلى قاعدة مؤقتة
+Documentation=file:/opt/csit/deploy/DEPLOY.md
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=csit
+Group=csit
+WorkingDirectory=/opt/csit/api
+EnvironmentFile=/etc/csit/api.env
+Environment=PYTHONUNBUFFERED=1 PATH=/usr/local/bin:/usr/bin:/bin
+
+ExecStart=/opt/csit/api/venv/bin/python scripts/verify_restore.py
+
+UMask=0077
+# استرجاع كامل قد يستغرق دقائق؛ المهلة الافتراضية تقتله في منتصفه
+TimeoutStartSec=1h
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full

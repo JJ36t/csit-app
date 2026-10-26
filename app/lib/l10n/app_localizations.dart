@@ -705,6 +705,120 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'نتائجك المنشورة والمجموع الموزون'**
   String get gradesCardHint;
+
+  /// No description provided for @announcementsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإعلانات'**
+  String get announcementsTitle;
+
+  /// No description provided for @announcementsCardHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعلانات الكلية والقسم والمواد'**
+  String get announcementsCardHint;
+
+  /// No description provided for @announcementsEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد إعلانات موجهة إليك'**
+  String get announcementsEmpty;
+
+  /// No description provided for @announcementPinned.
+  ///
+  /// In ar, this message translates to:
+  /// **'مثبّت'**
+  String get announcementPinned;
+
+  /// No description provided for @announcementPriorityHigh.
+  ///
+  /// In ar, this message translates to:
+  /// **'عاجل'**
+  String get announcementPriorityHigh;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإشعارات'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsCardHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'تنبيهات الحضور والإعلانات'**
+  String get notificationsCardHint;
+
+  /// No description provided for @notificationsEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا إشعارات بعد'**
+  String get notificationsEmpty;
+
+  /// No description provided for @notificationsUnread.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} غير مقروء'**
+  String notificationsUnread(int count);
+
+  /// No description provided for @markAllReadButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعليم الكل مقروءاً'**
+  String get markAllReadButton;
+
+  /// No description provided for @markAllReadDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تعليم كل الإشعارات مقروءة'**
+  String get markAllReadDone;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملف الشخصي'**
+  String get profileTitle;
+
+  /// No description provided for @profileCardHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'بياناتك وتغيير كلمة المرور'**
+  String get profileCardHint;
+
+  /// No description provided for @fullNameLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاسم'**
+  String get fullNameLabel;
+
+  /// No description provided for @roleLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدور'**
+  String get roleLabel;
+
+  /// No description provided for @roleStudent.
+  ///
+  /// In ar, this message translates to:
+  /// **'طالب'**
+  String get roleStudent;
+
+  /// No description provided for @roleInstructor.
+  ///
+  /// In ar, this message translates to:
+  /// **'تدريسي'**
+  String get roleInstructor;
+
+  /// No description provided for @roleDepartmentHead.
+  ///
+  /// In ar, this message translates to:
+  /// **'رئيس قسم'**
+  String get roleDepartmentHead;
+
+  /// No description provided for @roleCollegeAdmin.
+  ///
+  /// In ar, this message translates to:
+  /// **'مدير الكلية'**
+  String get roleCollegeAdmin;
 }
 
 class _AppLocalizationsDelegate

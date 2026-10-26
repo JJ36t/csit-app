@@ -12,7 +12,7 @@
 2. المستودع: `csit-app/` وفيه `api/` و`app/` (Flutter) و`admin/` (React) و`design/` (نموذج الشاشات).
 3. **مكتمل ومتحقَّق منه:** المصادقة وربط الجهاز، استيراد الطلاب من Excel، الحضور (QR متجدد + موقع + لحظي + تقارير)، الجدول (حصص + تعارضات + تغييرات مؤرخة)، فهرس «جهاز نشط واحد»، ودرجات ومواد وإعلانات وإشعارات (N3)، وملف CI.
 4. الحالة الحالية للاختبارات: **93/93 على SQLite و93/93 على PostgreSQL** (الترحيلات 0001–0004)، و`alembic check` نظيف، و`smoke_n4` أخضر، ودورة نسخ/استرجاع مُجرَّبة، وFlutter **43/43**.
-5. تطبيق Flutter: المصادقة + **N1 الحضور** + **N2 الجدول والمواد والدرجات** + **APK ناجح** (67.5MB)؛ تبقى الإعلانات والملف الشخصي. ولوحة التحكم: **N4 منجز** — الطلاب/الجدول/الدرجات.
+5. تطبيق Flutter: المصادقة + **N1 الحضور** + **N2 الجدول والمواد والدرجات** + **الإعلانات والإشعارات والملف الشخصي** + **APK ناجح** (67.8MB)؛ ولوحة التحكم: سبع شاشات مكتملة، والـAPI يخدمها كلها.
 6. **التالي فوراً:** N7 — الاعتماد التجريبي (شعبة واحدة لأسبوعين، 20 مختبِراً في Play المغلقة). لوحة التحكم اكتملت بشاشاتها السبع. متبقٍّ من النشر: بناء صور Docker (Docker غير مثبت) وشهادة HTTPS (تنتظر سيرفر الجامعة).
 7. **git مهيأ ومدفوع إلى GitHub**: المستودع `https://github.com/JJ36t/csit-app` — و**CI يعمل فعلياً ونجح بالكامل (3/3 وظائف)** في أول تشغيل.
 8. **Android SDK مثبّت** وبناء APK يعمل عبر قرص قصير `subst X:` (انظر 5.6)؛ تجربة الكاميرا على هاتف حقيقي لم تُجرّب بعد.
@@ -125,6 +125,24 @@
 - **التحقق:** **93/93** على القاعدتين (13 اختباراً جديداً) · `alembic upgrade 0003→0004` + `check` نظيف على PostgreSQL ·
   `npm run build` ناجح · تجربة يدوية للشاشات الأربع بحساب `ADMIN-001`.
 
+**المرحلة 10 — تطبيق Flutter: الإعلانات والإشعارات والملف الشخصي (26 ت10 2026):**
+- **الإعلانات:** قائمة موجّهة من `GET /announcements` (تثبيت/أولوية/غير مقروء)، وفتح الإعلان يعلّمه مقروءاً
+  عبر `POST /announcements/{id}/read`، مع تمرير للتحديث وحالات فراغ/خطأ.
+- **الإشعارات:** صندوق وارد من `GET /notifications` بعدّاد غير مقروء، وتعليم واحد/الكل، وشارة على بطاقة الرئيسية
+  تُحدَّث بعد العودة من الشاشة.
+- **الملف الشخصي:** شاشة تعرض الاسم/الرقم/الدور/القسم/المرحلة/الشعبة، وروابط تغيير كلمة المرور والخروج.
+- **البنية:** `features/announcements`, `features/notifications`, `features/profile_settings` بنمط data/presentation،
+  وحقن عبر `AppServices`، وكل النصوص في `app_ar.arb` (تم فحص عدم وجود نص عربي داخل الودجات).
+- **التحقق:** `flutter analyze` 0 ملاحظات · **65/65** اختباراً (22 جديداً) · `flutter build web --release` ناجح ·
+  **APK 67.8MB** · إصلاح اختبار جدول كان يعتمد على `DateTime.now()` فيعبر منتصف الليل (ثُبّت على صباح اليوم ببغداد).
+
+**المرحلة 11 — نشر بلا Docker (26 ت10 2026):**
+- `deploy/systemd/`: خدمة `csit-api` (مستخدم غير جذري، `EnvironmentFile` بصلاحية 600، تصلّب بسيط) +
+  مؤقّت نسخ احتياطي يومي ومؤقّت فحص استرجاع شهري.
+- `deploy/nginx/csit.conf`: يخدم `admin/dist` مع SPA fallback ويعكس `/api/` و`/health`، وحد رفع 30MB.
+- `deploy/DEPLOY.md`: خطوات كاملة حتى TLS و`curl /health` والنسخ الاحتياطي والاسترجاع.
+- **التحقق:** مراجعة ملفية للاتساق والمسارات فقط (لا systemd ولا Nginx على ويندوز) — التنفيذ الفعلي ينتظر السيرفر.
+
 ---
 
 ## 3) حالة التحقق الحالية (أرقام حقيقية — أعدها قبل أي تسليم)
@@ -144,9 +162,9 @@
 | تجربة يدوية للشاشات الأربع الجديدة | `ADMIN-001` على خدمة حيّة | الملخص (3 طلاب/جلسة/تقييمان) · إعلان يُنشأ ثم يُحذف · 5 مستخدمين + كلمة مرور مؤقتة تُعرض مرة · تدقيق بأوقات بغداد وترشيح `password_reset` = سجل واحد |
 | حزمة Docker | `docker compose up` | **غير متحقق** — Docker غير مثبت؛ فحص YAML/ملفات فقط |
 | Redis فعلي | خدمة Redis | **غير متحقق** — لا خدمة على الجهاز؛ المسار مغطّى بـfakeredis |
-| Flutter | `flutter analyze` / `flutter test` / `flutter build web --release` | 0 ملاحظات · **43/43** · بناء ناجح |
+| Flutter | `flutter analyze` / `flutter test` / `flutter build web --release` | 0 ملاحظات · **65/65** · بناء ناجح |
 | لوحة التحكم | `npm run build` | ناجح (تحذير حزمة >500KB متوقع) · ثلاث شاشات وظيفية + تجربة يدوية لـ`ADMIN-001` |
-| APK (release) | `flutter build apk --release` من `X:\app` (5.6) | **67.5MB · بناء ناجح متكرر** (موقّع بمفتاح debug) |
+| APK (release) | `flutter build apk --release` من `X:\app` (5.6) | **67.8MB · بناء ناجح** بعد شاشات الإعلانات/الإشعارات/الملف الشخصي (موقّع debug) |
 | git | `git log` | مستودع محلي + 3 التزامات · مدفوع للمستودع البعيد `JJ36t/csit-app` |
 | CI | GitHub Actions | ✅ **نجح فعلياً من أول تشغيل** — 3/3 وظائف (API على PostgreSQL 16 + Flutter + لوحة التحكم) |
 
@@ -181,13 +199,14 @@ csit-app/
 │              features/auth{data,presentation}, features/home,
 │              features/attendance/{data/{attendance_api,qr_payload,location_service,
 │                attendance_scanner}, presentation/{scan_page,sessions_page,live_session_page}},
-│              l10n/app_ar.arb
+│              features/{announcements,notifications,profile_settings}/…, l10n/app_ar.arb
 ├── admin/ (React + Vite + AntD)
 │   └── src/  ← App.tsx, api.ts, pages/{LoginPage, StudentsPage, TimetablePage, GradesPage,
 │                          AnnouncementsPage, UsersPage, AuditPage, DashboardPage}
 ├── docker-compose.yml          ← db + api + admin(Nginx)
 ├── .env.example                ← متغيرات النشر (بلا أسرار)
 ├── api/Dockerfile · admin/Dockerfile · admin/nginx.conf
+├── deploy/                     ← systemd + Nginx + DEPLOY.md (نشر بلا Docker)
 └── design/screens.html
 ```
 
@@ -218,7 +237,7 @@ $env:Path="C:\Users\hmt1\develop\flutter\bin;C:\Windows\System32;C:\Windows;"+$e
 ```powershell
 cd csit-app/api
 python -m pip install -r requirements-dev.txt
-$env:DATABASE_URL='sqlite:///./test_api.db'; python -m pytest tests -q          # 43/43
+$env:DATABASE_URL='sqlite:///./test_api.db'; python -m pytest tests -q          # 93/93
 $env:DATABASE_URL='postgresql+psycopg://postgres:<PW>@127.0.0.1:5432/csit_test'; python -m pytest tests -q
 $env:DATABASE_URL='postgresql+psycopg://postgres:<PW>@127.0.0.1:5432/csit'
 python -m alembic upgrade head; python -m alembic check
@@ -360,6 +379,15 @@ cd api; python scripts/dev_reset_devices.py S-100  # حساب واحد
 - **ملاحظة نطاق:** سجل التدقيق لمدير الكلية فقط؛ رئيس القسم يحصل على 403 عربية.
 - **متبقٍّ:** عرض الشاشات على شاشة سطح مكتب عريضة، وفحص قبل/بعد في المتصفح (تم على خدمة SQLite/PG عبر HTTP).
 
+### تطبيق Flutter: الإعلانات والإشعارات والملف الشخصي — ✅ منجز (26 ت10 2026)
+- ثلاث شاشات جديدة + شارة غير المقروء + بطاقة الملف الشخصي، مع 22 اختباراً جديداً (65/65) و`analyze` نظيف
+  و`build web` و**APK 67.8MB**.
+- **متبقٍّ:** تجربة الشاشات على جهاز حقيقي مع إشعارات فعلية (FCM غير مفعّل بعد الإرسال).
+
+### نشر بلا Docker — ✅ ملفات جاهزة (26 ت10 2026)
+- `deploy/systemd` + `deploy/nginx` + `deploy/DEPLOY.md` + `api.env.example`، ومسار النسخ الاحتياطي المجدول.
+- **غير متحقق:** تحميل الوحدات و`nginx -t` وTLS على سيرفر حقيقي (لا systemd/Nginx على ويندوز).
+
 ### N6 — Git وCI — ✅ منجز (26 ت10 2026)
 - ✅ `git init -b main` + أول التزام `f621fda` (166 ملفاً، بلا مخرجات بناء).
 - ✅ رفع إلى GitHub: `https://github.com/JJ36t/csit-app` (‏`git push -u origin main`).
@@ -409,3 +437,4 @@ cd api; python scripts/dev_reset_devices.py S-100  # حساب واحد
 - **26 ت10 2026 (N4):** شاشات لوحة التحكم الثلاث (طلاب/جدول/درجات) + `GET /admin/timetable/{rooms,slots}` و`slot_id` في `/timetable` — **69/69** على SQLite، `npm run build` ناجح، `smoke_n4` أخضر، وتجربة يدوية بحساب `ADMIN-001`.
 - **26 ت10 2026 (N5):** Redis لحدّ المحاولات (برجوع آلي للذاكرة) + نسخ/استرجاع مُجرَّب (94.6KB · 5/0/1 · 0003) + `docker-compose`/Dockerfiles/Nginx + `/health` عميق — **80/80** على القاعدتين.
 - **26 ت10 2026 (شاشات اللوحة):** الإعلانات + المستخدمون + سجل التدقيق (ترحيل `0004`) + لوحة الملخص — **93/93** على القاعدتين، بناء اللوحة ناجح، وتجربة يدوية للأربع.
+- **26 ت10 2026 (تطبيق/نشر):** شاشات الإعلانات والإشعارات والملف الشخصي في Flutter (65/65 · APK 67.8MB) + حزمة نشر systemd/Nginx بلا Docker.

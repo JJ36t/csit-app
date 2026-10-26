@@ -79,6 +79,13 @@ csit-app/
 - **لوحة الملخص:** `GET /admin/overview` — الطلاب وتوزيعهم، جلسات اليوم وحضورها، التقييمات المنشورة/المسودات،
   والإعلانات النشطة/المجدولة، محصورة بقسم رئيس القسم.
 
+**المرحلة 10 — تطبيق Flutter: الإعلانات والإشعارات والملف الشخصي:**
+- الإعلانات (قائمة موجّهة + تعليم مقروء)، صندوق الإشعارات (عدّاد + تعليم الكل)، والملف الشخصي
+  (بيانات + تغيير كلمة المرور + خروج) — كل النصوص في `app_ar.arb`، و**65/65** اختباراً و`analyze` نظيف و**APK 67.8MB**.
+
+**المرحلة 11 — مسار نشر بلا Docker:** `deploy/systemd` (خدمة + مؤقّتا نسخ/استرجاع)، `deploy/nginx/csit.conf`،
+و[deploy/DEPLOY.md](deploy/DEPLOY.md) — لمن لا يسمح بـDocker على سيرفر الجامعة.
+
 ## نقاط الـAPI
 
 | النقطة | الوصف |
@@ -108,6 +115,7 @@ csit-app/
 **لوحة التحكم (admin/):** انظر [admin/README.md](admin/README.md) — `npm install` ← `npm run dev`.
 **تطبيق الجوال (app/):** انظر [app/README.md](app/README.md) — `flutter pub get` ← `flutter gen-l10n` ← `flutter run`.
 **نموذج الشاشات:** [design/screens.html](design/screens.html) — افتحه في المتصفح.
+**نشر بلا Docker:** [deploy/DEPLOY.md](deploy/DEPLOY.md) — systemd + Nginx + PostgreSQL محلي.
 
 ## حالة التحقق (نُفِّذ فعلياً — 26 تشرين الأول 2026)
 
@@ -125,8 +133,8 @@ csit-app/
 | api · PostgreSQL | فحص HTTP شامل (`smoke_e2e.py`) | ✅ مدير ← استيراد ← دخول طالب ← منع جهاز ثانٍ ← إعادة ضبط ← رفض رمز الطالب على الإدارة |
 | api · PostgreSQL | فحص N3 (`smoke_n3.py`) | ✅ تقييم ← درجة ← نشر ← درجة الطالب ← إعلان/إشعار ← مادة برابط موقّع |
 | api · SQLite (خدمة حيّة) | فحص N4 (`smoke_n4.py`) | ✅ طلاب/قالب ← تعارض قاعة ← حصة أسبوعية ← إلغاء مؤرّخ ← درجة ← نشر ← منع التعديل 409 ← تصدير 5KB |
-| app · Flutter 3.47.8 | `flutter analyze` / `flutter test` / `flutter build web` | ✅ 0 ملاحظات · **43/43** · بناء ناجح |
-| app · Android | `flutter build apk --release` (من `X:\app`) | ✅ **67.5MB** · موقّع debug (لم يُثبَّت على جهاز) |
+| app · Flutter 3.47.8 | `flutter analyze` / `flutter test` / `flutter build web` | ✅ 0 ملاحظات · **65/65** · بناء ناجح |
+| app · Android | `flutter build apk --release` (من `X:\app`) | ✅ **67.8MB** · موقّع debug (لم يُثبَّت على جهاز) |
 | admin | `npm run build` | ✅ بناء ناجح (تحذير حجم الحزمة متوقع) |
 | admin | تجربة يدوية بحساب `ADMIN-001` | ✅ الطلاب/الجدول/الدرجات على خدمة حيّة (إنشاء قاعة، إنشاء تقييم، إدخال درجات، حفظ، نشر، إقفال الخلايا) |
 | git | `git log` | ✅ مستودع محلي مدفوع إلى `github.com/JJ36t/csit-app` |
