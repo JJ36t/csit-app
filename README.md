@@ -89,10 +89,10 @@ csit-app/
 | app · Flutter 3.47.8 | `flutter analyze` / `flutter test` / `flutter build web` | ✅ 0 ملاحظات · **27/27** · بناء ناجح |
 | app · Android | `flutter build apk --release` (من `X:\app`) | ✅ **66.5MB** · موقّع debug (لم يُثبَّت على جهاز) |
 | admin | `npm install` + `npm run build` | ✅ بناء ناجح |
-| git | `git log` | ✅ مستودع محلي + أول التزام `f621fda` (لا مستودع بعيد بعد) |
-| CI | تحقق صحة YAML | ✅ ثلاث وظائف مقروءة (لم يُشغَّل على GitHub — لا مستودع بعد) |
+| git | `git log` | ✅ مستودع محلي مدفوع إلى `github.com/JJ36t/csit-app` |
+| CI | GitHub Actions | ✅ **نجح فعلياً 3/3** (API على PostgreSQL + Flutter + لوحة التحكم) |
 
-**ما لم يُتحقق منه (بصدق):** تثبيت APK وتجربة الكاميرا والمسح على هاتف حقيقي (البناء وحده لا يثبتهما)، بناء iOS (يحتاج macOS)، وCI لم يُشغَّل فعلياً لعدم وجود مستودع GitHub.
+**ما لم يُتحقق منه (بصدق):** تثبيت APK وتجربة الكاميرا والمسح على هاتف حقيقي (البناء وحده لا يثبتهما)، وبناء iOS (يحتاج macOS).
 
 ## ملاحظات أمنية موثّقة
 
