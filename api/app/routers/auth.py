@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """المصادقة: دخول، تجديد، خروج، تغيير كلمة المرور، والملف الشخصي (القسم 9 من الخطة)."""
-import time
 import uuid
-from collections import defaultdict, deque
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Request
@@ -17,6 +15,9 @@ from app.errors import ApiError
 from app.models import Department, Device, FcmToken, Group, RefreshToken, Staff, Student, User
 from app.models.enums import DeviceStatus, UserRole, UserStatus
 from app.services.audit import log_action
+from app.services.rate_limit import clear as clear_rate_limit
+from app.services.rate_limit import guard as rate_limit_guard
+from app.services.rate_limit import record as record_rate_limit
 from app.schemas import (
     DepartmentRef,
     LoginOut,
@@ -36,19 +37,12 @@ from app.security import (
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-# حدّ معدل بسيط في الذاكرة (نسخة واحدة). يُستبدل بـ Redis عند التوسع.
-_attempts: dict[str, deque[float]] = defaultdict(deque)
+# حدّ معدل مشترك (Redis عند ضبطه، وإلا الذاكرة) — يُحسب الفشل فقط.
 
 
 def _guard_rate_limit(key: str) -> None:
     """يمنع تجاوز حدّ المحاولات — يُحسب الفشل فقط، والنجاح يصفّر العدّاد."""
-    if not settings.rate_limit_enabled:
-        return
-    now = time.monotonic()
-    window = _attempts[key]
-    while window and now - window[0] > 60:
-        window.popleft()
-    if len(window) >= settings.login_attempts_per_minute:
+    if not rate_limit_guard(key, limit=settings.login_attempts_per_minute):
         raise ApiError(
             429,
             "too_many_attempts",
@@ -57,12 +51,11 @@ def _guard_rate_limit(key: str) -> None:
 
 
 def _record_login_failure(key: str) -> None:
-    if settings.rate_limit_enabled:
-        _attempts[key].append(time.monotonic())
+    record_rate_limit(key)
 
 
 def _clear_login_failures(key: str) -> None:
-    _attempts.pop(key, None)
+    clear_rate_limit(key)
 
 
 class DeviceIn(BaseModel):

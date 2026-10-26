@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     refresh_token_days: int = 30
     rate_limit_enabled: bool = True
     login_attempts_per_minute: int = 5
+    # رابط Redis لحدّ المعدل؛ فارغ = عدّاد في الذاكرة (نسخة خدمة واحدة)
+    redis_url: str = ""
 
     # الحضور (القسم 6 و9 من الخطة)
     qr_rotation_seconds: int = 20

@@ -1,0 +1,65 @@
+# -*- coding: utf-8 -*-
+# حزمة نشر CSIT على سيرفر الجامعة: PostgreSQL + خدمة FastAPI + لوحة تحكم خلف Nginx.
+#
+# التشغيل:
+#   Copy-Item .env.example .env    # ثم املأ القيم
+#   docker compose up -d --build
+#
+# كل الأسرار تُقرأ من .env (مستثنى في .gitignore) — لا قيم حقيقية هنا.
+# الخدمات المفردة عمداً: عدّاد حدّ المعدل في الذاكرة يفترض نسخة خدمة واحدة.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-csit}
+      POSTGRES_USER: ${POSTGRES_USER:-csit}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    # بلا ports: القاعدة لا تُعرَّض خارج شبكة Docker
+
+  api:
+    build:
+      context: ./api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # ملاحظة: كلمة مرور القاعدة يجب أن تكون بلا محارف تُكسر في URL (@ : / ? # $ %)
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-csit}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-csit}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      # اختياري: فارغ = عدّاد حدّ المعدل في الذاكرة
+      REDIS_URL: ${REDIS_URL:-}
+      RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      # ملفات المواد المرفوعة تبقى بعد إعادة بناء الصورة
+      - uploads:/app/uploads
+    ports:
+      # للتشخيص من المضيف فقط؛ الوصول العام يمر عبر admin/Nginx
+      - "127.0.0.1:8000:8000"
+    # ترقية المخطط قبل الإقلاع: قاعدة جديدة بلا جداول تعني خدمة معطّلة
+    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+
+  admin:
+    build:
+      context: ./admin
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+
+volumes:
+  pgdata:
+  uploads:

@@ -11,9 +11,9 @@
 1. المشروع: تطبيق أندرويد لكلية علوم الحاسوب وتكنولوجيا المعلومات — جامعة القادسية، بخلفية FastAPI/PostgreSQL ولوحة تحكم ويب.
 2. المستودع: `csit-app/` وفيه `api/` و`app/` (Flutter) و`admin/` (React) و`design/` (نموذج الشاشات).
 3. **مكتمل ومتحقَّق منه:** المصادقة وربط الجهاز، استيراد الطلاب من Excel، الحضور (QR متجدد + موقع + لحظي + تقارير)، الجدول (حصص + تعارضات + تغييرات مؤرخة)، فهرس «جهاز نشط واحد»، ودرجات ومواد وإعلانات وإشعارات (N3)، وملف CI.
-4. الحالة الحالية للاختبارات: **69/69 على SQLite** (الترحيلات 0001–0003)، و`alembic check` نظيف، و`smoke_n4` أخضر عبر HTTP؛ وFlutter **43/43**. آخر تشغيل على PostgreSQL كان **65/65** قبل N4 (كلمة مرور `postgres` لم تكن متوفرة في جلسة N4).
+4. الحالة الحالية للاختبارات: **80/80 على SQLite و80/80 على PostgreSQL** (الترحيلات 0001–0003)، و`alembic check` نظيف، و`smoke_n4` أخضر، ودورة نسخ/استرجاع مُجرَّبة، وFlutter **43/43**.
 5. تطبيق Flutter: المصادقة + **N1 الحضور** + **N2 الجدول والمواد والدرجات** + **APK ناجح** (67.5MB)؛ تبقى الإعلانات والملف الشخصي. ولوحة التحكم: **N4 منجز** — الطلاب/الجدول/الدرجات.
-6. **التالي فوراً:** N5 (Redis + نسخ احتياطي + `docker-compose`/Nginx)، ثم بقية شاشات اللوحة (الإعلانات/المستخدمون/سجل التدقيق).
+6. **التالي فوراً:** بقية شاشات اللوحة (الإعلانات/المستخدمون/سجل التدقيق/لوحة الملخص)، ثم N7 الاعتماد التجريبي. N5 مكتمل عدا بناء صور Docker (Docker غير مثبت على جهاز التطوير) وشهادة HTTPS (تنتظر تفاصيل سيرفر الجامعة).
 7. **git مهيأ ومدفوع إلى GitHub**: المستودع `https://github.com/JJ36t/csit-app` — و**CI يعمل فعلياً ونجح بالكامل (3/3 وظائف)** في أول تشغيل.
 8. **Android SDK مثبّت** وبناء APK يعمل عبر قرص قصير `subst X:` (انظر 5.6)؛ تجربة الكاميرا على هاتف حقيقي لم تُجرّب بعد.
 9. المستخدم (صاحب المشروع) ينتظر إنجاز بنود إدارية موثّقة في القسم 8 (قواعد الغياب، الجدول الرسمي، عيّنة بيانات…).
@@ -104,19 +104,33 @@
 - **`scripts/smoke_n4.py`:** فحص HTTP للدورة كاملة (قائمة الطلاب/القالب ← تعارض قاعة 409 ← حصة أسبوعية ← إلغاء مؤرّخ ← درجة ← رفض نشر من التدريسي 403 ← نشر ← منع التعديل 409 ← تصدير Excel) — أخضر على خدمة حيّة.
 - **تجربة يدوية:** `ADMIN-001` على `vite dev` نحو `uvicorn` (قاعدة SQLite للعرض): إنشاء قاعة، إنشاء تقييم، إدخال درجتين، حفظ (المجموع الموزون 8.5 و7)، نشر (إشعار 2)، إقفال الخلايا (‏`disabled`)، وظهور الحصة/الإلغاء في شاشة الجدول بعد التحديث.
 
+**المرحلة 8 — N5: التشغيل والصلابة (26 ت10 2026):**
+- **حدّ المحاولات:** Redis بـINCR+EXPIRE عند `REDIS_URL`، ورجوع آلي بتحذير واحد إلى عدّاد الذاكرة عند أي عطل،
+  وربط `auth.py` بالخدمة (كان يحمل عدّاداً مكرراً لا يغطيه Redis). الواجهة `guard/record/clear` كما هي.
+- **نسخ احتياطي واسترجاع:** سكربتان جديدان + `api/backups/` في `.gitignore`؛ الدورة الحقيقية نجحت على PostgreSQL.
+- **حزمة النشر:** `docker-compose.yml` + `api/Dockerfile` + `admin/Dockerfile` + `admin/nginx.conf` + `.env.example`
+  (PostgreSQL 16، API يرقّي المخطط قبل الإقلاع، Nginx يخدم SPA ويوجّه `/api` و`/health`).
+- **`/health`:** يفحص `SELECT 1` ويقرأ `alembic_version`، ويعيد 503 `degraded` عند تعطّل القاعدة.
+- **اختبارات جديدة:** 5 للخدمة (بعميل وهمي) + 4 لمسار Redis (fakeredis) + 3 لـ`/health` → **80/80** على القاعدتين.
+
 ---
 
 ## 3) حالة التحقق الحالية (أرقام حقيقية — أعدها قبل أي تسليم)
 
 | الفحص | الأمر | النتيجة عند كتابة الملف |
 |---|---|---|
-| اختبارات API على SQLite | `pytest tests -q` | **69/69** |
-| اختبارات API على PostgreSQL 18.6 | `DATABASE_URL=postgresql+psycopg://…` | **65/65** — آخر تشغيل قبل N4؛ لم يُعَد في جلسة N4 (كلمة المرور غير متوفرة)، والإضافات قراءة فقط |
+| اختبارات API على SQLite | `pytest tests -q` | **80/80** |
+| اختبارات API على PostgreSQL 18.6 | `DATABASE_URL=postgresql+psycopg://…` | **80/80** |
+| مسار Redis لحدّ المحاولات | `pytest tests/test_rate_limit_redis.py` | **4/4** بـfakeredis (لا خدمة Redis على الجهاز) |
 | الترحيلات على PostgreSQL | `alembic upgrade head` + `alembic check` | 0001+0002+0003 · «No new upgrade operations detected» |
 | دورة الإرجاع | `alembic downgrade base` ثم `upgrade head` | نظيفة |
 | فحص HTTP شامل | `python scripts/smoke_e2e.py` | أخضر (مدير ← استيراد ← طالب ← منع جهاز ← إعادة ضبط ← رفض صلاحيات) |
 | فحص N3 عبر HTTP | `python scripts/smoke_n3.py` | أخضر (تقييم ← درجة ← نشر ← درجة الطالب ← إعلان/إشعار ← مادة برابط موقّع) |
 | فحص N4 عبر HTTP | `python scripts/smoke_n4.py` | أخضر (طلاب/قالب ← تعارض قاعة ← حصة ← إلغاء مؤرّخ ← درجة ← نشر ← منع 409 ← تصدير 5KB) |
+| نسخ احتياطي + استرجاع | `backup_db.py` ثم `verify_restore.py` | نسخة 94.6KB ← استرجاع بلا أخطاء ← تطابق 5/0/1 ← `0003 (head)` ← حذف القاعدة المؤقتة |
+| `/health` حيّاً على PostgreSQL | `GET /health` | 200 · `{"status":"ok","database":"ok","revision":"0003"}` |
+| حزمة Docker | `docker compose up` | **غير متحقق** — Docker غير مثبت؛ فحص YAML/ملفات فقط |
+| Redis فعلي | خدمة Redis | **غير متحقق** — لا خدمة على الجهاز؛ المسار مغطّى بـfakeredis |
 | Flutter | `flutter analyze` / `flutter test` / `flutter build web --release` | 0 ملاحظات · **43/43** · بناء ناجح |
 | لوحة التحكم | `npm run build` | ناجح (تحذير حزمة >500KB متوقع) · ثلاث شاشات وظيفية + تجربة يدوية لـ`ADMIN-001` |
 | APK (release) | `flutter build apk --release` من `X:\app` (5.6) | **67.5MB · بناء ناجح متكرر** (موقّع بمفتاح debug) |
@@ -145,7 +159,7 @@ csit-app/
 │   │                            storage(ملفات), file_links(روابط موقّعة), notifications(جمهور/إشعارات)
 │   ├── migrations/versions/   ← 0001_initial_schema · 0002_device_unique_active · 0003_materials_announcements
 │   ├── scripts/               ← seed, create_admin, reset_device, import_students, inspect_db, smoke_e2e,
-│   │                            demo_seed, smoke_n3
+│   │                            demo_seed, smoke_n3, smoke_n4, backup_db, verify_restore
 │   └── tests/                 ← world.py (عالم اختباري) + 8 ملفات اختبار
 ├── app/  (Flutter)
 │   └── lib/  ← main, app/router, core/{network/{api_client,authed_dio},storage,utils,
@@ -155,6 +169,9 @@ csit-app/
 │              l10n/app_ar.arb
 ├── admin/ (React + Vite + AntD)
 │   └── src/  ← App.tsx, api.ts, pages/{LoginPage, StudentsPage, TimetablePage, GradesPage}
+├── docker-compose.yml          ← db + api + admin(Nginx)
+├── .env.example                ← متغيرات النشر (بلا أسرار)
+├── api/Dockerfile · admin/Dockerfile · admin/nginx.conf
 └── design/screens.html
 ```
 
@@ -306,10 +323,19 @@ cd api; python scripts/dev_reset_devices.py S-100  # حساب واحد
 - **ما لم يُتحقق:** اختبار اللوحة على متصفح سطح مكتب عريض (جرِّبت على لوحة عرض ضيقة ~488px)؛ تنزيل Excel من زر الواجهة (التحقق تم على مستوى HTTP).
 - **قيود معروفة:** (1) `GET /admin/timetable/slots` يعرض حصص كل الفصول لأن `timetable_slots` بلا `term_id` — يُرشّح لاحقاً عند تعدد الفصول. (2) كلمات مرور حسابات العرض مكتوبة في سكربتات `smoke_*` و`demo_seed.py` عمداً (بيانات تطوير محلية) — لا تُستخدم في الإنتاج.
 
-### N5 — التشغيل والصلابة
-- Redis لحدّ المحاولات والكاش (واجهة جاهزة في `services/rate_limit.py`).
-- نسخ احتياطي آلي + فحص استرجاع شهري (سكربت + توثيق).
-- `docker-compose.yml` للنشر على سيرفر الجامعة + Nginx/Caddy + HTTPS + `/health`.
+### N5 — التشغيل والصلابة — ✅ منجز (26 ت10 2026)
+- **Redis لحدّ المحاولات:** تنفيذ INCR+EXPIRE عند ضبط `REDIS_URL`، ورجوع آلي إلى الذاكرة بتحذير واحد عند أي عطل،
+  وربط `auth` بالخدمة بدل عدّاده الخاص. اختبارات: 5 للخدمة (بعميل وهمي) + 4 لمسار Redis (fakeredis).
+- **نسخ احتياطي + فحص استرجاع:** `scripts/backup_db.py` (pg_dump -Fc إلى `api/backups/` المستثنى) و
+  `scripts/verify_restore.py` (قاعدة مؤقتة + مقارنة `users/attendance_records/grades` + `alembic current` + حذف).
+  الدورة نُفِّذت فعلاً: 94.6KB ← تطابق 5/0/1 ← `0003 (head)`.
+- **حزمة النشر:** `docker-compose.yml` (PostgreSQL 16 + API + لوحة خلف Nginx) و`api/Dockerfile` (مستخدم غير root
+  + HEALTHCHECK) و`admin/Dockerfile` متعدد المراحل و`admin/nginx.conf` و`.env.example`.
+- **`/health` عميق:** `status` + `database` + `revision`، و503 `degraded` عند تعطّل القاعدة — مُتحقَّق حيّاً على
+  PostgreSQL (200 · revision 0003) وعلى مسار الفشل باختبار.
+- **قبول متحقق:** 80/80 على القاعدتين · `/health` حيّ · دورة نسخ/استرجاع كاملة · لا أسرار في الملفات.
+- **متبقٍ:** بناء صور Docker وتشغيل compose (Docker غير مثبت هنا) · Redis فعلي (غير مثبت) · TLS/Nginx على
+  سيرفر الجامعة (يحتاج النطاق والشهادة وتفاصيل الوحدة).
 
 ### N6 — Git وCI — ✅ منجز (26 ت10 2026)
 - ✅ `git init -b main` + أول التزام `f621fda` (166 ملفاً، بلا مخرجات بناء).
@@ -347,7 +373,7 @@ cd api; python scripts/dev_reset_devices.py S-100  # حساب واحد
 
 ## 10) برومبت جاهز للحساب الجديد
 
-> اقرأ `csit-app/HANDOFF.md` كاملاً، ثم افحص حالة المستودع الفعلية (لا تعتمد على ذاكرة سابقة)، وشغّل اختبارات الـAPI على SQLite وPostgreSQL و`flutter analyze`/`flutter test` لتأكيد الحالة. بعدها ابدأ من «الخطوات التالية» في القسم 7 — **N5 (التشغيل والصلابة: Redis + نسخ احتياطي + docker-compose/Nginx)** — وأبلغني بما تحققت منه وما لم يتحقق.
+> اقرأ `csit-app/HANDOFF.md` كاملاً، ثم افحص حالة المستودع الفعلية (لا تعتمد على ذاكرة سابقة)، وشغّل اختبارات الـAPI على SQLite وPostgreSQL و`flutter analyze`/`flutter test` لتأكيد الحالة. بعدها ابدأ من «الخطوات التالية» في القسم 7 — **بقية شاشات اللوحة (الإعلانات/المستخدمون/سجل التدقيق/لوحة الملخص)** — وأبلغني بما تحققت منه وما لم يتحقق.
 
 ---
 
@@ -358,3 +384,4 @@ cd api; python scripts/dev_reset_devices.py S-100  # حساب واحد
 - **26 ت10 2026 (N2):** الجدول والمواد والدرجات في Flutter + `GET /offerings` — **43/43** اختبار واجهة و**65/65** على القاعدتين، وAPK 67.5MB.
 - **26 ت10 2026 (GitHub):** رفع المستودع إلى `JJ36t/csit-app` — **CI أخضر 3/3 من أول تشغيل فعلي**.
 - **26 ت10 2026 (N4):** شاشات لوحة التحكم الثلاث (طلاب/جدول/درجات) + `GET /admin/timetable/{rooms,slots}` و`slot_id` في `/timetable` — **69/69** على SQLite، `npm run build` ناجح، `smoke_n4` أخضر، وتجربة يدوية بحساب `ADMIN-001`.
+- **26 ت10 2026 (N5):** Redis لحدّ المحاولات (برجوع آلي للذاكرة) + نسخ/استرجاع مُجرَّب (94.6KB · 5/0/1 · 0003) + `docker-compose`/Dockerfiles/Nginx + `/health` عميق — **80/80** على القاعدتين.

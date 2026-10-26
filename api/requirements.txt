@@ -12,3 +12,5 @@ openpyxl>=3.1
 python-multipart>=0.0.9
 # PostgreSQL على السيرفر الجامعي
 psycopg[binary]>=3.2
+# حدّ المعدل عبر Redis (اختياري: غياب الإعداد يعني عدّاد الذاكرة)
+redis==5.2.1

@@ -1,0 +1,17 @@
+# -*- coding: utf-8 -*-
+# ملفات لا تدخل صورة الخدمة (سياق البناء: api/)
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+
+# قواعد بيانات محلية/اختبارية — صورة النشر تتصل بـPostgreSQL
+*.db
+
+# مرفقات التشغيل والاختبار (compose يثبّت volume على /app/uploads)
+uploads/
+
+# الاختبارات لا تلزم داخل الصورة
+tests/

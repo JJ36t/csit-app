@@ -60,11 +60,20 @@ csit-app/
 - **إضافتان في الـAPI لخدمة اللوحة:** `GET /admin/timetable/rooms` و`GET /admin/timetable/slots` (بنطاق القسم لرئيس القسم)، و`slot_id` في عناصر `GET /timetable` لربط الجلسة بحصتها الأسبوعية.
 - **التحقق:** **69/69** على SQLite (65 السابقة + 4 جديدة) · `npm run build` ناجح · تجربة يدوية حيّة بحساب `ADMIN-001` على المسارات الثلاثة · `scripts/smoke_n4.py` أخضر عبر HTTP.
 
+**المرحلة 8 — N5: التشغيل والصلابة:**
+- **حدّ المحاولات:** تنفيذ Redis (INCR+EXPIRE) عند ضبط `REDIS_URL`، ورجوع آلي إلى عدّاد الذاكرة بتحذير واحد عند أي عطل،
+  مع بقاء الواجهة `guard/record/clear` كما هي — و4 اختبارات لمسار Redis بـ`fakeredis` بلا خدمة خارجية.
+- **نسخ احتياطي مُجرَّب:** `scripts/backup_db.py` و`scripts/verify_restore.py`؛ الدورة نُفِّذت فعلاً:
+  نسخة 94.6KB ← استرجاع بلا أخطاء ← تطابق `users/attendance_records/grades` (5/0/1) ← `0003 (head)`.
+- **حزمة نشر:** `docker-compose.yml` (PostgreSQL 16 + API + لوحة خلف Nginx) و`api/Dockerfile` و`admin/Dockerfile`
+  و`admin/nginx.conf` و`.env.example` — **لم تُبنَ الصور** لعدم وجود Docker على جهاز التطوير (فحص ساكن فقط).
+- **`/health` عميق:** `{"status","database","revision"}` و503 `degraded` عند تعطّل القاعدة — مُتحقَّق حيّاً على PostgreSQL.
+
 ## نقاط الـAPI
 
 | النقطة | الوصف |
 |---|---|
-| `GET /health` | فحص الجهوزية |
+| `GET /health` | فحص جهوزية عميق: `status` + `database` + `revision` (503 عند تعطّل القاعدة) |
 | `POST /auth/login` · `/refresh` · `/logout` · `/change-password` · `GET /me` | المصادقة وربط الجهاز |
 | `GET /departments` | الأقسام الأربعة |
 | `POST /admin/students/import?dry_run=` · `GET /admin/students/template` · `GET /admin/students` | استيراد الطلاب |
@@ -90,8 +99,12 @@ csit-app/
 
 | الطبقة | ما نُفِّذ | النتيجة |
 |---|---|---|
-| api · SQLite | `pytest tests` | ✅ **69/69** (مصادقة، أجهزة، تدقيق، استيراد، حضور، جدول، عروض، درجات/مواد/إعلانات/إشعارات، ترحيل، قيود) |
-| api · PostgreSQL 18.6 | `pytest tests` | ⚠️ آخر تشغيل 65/65 قبل إضافة N4 — لم يُعَد في جلسة N4 (كلمة مرور `postgres` غير متوفرة)، والإضافات قراءة فقط |
+| api · SQLite | `pytest tests` | ✅ **80/80** (مصادقة، أجهزة، تدقيق، استيراد، حضور، جدول، عروض، درجات/مواد/إعلانات/إشعارات، ترحيل، قيود، حدّ محاولات، health) |
+| api · PostgreSQL 18.6 | `pytest tests` | ✅ **80/80** على PostgreSQL أيضاً |
+| api · Redis | `pytest tests/test_rate_limit_redis.py` | ✅ **4/4** بـfakeredis (لا خدمة Redis على الجهاز) |
+| api · PostgreSQL | `backup_db.py` + `verify_restore.py` | ✅ نسخة 94.6KB ← استرجاع مطابق (5/0/1) ← `0003 (head)` |
+| api · PostgreSQL | `GET /health` حيّاً | ✅ 200 · `{"status":"ok","database":"ok","revision":"0003"}` |
+| نشر · Docker | `docker compose up` | ⚠️ **غير متحقق** — Docker غير مثبت على جهاز التطوير |
 | api · PostgreSQL | `alembic upgrade head` + `check` | ✅ الترحيلات 0001–0003 · لا انحراف |
 | api · PostgreSQL | الفهرس الجزئي | ✅ `CREATE UNIQUE INDEX … (user_id) WHERE (status = 'active')` |
 | api · PostgreSQL | دورة `downgrade base` ← `upgrade head` | ✅ نظيفة (مع إسقاط أنواع Enum) |
@@ -120,6 +133,7 @@ csit-app/
 
 ## الخطوات التالية
 
-1. **N5 — التشغيل:** Redis لحدّ المحاولات، نسخ احتياطي + فحص استرجاع، `docker-compose` وNginx/HTTPS على سيرفر الجامعة.
-2. إكمال شاشات اللوحة المتبقية (الإعلانات، المستخدمون، سجل التدقيق، لوحة الملخص).
-3. الإداري (على المستخدم): لقاء العمادة/وحدة تقنية المعلومات، عينة بيانات، موافقة البيانات.
+1. إكمال شاشات اللوحة المتبقية (الإعلانات، المستخدمون، سجل التدقيق، لوحة الملخص).
+2. بناء صور Docker وتجربة `docker compose up` على جهاز/سيرفر فيه Docker، ثم TLS أمام Nginx.
+3. N7 — الاعتماد التجريبي: شعبة واحدة لأسبوعين و20 مختبِراً في Play المغلقة.
+4. الإداري (على المستخدم): لقاء العمادة/وحدة تقنية المعلومات، عينة بيانات، موافقة البيانات.

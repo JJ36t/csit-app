@@ -1,0 +1,6 @@
+# -*- coding: utf-8 -*-
+# ملفات لا تدخل سياق بناء لوحة التحكم (admin/)
+node_modules/
+dist/
+.vite/
+*.log

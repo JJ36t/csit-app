@@ -33,3 +33,6 @@ build/
 # ãÎÑÌÇÊ ÇáÑİÚ ÃËäÇÁ ÇáÊÔÛíá/ÇáÇÎÊÈÇÑ
 api/uploads/
 api/test_uploads/
+
+# Database backups (pg_dump)
+api/backups/
