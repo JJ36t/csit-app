@@ -62,6 +62,7 @@ def get_timetable(
         "items": [
             {
                 "session_id": str(session.id),
+                "slot_id": str(slot.id) if slot is not None else None,
                 "offering_id": str(offering.id),
                 "date": session.date.isoformat(),
                 "starts_at": as_utc(session.starts_at).isoformat(),
@@ -72,7 +73,7 @@ def get_timetable(
                 "room": room.name if room is not None else None,
                 "status": session.status.value,
             }
-            for session, offering, course, _slot, room in rows
+            for session, offering, course, slot, room in rows
         ]
     }
 

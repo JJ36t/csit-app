@@ -221,3 +221,75 @@ def test_change_move_requires_new_start(client):
     )
     assert res.status_code == 400
     assert res.json()["code"] == "missing_new_start"
+
+
+def test_admin_rooms_listing(client):
+    world = build_world()
+    headers = _admin_headers(client)
+
+    res = client.get("/api/v1/admin/timetable/rooms", headers=headers)
+    assert res.status_code == 200, res.text
+    items = res.json()["items"]
+    names = {item["name"] for item in items}
+    assert "قاعة 101" in names
+    room = next(item for item in items if item["name"] == "قاعة 101")
+    assert room["room_id"] == world["room"]
+    assert room["radius_m"] == 100
+
+
+def test_admin_slots_listing_with_offering_filter(client):
+    world = build_world()
+    headers = _admin_headers(client)
+
+    res = client.get("/api/v1/admin/timetable/slots", headers=headers)
+    assert res.status_code == 200, res.text
+    items = res.json()["items"]
+    assert len(items) == 1
+    slot = items[0]
+    assert slot["slot_id"] == world["slot"]
+    assert slot["offering_id"] == world["offering"]
+    assert slot["course_code"] == "CS101"
+    assert slot["group_name"] == "A"
+    assert slot["room_name"] == "قاعة 101"
+    assert slot["instructor_name_ar"] == "د. أحمد التدريسي"
+    assert slot["start_time"].startswith("10:00")
+
+    filtered = client.get(
+        "/api/v1/admin/timetable/slots",
+        params={"offering_id": world["offering"]},
+        headers=headers,
+    )
+    assert filtered.status_code == 200
+    assert len(filtered.json()["items"]) == 1
+
+    other = client.get(
+        "/api/v1/admin/timetable/slots",
+        params={"offering_id": str(uuid.uuid4())},
+        headers=headers,
+    )
+    assert other.status_code == 200
+    assert other.json()["items"] == []
+
+
+def test_timetable_items_expose_slot_id(client):
+    world = build_world()
+    student = login(client, "S-100", "student-device-tt4")
+    today = datetime.now(BAGHDAD).date()
+
+    res = client.get(
+        "/api/v1/timetable",
+        params={"from": today.isoformat(), "to": today.isoformat()},
+        headers=auth_headers(student),
+    )
+    assert res.status_code == 200, res.text
+    items = res.json()["items"]
+    assert items and items[0]["slot_id"] == world["slot"]
+
+
+def test_timetable_admin_read_requires_manager_role(client):
+    build_world()
+    student = login(client, "S-100", "student-device-tt5")
+    headers = auth_headers(student)
+
+    assert client.get("/api/v1/admin/timetable/rooms", headers=headers).status_code == 403
+    assert client.get("/api/v1/admin/timetable/slots", headers=headers).status_code == 403

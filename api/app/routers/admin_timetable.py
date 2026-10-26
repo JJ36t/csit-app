@@ -3,7 +3,7 @@
 import uuid
 from datetime import date, datetime, time, timedelta
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -12,6 +12,7 @@ from app.db import get_db
 from app.deps import require_roles
 from app.errors import ApiError
 from app.models import (
+    Course,
     CourseOffering,
     Group,
     LectureSession,
@@ -110,6 +111,86 @@ def _assert_no_conflict(
                 "الشعبة لديها حصة أخرى في هذا الوقت",
                 {"conflict_slot_id": str(slot.id)},
             )
+
+
+@router.get("/rooms")
+def list_rooms(
+    user: User = Depends(require_roles(*MANAGER_ROLES)),
+    db: Session = Depends(get_db),
+) -> dict:
+    """قاعات الكلية — تُغذّي قائمة الاختيار في نموذج إنشاء الحصة."""
+    rooms = db.scalars(
+        select(Room).where(Room.deleted_at.is_(None)).order_by(Room.name)
+    ).all()
+    return {
+        "items": [
+            {
+                "room_id": str(room.id),
+                "name": room.name,
+                "building": room.building,
+                "lat": room.lat,
+                "lng": room.lng,
+                "radius_m": room.radius_m,
+            }
+            for room in rooms
+        ]
+    }
+
+
+@router.get("/slots")
+def list_slots(
+    offering_id: uuid.UUID | None = Query(default=None),
+    user: User = Depends(require_roles(*MANAGER_ROLES)),
+    db: Session = Depends(get_db),
+) -> dict:
+    """الحصص الأسبوعية الثابتة بنطاق الإدارة (رئيس القسم يرى قسمه فقط).
+
+    تُستخدم لعرض الخطة الأسبوعية ولاختيار الحصة عند تسجيل تغيير مؤرّخ.
+    """
+    stmt = (
+        select(TimetableSlot, CourseOffering, Course, Group, Room, User)
+        .join(CourseOffering, CourseOffering.id == TimetableSlot.offering_id)
+        .join(Course, Course.id == CourseOffering.course_id)
+        .join(Group, Group.id == CourseOffering.group_id)
+        .outerjoin(Room, Room.id == TimetableSlot.room_id)
+        .outerjoin(User, User.id == CourseOffering.instructor_id)
+        .where(TimetableSlot.deleted_at.is_(None))
+    )
+
+    if user.role == UserRole.DEPARTMENT_HEAD:
+        department_id = staff_department_id(db, user)
+        if department_id is None:
+            return {"items": []}
+        stmt = stmt.where(Group.department_id == department_id)
+
+    if offering_id is not None:
+        stmt = stmt.where(TimetableSlot.offering_id == offering_id)
+
+    rows = db.execute(
+        stmt.order_by(TimetableSlot.weekday, TimetableSlot.start_time)
+    ).all()
+
+    return {
+        "items": [
+            {
+                "slot_id": str(slot.id),
+                "offering_id": str(offering.id),
+                "course_code": course.code,
+                "course_name_ar": course.name_ar,
+                "group_name": group.name,
+                "stage": group.stage,
+                "study_type": group.study_type.value,
+                "instructor_name_ar": instructor.full_name_ar if instructor else None,
+                "weekday": slot.weekday,
+                "start_time": slot.start_time.isoformat(),
+                "end_time": slot.end_time.isoformat(),
+                "room_id": str(slot.room_id) if slot.room_id else None,
+                "room_name": room.name if room is not None else None,
+                "kind": slot.kind.value,
+            }
+            for slot, offering, course, group, room, instructor in rows
+        ]
+    }
 
 
 @router.post("/rooms")

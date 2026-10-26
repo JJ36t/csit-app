@@ -27,7 +27,9 @@ import {
   ApiError,
   downloadTemplate,
   importStudents,
+  listDepartments,
   listStudents,
+  type Department,
   type ImportIssue,
   type ImportResult,
   type StudentRow,
@@ -82,6 +84,13 @@ export default function StudentsPage() {
   const [department, setDepartment] = useState<string | undefined>();
   const [stage, setStage] = useState<number | undefined>();
   const [study, setStudy] = useState<string | undefined>();
+  const [departments, setDepartments] = useState<Department[]>([]);
+
+  useEffect(() => {
+    listDepartments()
+      .then(setDepartments)
+      .catch(() => message.error('تعذّر تحميل قائمة الأقسام'));
+  }, []);
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -263,12 +272,10 @@ export default function StudentsPage() {
               setPage(1);
               setDepartment(value);
             }}
-            options={[
-              { value: 'CS', label: 'علوم الحاسوب' },
-              { value: 'IS', label: 'نظم المعلومات' },
-              { value: 'MS', label: 'الأنظمة الطبية' },
-              { value: 'CY', label: 'الأمن السيبراني' },
-            ]}
+            options={departments.map((item) => ({
+              value: item.code,
+              label: item.name_ar,
+            }))}
           />
           <Select
             allowClear

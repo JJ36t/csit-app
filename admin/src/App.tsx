@@ -12,6 +12,8 @@ import {
 } from '@ant-design/icons';
 import LoginPage from './pages/LoginPage';
 import StudentsPage from './pages/StudentsPage';
+import TimetablePage from './pages/TimetablePage';
+import GradesPage from './pages/GradesPage';
 import { ApiError, getToken, request, setToken, type AdminUser } from './api';
 
 const { Header, Sider, Content } = Layout;
@@ -26,9 +28,7 @@ const roleLabels: Record<string, string> = {
 
 const placeholders: Record<string, string> = {
   dashboard: 'ملخص الأرقام الرئيسية — يُبنى في مرحلة لاحقة.',
-  timetable: 'إنشاء الحصص وكشف التعارضات ونشر التغييرات — المرحلة التالية.',
   announcements: 'الإعلانات الموجّهة (كلية/قسم/مرحلة/شعبة/مادة) — المرحلة التالية.',
-  grades: 'التقييمات وإدخال الدرجات ونشرها وتصديرها — ضمن الإطلاق الأول.',
   users: 'التدريسيون والصلاحيات وإعادة تعيين كلمات المرور — المرحلة التالية.',
   audit: 'من فعل ماذا ومتى: قبل وبعد كل تعديل — المرحلة التالية.',
 };
@@ -79,6 +79,9 @@ export default function App() {
       />
     );
   }
+
+  const canManageAcademic =
+    user.role === 'college_admin' || user.role === 'department_head';
 
   const logout = async (): Promise<void> => {
     try {
@@ -136,9 +139,20 @@ export default function App() {
             </Card>
           )}
 
-          {active === 'students' ? (
-            <StudentsPage />
-          ) : (
+          {active === 'students' && canManageAcademic && <StudentsPage />}
+          {active === 'students' && !canManageAcademic && (
+            <Card title="الطلاب">
+              <Empty description="إدارة الطلاب متاحة لمدير الكلية أو رئيس القسم" />
+            </Card>
+          )}
+          {active === 'timetable' && canManageAcademic && <TimetablePage />}
+          {active === 'timetable' && !canManageAcademic && (
+            <Card title={sectionTitles.timetable}>
+              <Empty description="إدارة الجداول متاحة لمدير الكلية أو رئيس القسم — راجع قسمك لإعادة الضبط" />
+            </Card>
+          )}
+          {active === 'grades' && <GradesPage canPublish={user.role === 'college_admin'} />}
+          {active !== 'students' && active !== 'timetable' && active !== 'grades' && (
             <Card title={sectionTitles[active] ?? active}>
               <Empty description={placeholders[active] ?? 'قيد التنفيذ'} />
             </Card>
