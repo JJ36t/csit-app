@@ -294,3 +294,23 @@ curl -fsS http://127.0.0.1:8000/health; echo
 ## خارج نطاق هذا الملف
 
 مراقبة TLS والتجديد من خارج الخادم (Uptime Kuma يقيس `/health`)، تدوير سجلات journald، نسخ احتياطي خارج الموقع، وأي إعداد جدار ناري على مستوى الشبكة الجامعية — كلها قرارات تشغيل يحددها فريق السيرفر.
+
+---
+
+## ملحق: وضع Docker Compose (بديل)
+
+إن كان Docker مسموحاً على الخادم فهذا المسار أسرع، ويستخدم نفس `.env`:
+
+```bash
+cp .env.example .env        # املأ POSTGRES_PASSWORD وJWT_SECRET
+docker compose up -d --build
+docker compose exec api python scripts/seed.py
+docker compose exec api python scripts/demo_seed.py
+docker compose exec api python scripts/create_admin.py ADMIN-001 "مدير الكلية" "Admin#2026"
+curl -s http://127.0.0.1:8080/health
+```
+
+- **فحص شامل على ويندوز:** `powershell -ExecutionPolicy Bypass -File deploy\compose-smoke.ps1`
+- **نسخ احتياطي (القاعدة غير معروضة على المضيف):** `deploy\backup-compose.ps1`
+  ينفّذ `pg_dump` داخل حاوية `db` وينسخ الملف إلى `api/backups/`، ومع `-Verify` يسترجع لقاعدة مؤقتة ويقارن الأعداد.
+- **ملاحظة:** في الحاوية يجب أن يكون `REDIS_URL` اسم خدمة ضمن شبكة compose (أو اتركه فارغاً لعدّاد الذاكرة).

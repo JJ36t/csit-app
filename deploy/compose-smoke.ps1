@@ -20,7 +20,7 @@ param(
   [string]$AdminPassword = 'Admin#2026'
 )
 
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Continue'  # نتحقق من $LASTEXITCODE صراحةً
 Set-Location (Split-Path -Parent $PSScriptRoot)
 
 if (-not (Test-Path '.env')) {
@@ -36,7 +36,7 @@ if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
 function Wait-Engine {
   param([int]$Attempts = 40)
   for ($i = 0; $i -lt $Attempts; $i++) {
-    & $docker info *> $null
+    & $docker info 2>$null 1>$null
     if ($LASTEXITCODE -eq 0) { return $true }
     Start-Sleep -Seconds 3
   }
@@ -53,7 +53,7 @@ if (-not (Wait-Engine -Attempts 5)) {
 }
 Write-Host '✓ محرّك Docker جاهز'
 
-& $docker compose up -d --build
+& $docker compose up -d --build 2>&1 | Out-Host
 if ($LASTEXITCODE -ne 0) { throw 'فشل docker compose up --build' }
 
 $health = $null

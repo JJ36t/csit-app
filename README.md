@@ -66,7 +66,7 @@ csit-app/
 - **نسخ احتياطي مُجرَّب:** `scripts/backup_db.py` و`scripts/verify_restore.py`؛ الدورة نُفِّذت فعلاً:
   نسخة 94.6KB ← استرجاع بلا أخطاء ← تطابق `users/attendance_records/grades` (5/0/1) ← `0003 (head)`.
 - **حزمة نشر:** `docker-compose.yml` (PostgreSQL 16 + API + لوحة خلف Nginx) و`api/Dockerfile` و`admin/Dockerfile`
-  و`admin/nginx.conf` و`.env.example` — **لم تُبنَ الصور** لعدم وجود Docker على جهاز التطوير (فحص ساكن فقط).
+  و`admin/nginx.conf` و`.env.example` — ثم **بُنيت الصور وشُغِّلت الحزمة** بعد تثبيت WSL2 (المرحلة 13).
 - **`/health` عميق:** `{"status","database","revision"}` و503 `degraded` عند تعطّل القاعدة — مُتحقَّق حيّاً على PostgreSQL.
 
 **المرحلة 9 — بقية شاشات اللوحة (الإعلانات · المستخدمون · سجل التدقيق · الملخص):**
@@ -85,6 +85,11 @@ csit-app/
 
 **المرحلة 11 — مسار نشر بلا Docker:** `deploy/systemd` (خدمة + مؤقّتا نسخ/استرجاع)، `deploy/nginx/csit.conf`،
 و[deploy/DEPLOY.md](deploy/DEPLOY.md) — لمن لا يسمح بـDocker على سيرفر الجامعة.
+
+**المرحلة 13 — تشغيل حزمة Docker:** بعد تثبيت WSL2 وإعادة التشغيل بُنيت الصورتان وشُغّلت الخدمات الثلاث
+(db/api/admin على 8080) healthy، و`/health` عبر Nginx يعيد revision 0004 و503 عند إيقاف القاعدة، والملفات
+المرفوعة تبقى بعد إعادة التشغيل، والنسخ/الاسترجاع عبر [deploy/backup-compose.ps1](deploy/backup-compose.ps1)
+(86.4KB بأعداد مطابقة). فحص شامل: [deploy/compose-smoke.ps1](deploy/compose-smoke.ps1).
 
 ## نقاط الـAPI
 
@@ -115,6 +120,7 @@ csit-app/
 **لوحة التحكم (admin/):** انظر [admin/README.md](admin/README.md) — `npm install` ← `npm run dev`.
 **تطبيق الجوال (app/):** انظر [app/README.md](app/README.md) — `flutter pub get` ← `flutter gen-l10n` ← `flutter run`.
 **نموذج الشاشات:** [design/screens.html](design/screens.html) — افتحه في المتصفح.
+**Docker Compose:** `Copy-Item .env.example .env` ← املأ القيم ← `docker compose up -d --build` (اللوحة على 8080)، أو `deploy\compose-smoke.ps1` للفحص الكامل.
 **نشر بلا Docker:** [deploy/DEPLOY.md](deploy/DEPLOY.md) — systemd + Nginx + PostgreSQL محلي.
 
 ## حالة التحقق (نُفِّذ فعلياً — 26 تشرين الأول 2026)
@@ -127,7 +133,7 @@ csit-app/
 | api · Redis (وحدات) | `pytest tests/test_rate_limit_redis.py` | ✅ **4/4** بـfakeredis |
 | api · PostgreSQL | `backup_db.py` + `verify_restore.py` | ✅ نسخة 94.6KB ← استرجاع مطابق (5/0/1) ← `0003 (head)` |
 | api · PostgreSQL | `GET /health` حيّاً | ✅ 200 · `{"status":"ok","database":"ok","revision":"0003"}` |
-| نشر · Docker | `docker compose config` | ⚠️ **جزئي** — Docker Desktop مثبّت وملف compose صالح، لكن المحرّك يحتاج مديراً + WSL2 (لا بناء صور) |
+| نشر · Docker | `docker compose up -d --build` + `deploy/compose-smoke.ps1` | ✅ **3 خدمات healthy** · `/health` عبر Nginx (revision 0004) · 503 عند إيقاف القاعدة · بقاء الملفات بعد restart · نسخ/استرجاع 86.4KB · لوحة على 8080 |
 | api · PostgreSQL | `alembic upgrade head` + `check` | ✅ الترحيلات 0001–0004 · لا انحراف |
 | api · PostgreSQL | الفهرس الجزئي | ✅ `CREATE UNIQUE INDEX … (user_id) WHERE (status = 'active')` |
 | api · PostgreSQL | دورة `downgrade base` ← `upgrade head` | ✅ نظيفة (مع إسقاط أنواع Enum) |
@@ -157,5 +163,5 @@ csit-app/
 ## الخطوات التالية
 
 1. N7 — الاعتماد التجريبي: شعبة واحدة لأسبوعين و20 مختبِراً في Play المغلقة (الكاميرا على هاتف حقيقي أول بند).
-2. بناء صور Docker وتجربة `docker compose up` على جهاز/سيرفر فيه Docker، ثم TLS أمام Nginx.
+2. TLS أمام Nginx على سيرفر الجامعة (وشهادة النطاق) قبل الاعتماد التجريبي.
 4. الإداري (على المستخدم): لقاء العمادة/وحدة تقنية المعلومات، عينة بيانات، موافقة البيانات.
