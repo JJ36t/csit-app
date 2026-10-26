@@ -14,6 +14,10 @@ import LoginPage from './pages/LoginPage';
 import StudentsPage from './pages/StudentsPage';
 import TimetablePage from './pages/TimetablePage';
 import GradesPage from './pages/GradesPage';
+import AnnouncementsPage from './pages/AnnouncementsPage';
+import UsersPage from './pages/UsersPage';
+import AuditPage from './pages/AuditPage';
+import DashboardPage from './pages/DashboardPage';
 import { ApiError, getToken, request, setToken, type AdminUser } from './api';
 
 const { Header, Sider, Content } = Layout;
@@ -24,13 +28,6 @@ const roleLabels: Record<string, string> = {
   department_head: 'رئيس قسم',
   instructor: 'تدريسي',
   student: 'طالب',
-};
-
-const placeholders: Record<string, string> = {
-  dashboard: 'ملخص الأرقام الرئيسية — يُبنى في مرحلة لاحقة.',
-  announcements: 'الإعلانات الموجّهة (كلية/قسم/مرحلة/شعبة/مادة) — المرحلة التالية.',
-  users: 'التدريسيون والصلاحيات وإعادة تعيين كلمات المرور — المرحلة التالية.',
-  audit: 'من فعل ماذا ومتى: قبل وبعد كل تعديل — المرحلة التالية.',
 };
 
 const sectionTitles: Record<string, string> = {
@@ -152,11 +149,30 @@ export default function App() {
             </Card>
           )}
           {active === 'grades' && <GradesPage canPublish={user.role === 'college_admin'} />}
-          {active !== 'students' && active !== 'timetable' && active !== 'grades' && (
-            <Card title={sectionTitles[active] ?? active}>
-              <Empty description={placeholders[active] ?? 'قيد التنفيذ'} />
-            </Card>
-          )}
+          {active === 'dashboard' && canManageAcademic && <DashboardPage />}
+          {active === 'announcements' && canManageAcademic && <AnnouncementsPage />}
+          {active === 'users' && canManageAcademic && <UsersPage />}
+          {active === 'audit' && canManageAcademic && <AuditPage />}
+          {active !== 'students' &&
+            active !== 'timetable' &&
+            active !== 'grades' &&
+            active !== 'dashboard' &&
+            active !== 'announcements' &&
+            active !== 'users' &&
+            active !== 'audit' && (
+              <Card title={sectionTitles[active] ?? active}>
+                <Empty description="قيد التنفيذ" />
+              </Card>
+            )}
+          {!canManageAcademic &&
+            (active === 'dashboard' ||
+              active === 'announcements' ||
+              active === 'users' ||
+              active === 'audit') && (
+              <Card title={sectionTitles[active] ?? active}>
+                <Empty description="هذه الشاشة متاحة لمدير الكلية أو رئيس القسم" />
+              </Card>
+            )}
         </Content>
       </Layout>
     </Layout>

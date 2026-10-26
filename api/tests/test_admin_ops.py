@@ -1,9 +1,20 @@
 # -*- coding: utf-8 -*-
-"""اختبارات إدارة المستخدمين: إعادة ضبط الجهاز وكلمة المرور، نطاق رئيس القسم، وسجل التدقيق."""
+"""اختبارات إدارة المستخدمين: القائمة والترشيح، إعادة ضبط الجهاز وكلمة المرور، نطاق رئيس القسم، وسجل التدقيق."""
+from datetime import datetime, timezone
+
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import AuditLog, Department, Staff, Student, User
+from app.models import (
+    AcademicYear,
+    AuditLog,
+    Department,
+    Group,
+    Staff,
+    Student,
+    Term,
+    User,
+)
 from app.models.enums import StudentStatus, StudyType, UserRole, UserStatus
 from app.security import hash_password
 
@@ -12,7 +23,12 @@ DEVICE_A = {"fingerprint": "student-device-aaaa", "model": "Pixel"}
 DEVICE_B = {"fingerprint": "student-device-bbbb", "model": "Redmi"}
 
 
-def _make_student(university_id: str, dept_code: str, name: str = "طالب اختبار") -> None:
+def _make_student(
+    university_id: str,
+    dept_code: str,
+    name: str = "طالب اختبار",
+    group_id=None,
+) -> None:
     with SessionLocal() as db:
         dept = db.scalar(select(Department).where(Department.code == dept_code))
         user = User(
@@ -31,10 +47,54 @@ def _make_student(university_id: str, dept_code: str, name: str = "طالب اخ
                 department_id=dept.id,
                 stage=1,
                 study_type=StudyType.MORNING,
+                group_id=group_id,
                 enrollment_year=2026,
                 status=StudentStatus.ACTIVE,
             )
         )
+        db.commit()
+
+
+def _make_group(dept_code: str, name: str = "A"):
+    """شعبة ضمن القسم (والفصل الحالي) لإظهار عمود الشعبة في القائمة."""
+    with SessionLocal() as db:
+        dept = db.scalar(select(Department).where(Department.code == dept_code))
+        year = db.scalar(select(AcademicYear).where(AcademicYear.label == "2026-2027"))
+        if year is None:
+            year = AcademicYear(label="2026-2027", is_current=True)
+            db.add(year)
+            db.flush()
+        term = db.scalar(select(Term).where(Term.academic_year_id == year.id))
+        if term is None:
+            term = Term(academic_year_id=year.id, name="الفصل الأول", is_current=True)
+            db.add(term)
+            db.flush()
+        group = Group(
+            department_id=dept.id,
+            stage=1,
+            name=name,
+            study_type=StudyType.MORNING,
+            term_id=term.id,
+        )
+        db.add(group)
+        db.commit()
+        return group.id
+
+
+def _make_instructor(university_id: str, dept_code: str) -> None:
+    with SessionLocal() as db:
+        dept = db.scalar(select(Department).where(Department.code == dept_code))
+        user = User(
+            university_id=university_id,
+            full_name_ar="تدريسي اختبار",
+            role=UserRole.INSTRUCTOR,
+            password_hash=hash_password(university_id, rounds=4),
+            status=UserStatus.ACTIVE,
+            must_change_password=False,
+        )
+        db.add(user)
+        db.flush()
+        db.add(Staff(user_id=user.id, department_id=dept.id, academic_title="مدرس"))
         db.commit()
 
 
@@ -153,3 +213,125 @@ def test_login_failure_is_audited(client):
         )
     assert len(rows) == 1
     assert rows[0].actor_id is None
+
+
+def test_list_users_college_admin_sees_all(client, admin_client):
+    group = _make_group("CS", "A")
+    _make_student("20260101", "CS", "علي حسن", group_id=group)
+    _make_student("20260102", "IS", "زينب كريم")
+    _make_instructor("T-200", "IS")
+
+    # محذوف حذفاً ناعماً — لا يظهر في القائمة
+    _make_student("20260103", "CS", "طالب محذوف")
+    with SessionLocal() as db:
+        gone = db.scalar(select(User).where(User.university_id == "20260103"))
+        gone.deleted_at = datetime.now(timezone.utc)
+        db.commit()
+
+    res = admin_client.get("/api/v1/admin/users")
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert body["total"] == 4  # مدير الكلية + طالبان + تدريسي
+    assert body["page"] == 1
+    assert body["limit"] == 50
+
+    rows = {row["university_id"]: row for row in body["items"]}
+    assert set(rows) == {"ADMIN-001", "20260101", "20260102", "T-200"}
+    assert "20260103" not in rows
+
+    student = rows["20260101"]
+    assert student["full_name_ar"] == "علي حسن"
+    assert student["role"] == "student"
+    assert student["status"] == "active"
+    assert student["must_change_password"] is True
+    assert student["department_code"] == "CS"
+    assert student["department_name_ar"] == "علوم الحاسوب"
+    assert student["group_name"] == "A"
+    assert student["device_status"] == "none"
+
+    # التدريسي: قسمه من بطاقة staff، وبلا شعبة ولا جهاز
+    teacher = rows["T-200"]
+    assert teacher["role"] == "instructor"
+    assert teacher["department_code"] == "IS"
+    assert teacher["group_name"] is None
+    assert teacher["device_status"] == "none"
+
+    # مدير الكلية بلا بطاقة طالب/تدريسي، وجهازه نشط لأنه سجّل الدخول للتو
+    assert rows["ADMIN-001"]["department_code"] is None
+    assert rows["ADMIN-001"]["device_status"] == "active"
+
+    # لا حقول سرّية في الاستجابة
+    for row in body["items"]:
+        assert set(row) == {
+            "user_id",
+            "university_id",
+            "full_name_ar",
+            "role",
+            "status",
+            "must_change_password",
+            "department_code",
+            "department_name_ar",
+            "group_name",
+            "device_status",
+        }
+
+
+def test_list_users_department_head_sees_only_own_students(client):
+    _make_student("20260201", "CS", "طالب قسم الحاسوب")
+    _make_student("20260202", "IS", "طالب قسم النظم")
+    _make_instructor("T-300", "CS")
+    headers = _head_client(client, "HEAD-CS")
+
+    body = client.get("/api/v1/admin/users", headers=headers).json()
+    assert body["total"] == 1
+    assert [row["university_id"] for row in body["items"]] == ["20260201"]
+    assert body["items"][0]["department_code"] == "CS"
+
+    # التدريسي في القسم نفسه ليس طالباً — لا يظهر في نطاق رئيس القسم
+    assert "T-300" not in {row["university_id"] for row in body["items"]}
+
+    # ولا يظهر طالب قسم آخر حتى مع بحث صريح
+    other = client.get(
+        "/api/v1/admin/users", headers=headers, params={"q": "20260202"}
+    ).json()
+    assert other["total"] == 0
+    assert other["items"] == []
+
+
+def test_list_users_pagination_and_filters(client, admin_client):
+    for index in range(5):
+        _make_student(f"2026030{index}", "CS", f"طالب حاسوب {index}")
+    _make_student("20260310", "IS", "طالب نظم")
+
+    first = admin_client.get("/api/v1/admin/users", params={"page": 1, "limit": 2}).json()
+    assert first["total"] == 7  # خمسة طلاب CS + طالب IS + مدير الكلية
+    assert len(first["items"]) == 2
+
+    last = admin_client.get("/api/v1/admin/users", params={"page": 4, "limit": 2}).json()
+    assert len(last["items"]) == 1
+    assert last["page"] == 4
+
+    # البحث بالرقم الجامعي وبالاسم
+    by_id = admin_client.get("/api/v1/admin/users", params={"q": "20260310"}).json()
+    assert [row["university_id"] for row in by_id["items"]] == ["20260310"]
+
+    by_name = admin_client.get("/api/v1/admin/users", params={"q": "طالب نظم"}).json()
+    assert by_name["total"] == 1
+
+    partial = admin_client.get("/api/v1/admin/users", params={"q": "حاسوب"}).json()
+    assert partial["total"] == 5
+
+    # ترشيح الدور والقسم
+    students = admin_client.get("/api/v1/admin/users", params={"role": "student"}).json()
+    assert students["total"] == 6
+    assert {row["role"] for row in students["items"]} == {"student"}
+
+    cs = admin_client.get(
+        "/api/v1/admin/users", params={"department_code": "is"}
+    ).json()
+    assert [row["university_id"] for row in cs["items"]] == ["20260310"]
+    assert cs["items"][0]["department_name_ar"] == "نظم المعلومات"
+
+    # قيود المعاملات: دور غير معروف أو حد أكبر من 200
+    assert client.get("/api/v1/admin/users", params={"role": "teacher"}).status_code == 422
+    assert client.get("/api/v1/admin/users", params={"limit": 201}).status_code == 422

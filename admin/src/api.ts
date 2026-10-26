@@ -403,3 +403,150 @@ export async function downloadGrades(offeringId: string, courseCode: string): Pr
     `grades-${courseCode.replace(/\s+/g, '_')}.xlsx`,
   );
 }
+
+// ----------------------------- المستخدمون -----------------------------
+
+export interface AdminUserRow {
+  user_id: string;
+  university_id: string;
+  full_name_ar: string;
+  role: string;
+  status: string;
+  must_change_password: boolean;
+  department_code: string | null;
+  department_name_ar: string | null;
+  group_name: string | null;
+  device_status: 'active' | 'none';
+}
+
+export interface AdminUserList {
+  total: number;
+  page: number;
+  limit: number;
+  items: AdminUserRow[];
+}
+
+export async function listAdminUsers(
+  params: Record<string, string | number | undefined>,
+): Promise<AdminUserList> {
+  const qs = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') qs.set(key, String(value));
+  });
+  return request<AdminUserList>(`/api/v1/admin/users?${qs.toString()}`);
+}
+
+export async function resetUserDevice(
+  universityId: string,
+): Promise<{ ok: boolean; devices_revoked: number; sessions_revoked: number }> {
+  return request<{ ok: boolean; devices_revoked: number; sessions_revoked: number }>(
+    `/api/v1/admin/users/${encodeURIComponent(universityId)}/device/reset`,
+    { method: 'POST' },
+  );
+}
+
+export async function resetUserPassword(
+  universityId: string,
+): Promise<{ ok: boolean; temporary_password: string; sessions_revoked: number }> {
+  return request<{ ok: boolean; temporary_password: string; sessions_revoked: number }>(
+    `/api/v1/admin/users/${encodeURIComponent(universityId)}/reset-password`,
+    { method: 'POST' },
+  );
+}
+
+// ----------------------------- الإعلانات -----------------------------
+
+export interface AdminAnnouncement {
+  announcement_id: string;
+  scope: string;
+  scope_id: string | null;
+  stage: number | null;
+  title: string;
+  body: string;
+  priority: string;
+  pinned: boolean;
+  publish_at: string | null;
+  expires_at: string | null;
+  created_at: string | null;
+  status: 'scheduled' | 'active' | 'expired';
+}
+
+export async function listAdminAnnouncements(): Promise<{ items: AdminAnnouncement[] }> {
+  return request<{ items: AdminAnnouncement[] }>('/api/v1/admin/announcements');
+}
+
+export interface AnnouncementInput {
+  scope: string;
+  scope_id?: string | null;
+  stage?: number | null;
+  title: string;
+  body: string;
+  priority?: string;
+  pinned?: boolean;
+  publish_at?: string | null;
+  expires_at?: string | null;
+}
+
+export async function createAnnouncement(body: AnnouncementInput): Promise<AdminAnnouncement> {
+  return request<AdminAnnouncement>('/api/v1/admin/announcements', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteAnnouncement(
+  id: string,
+): Promise<{ announcement_id: string; deleted: boolean }> {
+  return request<{ announcement_id: string; deleted: boolean }>(
+    `/api/v1/admin/announcements/${id}`,
+    { method: 'DELETE' },
+  );
+}
+
+// ----------------------------- سجل التدقيق -----------------------------
+
+export interface AuditRow {
+  audit_id: string;
+  created_at: string | null;
+  actor_university_id: string | null;
+  actor_name_ar: string | null;
+  action: string;
+  entity: string;
+  entity_id: string;
+  ip: string | null;
+  before?: unknown;
+  after?: unknown;
+}
+
+export interface AuditList {
+  total: number;
+  page: number;
+  limit: number;
+  items: AuditRow[];
+}
+
+export async function listAudit(
+  params: Record<string, string | number | undefined>,
+): Promise<AuditList> {
+  const qs = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') qs.set(key, String(value));
+  });
+  return request<AuditList>(`/api/v1/admin/audit?${qs.toString()}`);
+}
+
+// ----------------------------- لوحة الملخص -----------------------------
+
+export interface OverviewData {
+  students: {
+    total: number;
+    by_department: { code: string; name_ar: string; count: number }[];
+  };
+  today: { sessions: number; present: number; late: number; absent: number };
+  grades: { published: number; drafts: number };
+  announcements: { active: number; scheduled: number };
+}
+
+export async function getOverview(): Promise<OverviewData> {
+  return request<OverviewData>('/api/v1/admin/overview');
+}

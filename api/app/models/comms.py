@@ -113,3 +113,7 @@ class AuditLog(UUIDPrimaryKeyMixin, Base):
     before: Mapped[Any] = mapped_column(JSON, nullable=True)
     after: Mapped[Any] = mapped_column(JSON, nullable=True)
     ip: Mapped[str | None] = mapped_column(String(45))
+    # وقت الحدث — يُملأ من الخادم؛ ترتيب السجل وعرضه يعتمدان عليه
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )

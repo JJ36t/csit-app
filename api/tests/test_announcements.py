@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import Announcement, Staff, User
+from app.models import Announcement, Department, Staff, User
 from app.models.enums import UserRole, UserStatus
 from app.security import hash_password
 from world import PASSWORD, auth_headers, build_world, login
@@ -151,3 +151,130 @@ def test_reading_an_announcement_is_idempotent(client):
 
     item = client.get("/api/v1/announcements", headers=student).json()["items"][0]
     assert item["is_read"] is True
+
+
+def test_admin_list_shows_scheduled_and_expired_but_feed_hides_them(client):
+    build_world()
+    admin = auth_headers(login(client, "ADMIN-9", "ann-dev-11"))
+    student = auth_headers(login(client, "S-100", "ann-dev-12"))
+
+    now = datetime.now(timezone.utc)
+    future = now + timedelta(hours=3)
+    past_publish = now - timedelta(hours=3)
+    past_expiry = now - timedelta(hours=1)
+
+    assert (
+        _create(client, admin, title="إعلان مجدول", publish_at=future.isoformat()).status_code
+        == 200
+    )
+    assert (
+        _create(
+            client,
+            admin,
+            title="إعلان منتهٍ",
+            publish_at=past_publish.isoformat(),
+            expires_at=past_expiry.isoformat(),
+        ).status_code
+        == 200
+    )
+    active = _create(client, admin, title="إعلان نشط", pinned=True)
+    assert active.status_code == 200
+
+    listed = client.get("/api/v1/admin/announcements", headers=admin)
+    assert listed.status_code == 200, listed.text
+    items = listed.json()["items"]
+    # المثبّت أولاً ثم الأحدث نشراً
+    assert items[0]["title"] == "إعلان نشط"
+    assert {item["title"]: item["status"] for item in items} == {
+        "إعلان نشط": "active",
+        "إعلان مجدول": "scheduled",
+        "إعلان منتهٍ": "expired",
+    }
+    # limit اختياري
+    limited = client.get("/api/v1/admin/announcements?limit=1", headers=admin)
+    assert len(limited.json()["items"]) == 1
+
+    # الخلاصة الموجّهة تخفي المجدولة والمنتهية
+    feed_titles = [
+        item["title"]
+        for item in client.get("/api/v1/announcements", headers=student).json()["items"]
+    ]
+    assert feed_titles == ["إعلان نشط"]
+
+    # الحذف الناعم يخفي الإعلان من قائمة الإدارة أيضاً
+    deleted = client.delete(
+        f"/api/v1/admin/announcements/{active.json()['announcement_id']}", headers=admin
+    )
+    assert deleted.status_code == 200
+    remaining = [
+        item["title"]
+        for item in client.get("/api/v1/admin/announcements", headers=admin).json()["items"]
+    ]
+    assert "إعلان نشط" not in remaining
+
+
+def test_admin_list_is_scoped_for_department_head(client):
+    world = build_world()
+    with SessionLocal() as db:
+        other_department = db.scalar(select(Department).where(Department.code == "IS"))
+        assert other_department is not None
+        head = User(
+            university_id="HEAD-101",
+            full_name_ar="رئيس قسم علوم الحاسوب",
+            role=UserRole.DEPARTMENT_HEAD,
+            password_hash=hash_password(PASSWORD, rounds=4),
+            status=UserStatus.ACTIVE,
+            must_change_password=False,
+        )
+        db.add(head)
+        db.flush()
+        db.add(
+            Staff(
+                user_id=head.id,
+                department_id=__import__("uuid").UUID(world["department"]),
+            )
+        )
+        db.commit()
+        other_department_id = str(other_department.id)
+
+    admin = auth_headers(login(client, "ADMIN-9", "ann-dev-13"))
+    head_headers = auth_headers(login(client, "HEAD-101", "ann-dev-14"))
+    teacher = auth_headers(login(client, "T-100", "ann-dev-15"))
+
+    assert _create(client, admin, title="إعلان الكلية").status_code == 200
+    assert (
+        _create(
+            client,
+            admin,
+            scope="department",
+            scope_id=world["department"],
+            title="إعلان قسمنا",
+        ).status_code
+        == 200
+    )
+    assert (
+        _create(
+            client,
+            admin,
+            scope="department",
+            scope_id=other_department_id,
+            title="إعلان قسم آخر",
+        ).status_code
+        == 200
+    )
+
+    head_titles = {
+        item["title"]
+        for item in client.get("/api/v1/admin/announcements", headers=head_headers).json()["items"]
+    }
+    assert head_titles == {"إعلان الكلية", "إعلان قسمنا"}
+
+    admin_titles = {
+        item["title"]
+        for item in client.get("/api/v1/admin/announcements", headers=admin).json()["items"]
+    }
+    assert admin_titles == {"إعلان الكلية", "إعلان قسمنا", "إعلان قسم آخر"}
+
+    forbidden = client.get("/api/v1/admin/announcements", headers=teacher)
+    assert forbidden.status_code == 403
+    assert forbidden.json()["code"] == "forbidden"

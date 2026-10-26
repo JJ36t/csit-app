@@ -69,6 +69,16 @@ csit-app/
   و`admin/nginx.conf` و`.env.example` — **لم تُبنَ الصور** لعدم وجود Docker على جهاز التطوير (فحص ساكن فقط).
 - **`/health` عميق:** `{"status","database","revision"}` و503 `degraded` عند تعطّل القاعدة — مُتحقَّق حيّاً على PostgreSQL.
 
+**المرحلة 9 — بقية شاشات اللوحة (الإعلانات · المستخدمون · سجل التدقيق · الملخص):**
+- **الإعلانات:** قائمة إدارية تعرض المجدولة والمنتهية مع حالة محسوبة، وإنشاء بنطاق (كلية/قسم/مرحلة/مادة)
+  وجدولة نشر/انتهاء وحذف ناعم.
+- **المستخدمون:** `GET /admin/users` (بلا أي سر) مع حالة الجهاز، وإجراءان: إعادة ضبط الجهاز، وكلمة مرور مؤقتة
+  تُعرض مرة واحدة مع إجبار التغيير وإنهاء الجلسات.
+- **سجل التدقيق:** ترحيل `0004` يضيف `audit_logs.created_at`، و`GET /admin/audit` (مدير الكلية) بترشيح
+  الفاعل/الإجراء/الكيان/المدى الزمني بتوقيت بغداد، وعرض قبل/بعد لكل سجل.
+- **لوحة الملخص:** `GET /admin/overview` — الطلاب وتوزيعهم، جلسات اليوم وحضورها، التقييمات المنشورة/المسودات،
+  والإعلانات النشطة/المجدولة، محصورة بقسم رئيس القسم.
+
 ## نقاط الـAPI
 
 | النقطة | الوصف |
@@ -77,7 +87,7 @@ csit-app/
 | `POST /auth/login` · `/refresh` · `/logout` · `/change-password` · `GET /me` | المصادقة وربط الجهاز |
 | `GET /departments` | الأقسام الأربعة |
 | `POST /admin/students/import?dry_run=` · `GET /admin/students/template` · `GET /admin/students` | استيراد الطلاب |
-| `POST /admin/users/{id}/device/reset` · `/reset-password` | إدارة الأجهزة وكلمات المرور |
+| `POST /admin/users/{id}/device/reset` · `/reset-password` · `GET /admin/users` | إدارة الأجهزة وكلمات المرور وقائمة المستخدمين |
 | `POST /sessions/{id}/open` · `/close` · `GET /sessions/{id}/live` | إدارة جلسة الحضور |
 | `POST /attendance/scan` · `PATCH /attendance/{id}` · `GET /attendance/summary` | المسح والتعديل والملخص |
 | `GET /offerings/{id}/attendance` · `/attendance/report` | سجلي وتقرير المادة |
@@ -86,6 +96,10 @@ csit-app/
 | `POST /assessments` · `POST /assessments/{id}/grades` · `/publish` | تقييمات، إدخال دفعي مدقَّق، نشر بموافقة الكلية || `GET /grades` · `GET /offerings/{id}/grades` · `/grades/export` | درجات الطالب (المنشورة)، مصفوفة التدريسي، تصدير Excel |
 | `POST /offerings/{id}/materials` · `GET …/materials` · `GET /files/{id}/download` | المواد وروابط التنزيل الموقّعة |
 | `POST /admin/announcements` · `GET /announcements` · `POST /announcements/{id}/read` | الإعلانات بنطاق وجدولة وعلامة مقروء |
+| `GET /admin/announcements` | قائمة إدارية للمجدولة والمنتهية بحالة محسوبة |
+| `GET /admin/users` | قائمة المستخدمين (بحث/دور/قسم) مع حالة الجهاز |
+| `GET /admin/audit` | سجل التدقيق بترشيح وترقيم (مدير الكلية) |
+| `GET /admin/overview` | أرقام لوحة الملخص (طلاب/حضور اليوم/درجات/إعلانات) |
 | `GET /notifications` · `/read-all` · `PUT /devices/fcm-token` | صندوق الإشعارات ورمز FCM |
 
 ## التشغيل
@@ -99,13 +113,13 @@ csit-app/
 
 | الطبقة | ما نُفِّذ | النتيجة |
 |---|---|---|
-| api · SQLite | `pytest tests` | ✅ **80/80** (مصادقة، أجهزة، تدقيق، استيراد، حضور، جدول، عروض، درجات/مواد/إعلانات/إشعارات، ترحيل، قيود، حدّ محاولات، health) |
-| api · PostgreSQL 18.6 | `pytest tests` | ✅ **80/80** على PostgreSQL أيضاً |
+| api · SQLite | `pytest tests` | ✅ **93/93** (مصادقة، أجهزة، تدقيق، استيراد، حضور، جدول، عروض، درجات/مواد/إعلانات/إشعارات، مستخدمون، سجل تدقيق، ملخص، ترحيل، قيود، حدّ محاولات، health) |
+| api · PostgreSQL 18.6 | `pytest tests` | ✅ **93/93** على PostgreSQL أيضاً |
 | api · Redis | `pytest tests/test_rate_limit_redis.py` | ✅ **4/4** بـfakeredis (لا خدمة Redis على الجهاز) |
 | api · PostgreSQL | `backup_db.py` + `verify_restore.py` | ✅ نسخة 94.6KB ← استرجاع مطابق (5/0/1) ← `0003 (head)` |
 | api · PostgreSQL | `GET /health` حيّاً | ✅ 200 · `{"status":"ok","database":"ok","revision":"0003"}` |
 | نشر · Docker | `docker compose up` | ⚠️ **غير متحقق** — Docker غير مثبت على جهاز التطوير |
-| api · PostgreSQL | `alembic upgrade head` + `check` | ✅ الترحيلات 0001–0003 · لا انحراف |
+| api · PostgreSQL | `alembic upgrade head` + `check` | ✅ الترحيلات 0001–0004 · لا انحراف |
 | api · PostgreSQL | الفهرس الجزئي | ✅ `CREATE UNIQUE INDEX … (user_id) WHERE (status = 'active')` |
 | api · PostgreSQL | دورة `downgrade base` ← `upgrade head` | ✅ نظيفة (مع إسقاط أنواع Enum) |
 | api · PostgreSQL | فحص HTTP شامل (`smoke_e2e.py`) | ✅ مدير ← استيراد ← دخول طالب ← منع جهاز ثانٍ ← إعادة ضبط ← رفض رمز الطالب على الإدارة |
@@ -133,7 +147,6 @@ csit-app/
 
 ## الخطوات التالية
 
-1. إكمال شاشات اللوحة المتبقية (الإعلانات، المستخدمون، سجل التدقيق، لوحة الملخص).
+1. N7 — الاعتماد التجريبي: شعبة واحدة لأسبوعين و20 مختبِراً في Play المغلقة (الكاميرا على هاتف حقيقي أول بند).
 2. بناء صور Docker وتجربة `docker compose up` على جهاز/سيرفر فيه Docker، ثم TLS أمام Nginx.
-3. N7 — الاعتماد التجريبي: شعبة واحدة لأسبوعين و20 مختبِراً في Play المغلقة.
 4. الإداري (على المستخدم): لقاء العمادة/وحدة تقنية المعلومات، عينة بيانات، موافقة البيانات.

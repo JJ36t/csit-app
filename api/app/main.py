@@ -6,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.errors import install_error_handlers
 from app.routers import (
+    admin_audit,
+    admin_overview,
     admin_students,
     admin_timetable,
     admin_users,
@@ -46,6 +48,8 @@ app.include_router(auth.router, prefix=settings.api_v1_prefix)
 app.include_router(departments.router, prefix=settings.api_v1_prefix)
 app.include_router(admin_students.router, prefix=settings.api_v1_prefix)
 app.include_router(admin_users.router, prefix=settings.api_v1_prefix)
+app.include_router(admin_audit.router, prefix=settings.api_v1_prefix)
+app.include_router(admin_overview.router, prefix=settings.api_v1_prefix)
 app.include_router(admin_timetable.router, prefix=settings.api_v1_prefix)
 app.include_router(announcements.router, prefix=settings.api_v1_prefix)
 app.include_router(attendance.router, prefix=settings.api_v1_prefix)

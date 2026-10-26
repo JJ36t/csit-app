@@ -12,7 +12,7 @@ from sqlalchemy import and_, false, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.deps import get_current_user
+from app.deps import get_current_user, require_roles
 from app.errors import ApiError
 from app.models import (
     Announcement,
@@ -40,6 +40,8 @@ from app.services.notifications import (
 )
 
 router = APIRouter(tags=["announcements"])
+
+MANAGER_ROLES = (UserRole.COLLEGE_ADMIN, UserRole.DEPARTMENT_HEAD)
 
 
 class AnnouncementIn(BaseModel):
@@ -206,6 +208,68 @@ def _visibility_condition(db: Session, user: User) -> Any:
 
 # ----------------------------- إدارة -----------------------------
 
+def _as_utc(value: datetime | None) -> datetime | None:
+    """SQLite يعيد التواريخ بلا منطقة زمنية — نقرأها كما تُكتب: UTC."""
+    if value is None:
+        return None
+    return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
+
+
+def _announcement_status(row: Announcement, now: datetime) -> str:
+    """حالة مشتقة: مجدول قبل publish_at، منتهٍ بعد expires_at، وإلا نشط."""
+    publish_at = _as_utc(row.publish_at)
+    if publish_at is not None and publish_at > now:
+        return "scheduled"
+    expires_at = _as_utc(row.expires_at)
+    if expires_at is not None and expires_at <= now:
+        return "expired"
+    return "active"
+
+
+@router.get("/admin/announcements")
+def list_admin_announcements(
+    limit: int = Query(default=100, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    user: User = Depends(require_roles(*MANAGER_ROLES)),
+    db: Session = Depends(get_db),
+) -> dict:
+    """قائمة الإدارة: تشمل المجدولة والمنتهية (بخلاف الخلاصة الموجّهة) بلا المحذوفة."""
+    conditions = [Announcement.deleted_at.is_(None)]
+    if user.role == UserRole.DEPARTMENT_HEAD:
+        staff = db.get(Staff, user.id)
+        if staff is None or staff.department_id is None:
+            conditions.append(Announcement.scope == AnnouncementScope.COLLEGE)
+        else:
+            conditions.append(
+                or_(
+                    Announcement.scope == AnnouncementScope.COLLEGE,
+                    and_(
+                        Announcement.scope == AnnouncementScope.DEPARTMENT,
+                        Announcement.scope_id == staff.department_id,
+                    ),
+                )
+            )
+
+    rows = db.scalars(
+        select(Announcement)
+        .where(*conditions)
+        .order_by(
+            Announcement.pinned.desc(),
+            func.coalesce(Announcement.publish_at, Announcement.created_at).desc(),
+        )
+        .limit(limit)
+        .offset(offset)
+    )
+
+    now = _utc_now()
+    items = []
+    for row in rows:
+        payload = _announcement_payload(row)
+        payload["status"] = _announcement_status(row, now)
+        items.append(payload)
+    return {"items": items}
+
+
 @router.post("/admin/announcements")
 def create_announcement(
     body: AnnouncementIn,
@@ -267,6 +331,7 @@ def create_announcement(
     db.commit()
     payload = _announcement_payload(row)
     payload["notified"] = notified
+    payload["status"] = _announcement_status(row, _utc_now())
     return payload
 
 

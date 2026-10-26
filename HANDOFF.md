@@ -11,9 +11,9 @@
 1. المشروع: تطبيق أندرويد لكلية علوم الحاسوب وتكنولوجيا المعلومات — جامعة القادسية، بخلفية FastAPI/PostgreSQL ولوحة تحكم ويب.
 2. المستودع: `csit-app/` وفيه `api/` و`app/` (Flutter) و`admin/` (React) و`design/` (نموذج الشاشات).
 3. **مكتمل ومتحقَّق منه:** المصادقة وربط الجهاز، استيراد الطلاب من Excel، الحضور (QR متجدد + موقع + لحظي + تقارير)، الجدول (حصص + تعارضات + تغييرات مؤرخة)، فهرس «جهاز نشط واحد»، ودرجات ومواد وإعلانات وإشعارات (N3)، وملف CI.
-4. الحالة الحالية للاختبارات: **80/80 على SQLite و80/80 على PostgreSQL** (الترحيلات 0001–0003)، و`alembic check` نظيف، و`smoke_n4` أخضر، ودورة نسخ/استرجاع مُجرَّبة، وFlutter **43/43**.
+4. الحالة الحالية للاختبارات: **93/93 على SQLite و93/93 على PostgreSQL** (الترحيلات 0001–0004)، و`alembic check` نظيف، و`smoke_n4` أخضر، ودورة نسخ/استرجاع مُجرَّبة، وFlutter **43/43**.
 5. تطبيق Flutter: المصادقة + **N1 الحضور** + **N2 الجدول والمواد والدرجات** + **APK ناجح** (67.5MB)؛ تبقى الإعلانات والملف الشخصي. ولوحة التحكم: **N4 منجز** — الطلاب/الجدول/الدرجات.
-6. **التالي فوراً:** بقية شاشات اللوحة (الإعلانات/المستخدمون/سجل التدقيق/لوحة الملخص)، ثم N7 الاعتماد التجريبي. N5 مكتمل عدا بناء صور Docker (Docker غير مثبت على جهاز التطوير) وشهادة HTTPS (تنتظر تفاصيل سيرفر الجامعة).
+6. **التالي فوراً:** N7 — الاعتماد التجريبي (شعبة واحدة لأسبوعين، 20 مختبِراً في Play المغلقة). لوحة التحكم اكتملت بشاشاتها السبع. متبقٍّ من النشر: بناء صور Docker (Docker غير مثبت) وشهادة HTTPS (تنتظر سيرفر الجامعة).
 7. **git مهيأ ومدفوع إلى GitHub**: المستودع `https://github.com/JJ36t/csit-app` — و**CI يعمل فعلياً ونجح بالكامل (3/3 وظائف)** في أول تشغيل.
 8. **Android SDK مثبّت** وبناء APK يعمل عبر قرص قصير `subst X:` (انظر 5.6)؛ تجربة الكاميرا على هاتف حقيقي لم تُجرّب بعد.
 9. المستخدم (صاحب المشروع) ينتظر إنجاز بنود إدارية موثّقة في القسم 8 (قواعد الغياب، الجدول الرسمي، عيّنة بيانات…).
@@ -113,22 +113,35 @@
 - **`/health`:** يفحص `SELECT 1` ويقرأ `alembic_version`، ويعيد 503 `degraded` عند تعطّل القاعدة.
 - **اختبارات جديدة:** 5 للخدمة (بعميل وهمي) + 4 لمسار Redis (fakeredis) + 3 لـ`/health` → **80/80** على القاعدتين.
 
+**المرحلة 9 — بقية شاشات اللوحة: الإعلانات والمستخدمون وسجل التدقيق والملخص (26 ت10 2026):**
+- **الإعلانات:** `GET /admin/announcements` يعيد المجدولة والمنتهية مع `status` محسوبة (scheduled/active/expired)
+  ونطاق رئيس القسم (الكلية + قسمه)؛ وشاشة إنشاء/حذف بنطاق كلية/قسم/مرحلة/مادة وجدولة نشر وانتهاء.
+- **المستخدمون:** `GET /admin/users` (بحث/دور/قسم/ترقيم، بلا أي سر) مع `device_status`، وشاشة إجراءات:
+  إعادة ضبط الجهاز وكلمة المرور المؤقتة تُعرض مرة واحدة (Modal + نسخ).
+- **سجل التدقيق:** ترحيل `0004` يضيف `audit_logs.created_at` (server_default now)، و`GET /admin/audit`
+  (مدير الكلية فقط) بترشيح الفاعل/الإجراء/الكيان/المدى الزمني بتوقيت بغداد، وشاشة بصف موسّع يعرض before/after.
+- **لوحة الملخص:** `GET /admin/overview` بأرقام الطلاب وتوزيعهم وجلسات اليوم وحضورها وتقييمات منشورة/مسودات
+  وإعلانات نشطة/مجدولة، محصورة بقسم رئيس القسم.
+- **التحقق:** **93/93** على القاعدتين (13 اختباراً جديداً) · `alembic upgrade 0003→0004` + `check` نظيف على PostgreSQL ·
+  `npm run build` ناجح · تجربة يدوية للشاشات الأربع بحساب `ADMIN-001`.
+
 ---
 
 ## 3) حالة التحقق الحالية (أرقام حقيقية — أعدها قبل أي تسليم)
 
 | الفحص | الأمر | النتيجة عند كتابة الملف |
 |---|---|---|
-| اختبارات API على SQLite | `pytest tests -q` | **80/80** |
-| اختبارات API على PostgreSQL 18.6 | `DATABASE_URL=postgresql+psycopg://…` | **80/80** |
+| اختبارات API على SQLite | `pytest tests -q` | **93/93** |
+| اختبارات API على PostgreSQL 18.6 | `DATABASE_URL=postgresql+psycopg://…` | **93/93** |
 | مسار Redis لحدّ المحاولات | `pytest tests/test_rate_limit_redis.py` | **4/4** بـfakeredis (لا خدمة Redis على الجهاز) |
-| الترحيلات على PostgreSQL | `alembic upgrade head` + `alembic check` | 0001+0002+0003 · «No new upgrade operations detected» |
+| الترحيلات على PostgreSQL | `alembic upgrade head` + `alembic check` | 0001–0004 · «No new upgrade operations detected» |
 | دورة الإرجاع | `alembic downgrade base` ثم `upgrade head` | نظيفة |
 | فحص HTTP شامل | `python scripts/smoke_e2e.py` | أخضر (مدير ← استيراد ← طالب ← منع جهاز ← إعادة ضبط ← رفض صلاحيات) |
 | فحص N3 عبر HTTP | `python scripts/smoke_n3.py` | أخضر (تقييم ← درجة ← نشر ← درجة الطالب ← إعلان/إشعار ← مادة برابط موقّع) |
 | فحص N4 عبر HTTP | `python scripts/smoke_n4.py` | أخضر (طلاب/قالب ← تعارض قاعة ← حصة ← إلغاء مؤرّخ ← درجة ← نشر ← منع 409 ← تصدير 5KB) |
 | نسخ احتياطي + استرجاع | `backup_db.py` ثم `verify_restore.py` | نسخة 94.6KB ← استرجاع بلا أخطاء ← تطابق 5/0/1 ← `0003 (head)` ← حذف القاعدة المؤقتة |
 | `/health` حيّاً على PostgreSQL | `GET /health` | 200 · `{"status":"ok","database":"ok","revision":"0003"}` |
+| تجربة يدوية للشاشات الأربع الجديدة | `ADMIN-001` على خدمة حيّة | الملخص (3 طلاب/جلسة/تقييمان) · إعلان يُنشأ ثم يُحذف · 5 مستخدمين + كلمة مرور مؤقتة تُعرض مرة · تدقيق بأوقات بغداد وترشيح `password_reset` = سجل واحد |
 | حزمة Docker | `docker compose up` | **غير متحقق** — Docker غير مثبت؛ فحص YAML/ملفات فقط |
 | Redis فعلي | خدمة Redis | **غير متحقق** — لا خدمة على الجهاز؛ المسار مغطّى بـfakeredis |
 | Flutter | `flutter analyze` / `flutter test` / `flutter build web --release` | 0 ملاحظات · **43/43** · بناء ناجح |
@@ -153,14 +166,16 @@ csit-app/
 │   │   ├── db.py · deps.py · errors.py · schemas.py · security.py
 │   │   ├── main.py            ← تسجيل كل الموجّهات
 │   │   ├── models/            ← base, enums(SAEnum), identity, academic, timetable, attendance, content, comms
-│   │   ├── routers/           ← auth, admin_users, admin_students, admin_timetable, attendance, timetable,
-│   │   │                        departments, health, grades, materials, announcements, notifications
+│   │   ├── routers/           ← auth, admin_users, admin_students, admin_timetable, admin_audit, admin_overview,
+│   │   │                        attendance, timetable, departments, health, grades, materials, announcements,
+│   │   │                        notifications
 │   │   └── services/          ← attendance(QR/مسافة), access, audit, import_students, rate_limit, sessions,
 │   │                            storage(ملفات), file_links(روابط موقّعة), notifications(جمهور/إشعارات)
-│   ├── migrations/versions/   ← 0001_initial_schema · 0002_device_unique_active · 0003_materials_announcements
+│   ├── migrations/versions/   ← 0001_initial_schema · 0002_device_unique_active · 0003_materials_announcements ·
+│   │                            0004_audit_created_at
 │   ├── scripts/               ← seed, create_admin, reset_device, import_students, inspect_db, smoke_e2e,
 │   │                            demo_seed, smoke_n3, smoke_n4, backup_db, verify_restore
-│   └── tests/                 ← world.py (عالم اختباري) + 8 ملفات اختبار
+│   └── tests/                 ← world.py (عالم اختباري) + 17 ملف اختبار
 ├── app/  (Flutter)
 │   └── lib/  ← main, app/router, core/{network/{api_client,authed_dio},storage,utils,
 │              features/auth{data,presentation}, features/home,
@@ -168,7 +183,8 @@ csit-app/
 │                attendance_scanner}, presentation/{scan_page,sessions_page,live_session_page}},
 │              l10n/app_ar.arb
 ├── admin/ (React + Vite + AntD)
-│   └── src/  ← App.tsx, api.ts, pages/{LoginPage, StudentsPage, TimetablePage, GradesPage}
+│   └── src/  ← App.tsx, api.ts, pages/{LoginPage, StudentsPage, TimetablePage, GradesPage,
+│                          AnnouncementsPage, UsersPage, AuditPage, DashboardPage}
 ├── docker-compose.yml          ← db + api + admin(Nginx)
 ├── .env.example                ← متغيرات النشر (بلا أسرار)
 ├── api/Dockerfile · admin/Dockerfile · admin/nginx.conf
@@ -337,6 +353,13 @@ cd api; python scripts/dev_reset_devices.py S-100  # حساب واحد
 - **متبقٍ:** بناء صور Docker وتشغيل compose (Docker غير مثبت هنا) · Redis فعلي (غير مثبت) · TLS/Nginx على
   سيرفر الجامعة (يحتاج النطاق والشهادة وتفاصيل الوحدة).
 
+### بقية شاشات اللوحة (الإعلانات/المستخدمون/التدقيق/الملخص) — ✅ منجز (26 ت10 2026)
+- الإعلانات (قائمة إدارية بالحالة + إنشاء/حذف) · المستخدمون (قائمة + إعادة ضبط جهاز/كلمة مرور) ·
+  سجل التدقيق (ترحيل 0004 + ترشيح + قبل/بعد) · لوحة الملخص (أرقام حقيقية بنطاق القسم).
+- **قبول متحقق:** 93/93 على القاعدتين · بناء اللوحة ناجح · تجربة يدوية للأربعة · لا أسرار في الاستجابات.
+- **ملاحظة نطاق:** سجل التدقيق لمدير الكلية فقط؛ رئيس القسم يحصل على 403 عربية.
+- **متبقٍّ:** عرض الشاشات على شاشة سطح مكتب عريضة، وفحص قبل/بعد في المتصفح (تم على خدمة SQLite/PG عبر HTTP).
+
 ### N6 — Git وCI — ✅ منجز (26 ت10 2026)
 - ✅ `git init -b main` + أول التزام `f621fda` (166 ملفاً، بلا مخرجات بناء).
 - ✅ رفع إلى GitHub: `https://github.com/JJ36t/csit-app` (‏`git push -u origin main`).
@@ -373,7 +396,7 @@ cd api; python scripts/dev_reset_devices.py S-100  # حساب واحد
 
 ## 10) برومبت جاهز للحساب الجديد
 
-> اقرأ `csit-app/HANDOFF.md` كاملاً، ثم افحص حالة المستودع الفعلية (لا تعتمد على ذاكرة سابقة)، وشغّل اختبارات الـAPI على SQLite وPostgreSQL و`flutter analyze`/`flutter test` لتأكيد الحالة. بعدها ابدأ من «الخطوات التالية» في القسم 7 — **بقية شاشات اللوحة (الإعلانات/المستخدمون/سجل التدقيق/لوحة الملخص)** — وأبلغني بما تحققت منه وما لم يتحقق.
+> اقرأ `csit-app/HANDOFF.md` كاملاً، ثم افحص حالة المستودع الفعلية (لا تعتمد على ذاكرة سابقة)، وشغّل اختبارات الـAPI على SQLite وPostgreSQL و`flutter analyze`/`flutter test` لتأكيد الحالة. بعدها ابدأ من «الخطوات التالية» في القسم 7 — **N7 (الاعتماد التجريبي)** — وأبلغني بما تحققت منه وما لم يتحقق.
 
 ---
 
@@ -385,3 +408,4 @@ cd api; python scripts/dev_reset_devices.py S-100  # حساب واحد
 - **26 ت10 2026 (GitHub):** رفع المستودع إلى `JJ36t/csit-app` — **CI أخضر 3/3 من أول تشغيل فعلي**.
 - **26 ت10 2026 (N4):** شاشات لوحة التحكم الثلاث (طلاب/جدول/درجات) + `GET /admin/timetable/{rooms,slots}` و`slot_id` في `/timetable` — **69/69** على SQLite، `npm run build` ناجح، `smoke_n4` أخضر، وتجربة يدوية بحساب `ADMIN-001`.
 - **26 ت10 2026 (N5):** Redis لحدّ المحاولات (برجوع آلي للذاكرة) + نسخ/استرجاع مُجرَّب (94.6KB · 5/0/1 · 0003) + `docker-compose`/Dockerfiles/Nginx + `/health` عميق — **80/80** على القاعدتين.
+- **26 ت10 2026 (شاشات اللوحة):** الإعلانات + المستخدمون + سجل التدقيق (ترحيل `0004`) + لوحة الملخص — **93/93** على القاعدتين، بناء اللوحة ناجح، وتجربة يدوية للأربع.
