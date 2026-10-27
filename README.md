@@ -133,7 +133,7 @@ csit-app/
 | api · Redis (وحدات) | `pytest tests/test_rate_limit_redis.py` | ✅ **4/4** بـfakeredis |
 | api · PostgreSQL | `backup_db.py` + `verify_restore.py` | ✅ نسخة 94.6KB ← استرجاع مطابق (5/0/1) ← `0003 (head)` |
 | api · PostgreSQL | `GET /health` حيّاً | ✅ 200 · `{"status":"ok","database":"ok","revision":"0003"}` |
-| نشر · Docker | `docker compose up -d --build` + `deploy/compose-smoke.ps1` | ✅ **3 خدمات healthy** · `/health` عبر Nginx (revision 0004) · 503 عند إيقاف القاعدة · بقاء الملفات بعد restart · نسخ/استرجاع 86.4KB · Redis (profile) 5→429 وتصفير · اللوحة على 127.0.0.1:8080 |
+| نشر · Docker | `docker compose up -d --build` + `deploy/compose-smoke.ps1` | ✅ **3 خدمات healthy** · `/health` عبر Nginx (revision 0004) · 503 عند إيقاف القاعدة · بقاء الملفات بعد restart · نسخ/استرجاع 86.4KB · Redis (profile) 5→429 وتصفير · اللوحة على 127.0.0.1:8080 · **موقوف حالياً بقرار المالك؛ يُفعَّل عند الإطلاق** |
 | api · PostgreSQL | `alembic upgrade head` + `check` | ✅ الترحيلات 0001–0004 · لا انحراف |
 | api · PostgreSQL | الفهرس الجزئي | ✅ `CREATE UNIQUE INDEX … (user_id) WHERE (status = 'active')` |
 | api · PostgreSQL | دورة `downgrade base` ← `upgrade head` | ✅ نظيفة (مع إسقاط أنواع Enum) |
