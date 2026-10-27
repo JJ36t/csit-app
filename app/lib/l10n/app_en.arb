@@ -1,0 +1,384 @@
+{
+  "@@locale": "en",
+  "appTitle": "Computer Science",
+  "collegeName": "College of Computer Science and Information Technology — University of Al-Qadisiyah",
+  "loginTitle": "Sign in",
+  "loginSubtitle": "Use the university ID and password provided by your department",
+  "universityIdLabel": "University ID",
+  "passwordLabel": "Password",
+  "loginButton": "Sign in",
+  "fieldRequired": "This field is required",
+  "universityIdInvalid": "University ID must be at least 3 characters",
+  "networkUnreachable": "Cannot reach the server; check your connection and try again",
+  "unexpectedError": "Something went wrong; please try again",
+  "sessionExpired": "Session expired; please sign in again",
+  "homeTitle": "Home",
+  "homeTodayLectures": "Today's lectures",
+  "homeNoLectures": "No lectures today",
+  "homeLatestAnnouncement": "Latest announcement",
+  "homeViewAll": "View all",
+  "welcome": "Welcome",
+  "logoutButton": "Sign out",
+  "mustChangePasswordNotice": "You must change your initial password",
+  "changePasswordTitle": "Change password",
+  "changePasswordButton": "Save password",
+  "currentPasswordLabel": "Current password",
+  "newPasswordLabel": "New password",
+  "passwordTooShort": "Password must be at least 8 characters",
+  "passwordChanged": "Password changed; please sign in again",
+  "departmentLabel": "Department",
+  "stageLabel": "Stage",
+  "groupLabel": "Section",
+  "scanAttendanceCard": "Scan attendance",
+  "scanAttendanceCardHint": "Scan the session code to record your attendance",
+  "todaySessionsCard": "Today's lectures",
+  "todaySessionsCardHint": "Open the session and follow attendance live",
+  "todaySessionsTitle": "Today's lectures",
+  "noSessionsToday": "No lectures scheduled for you today",
+  "noStudentsInFilter": "No students in this state",
+  "retryButton": "Retry",
+  "scanTitle": "Scan attendance",
+  "scannerHint": "Place the session code inside the frame",
+  "scanHelp": "Point the camera at the code shown by your instructor. The code renews every 20 seconds.",
+  "lastScanResult": "Last scan result",
+  "presentStatus": "Present",
+  "lateStatus": "Late",
+  "absentStatus": "Absent",
+  "excusedStatus": "Excused",
+  "flaggedStatus": "Flagged",
+  "notRecordedStatus": "Not recorded",
+  "deviceNote": "Scanning is tied to your registered device — it cannot be done from another device",
+  "invalidQrError": "The scanned code is not a valid attendance code for this app",
+  "missingDeviceError": "Device information is incomplete; sign in again and retry",
+  "flagNoLocation": "Location was not sent with the scan; your instructor will review it",
+  "flagOutsideCampus": "Location is outside the room range (about {meters} m); your instructor will review it",
+  "@flagOutsideCampus": {
+    "placeholders": {
+      "meters": {"type": "int"}
+    }
+  },
+  "liveTitle": "Attendance list",
+  "liveAttendance": "Live attendance",
+  "qrRenewsChip": "The code renews automatically",
+  "presentOfTotal": "{present} present of {total}",
+  "@presentOfTotal": {
+    "placeholders": {
+      "present": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "percentValue": "{percent}%",
+  "@percentValue": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "lateCount": "Late {count}",
+  "@lateCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "flaggedCount": "Flagged {count}",
+  "@flaggedCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "absentCount": "Absent {count}",
+  "@absentCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "filterAll": "All",
+  "sessionKindTheory": "Theory",
+  "sessionKindLab": "Lab",
+  "sessionStatusOpen": "Session is open",
+  "sessionStatusClosed": "Session closed",
+  "sessionStatusScheduled": "Not opened yet",
+  "sessionStatusCancelled": "Cancelled",
+  "openSessionButton": "Open session",
+  "openSessionHint": "Open the session when the lecture starts so scanning begins and students see the code.",
+  "closeSessionButton": "Close session",
+  "closeSessionNote": "Closing the session stops scanning immediately.",
+  "closeSessionConfirmTitle": "Close the session?",
+  "closeSessionConfirmBody": "Students who did not scan will be marked absent and scanning stops immediately.",
+  "confirmButton": "Confirm",
+  "cancelButton": "Cancel",
+  "absentMarkedNote": "{count} students were marked absent.",
+  "@absentMarkedNote": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "timetableTitle": "Weekly timetable",
+  "timetableEmpty": "No lectures in this period",
+  "timetableOffline": "Offline; showing saved data from {time}",
+  "@timetableOffline": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "changeCancelled": "Cancelled",
+  "changeMoved": "Moved",
+  "changeExtra": "Extra",
+  "weekdaySunday": "Sunday",
+  "weekdayMonday": "Monday",
+  "weekdayTuesday": "Tuesday",
+  "weekdayWednesday": "Wednesday",
+  "weekdayThursday": "Thursday",
+  "weekdayFriday": "Friday",
+  "weekdaySaturday": "Saturday",
+  "courseMaterialsTitle": "Course materials",
+  "noOfferings": "No registered courses",
+  "courseMaterialsEmpty": "No materials published yet",
+  "materialsDownload": "Download",
+  "materialsOpenLink": "Open",
+  "materialsLinkOpenFailed": "Could not open the link; try again",
+  "materialsWeek": "Week {week}",
+  "@materialsWeek": {
+    "placeholders": {
+      "week": {"type": "int"}
+    }
+  },
+  "gradesTitle": "Your grades",
+  "gradesEmpty": "No grades published yet",
+  "notGradedYet": "Not graded",
+  "weightedOfTotal": "{total} of {sum}",
+  "@weightedOfTotal": {
+    "placeholders": {
+      "total": {"type": "String"},
+      "sum": {"type": "String"}
+    }
+  },
+  "scoreOfMax": "{score} / {max}",
+  "@scoreOfMax": {
+    "placeholders": {
+      "score": {"type": "String"},
+      "max": {"type": "String"}
+    }
+  },
+  "weightShort": "Weight {weight}%",
+  "@weightShort": {
+    "placeholders": {
+      "weight": {"type": "String"}
+    }
+  },
+  "timetableCard": "Timetable",
+  "timetableCardHint": "Your lectures and dated changes",
+  "materialsCardHint": "Lecture files and links",
+  "gradesCardHint": "Published results and weighted total",
+  "gradeEntryTitle": "Enter grades",
+  "gradeEntryHint": "Enter assessment scores as a draft; publishing needs college approval",
+  "chooseOfferingLabel": "Course",
+  "chooseAssessmentLabel": "Assessment",
+  "noAssessmentsYet": "No assessments yet — create one first",
+  "newAssessmentButton": "New assessment",
+  "assessmentNameLabel": "Assessment name",
+  "assessmentKindLabel": "Type",
+  "maxScoreLabel": "Maximum score",
+  "weightPercentLabel": "Weight %",
+  "createAssessmentButton": "Create assessment",
+  "assessmentCreated": "Assessment created",
+  "gradedOfTotal": "{graded} of {total} entered",
+  "@gradedOfTotal": {
+    "placeholders": {
+      "graded": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "saveDraftButton": "Save as draft",
+  "draftSaved": "Draft saved",
+  "publishGradesButton": "Publish grades",
+  "publishNeedsAdmin": "Publishing requires college admin approval",
+  "publishedSuccess": "Grades published; {count} students notified",
+  "@publishedSuccess": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "scoreRangeError": "Score must be between 0 and {max}",
+  "@scoreRangeError": {
+    "placeholders": {
+      "max": {"type": "String"}
+    }
+  },
+  "assessmentLocked": "This assessment is published and cannot be edited",
+  "assessmentPublished": "Published",
+  "kindQuiz": "Quiz",
+  "kindLab": "Lab",
+  "kindMidterm": "Midterm",
+  "kindFinal": "Final",
+  "kindOther": "Other",
+  "assessmentWeightHint": "Total assessment weight must not exceed 100%",
+
+  "loginTotpLabel": "Two-step verification code",
+  "loginTotpHint": "Enter the code from your authenticator app (required for staff accounts)",
+  "totpRequiredError": "This account is protected by two-step verification; enter the code and try again",
+  "totpInvalidError": "The verification code is wrong or has expired",
+
+  "announcementsCard": "Announcements",
+  "announcementsCardHint": "College, department and course news",
+  "announcementsTitle": "Announcements",
+  "announcementsEmpty": "No announcements published yet",
+  "announcementPinned": "Pinned",
+  "announcementPriorityHigh": "Important",
+  "announcementMarkedRead": "Marked as read",
+  "announcementUnknownScope": "Announcement",
+
+  "inboxCard": "Notifications",
+  "inboxCardHint": "Inbox and device alerts",
+  "inboxTitle": "Notifications",
+  "inboxEmpty": "No notifications yet",
+  "markAllRead": "Mark all as read",
+  "unreadBadge": "{count} new",
+  "@unreadBadge": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "notificationsPermissionDenied": "Notification permission was not granted; you can still follow them in the app",
+  "notificationsEnabledMessage": "Lecture notifications are enabled on this device",
+  "reminderLectureTitle": "Lecture in 15 minutes",
+  "reminderLectureBody": "{course} — {room} at {time}",
+  "@reminderLectureBody": {
+    "placeholders": {
+      "course": {"type": "String"},
+      "room": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
+  "reminderDigestTitle": "Tomorrow's lectures",
+  "reminderDigestBody": "{count} lectures starting at {time}",
+  "@reminderDigestBody": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "time": {"type": "String"}
+    }
+  },
+  "reminderDigestEmpty": "No lectures tomorrow",
+  "reminderChannelName": "Lecture reminders",
+  "reminderChannelDescription": "Reminder before a lecture and a digest of tomorrow's lectures",
+
+  "excusesCard": "Excuses",
+  "excusesCardHint": "Submit an absence excuse and follow its decision",
+  "excusesTitle": "My excuses",
+  "excusesEmpty": "No excuses submitted",
+  "excuseNewTitle": "New absence excuse",
+  "excuseSessionLabel": "Lecture",
+  "excuseSelectSession": "Select the missed lecture",
+  "excuseNoSessions": "No eligible lectures (no absence within 14 days)",
+  "excuseReasonLabel": "Reason for absence",
+  "excuseReasonHint": "Explain briefly and attach the report image if available",
+  "excuseAttach": "Attach image or PDF",
+  "excuseAttachCamera": "Take a photo",
+  "excuseAttachGallery": "From gallery",
+  "excuseAttachmentChosen": "Attachment selected",
+  "excuseSubmit": "Submit excuse",
+  "excuseSubmitted": "Excuse sent for review",
+  "excuseStatusPending": "Under review",
+  "excuseStatusApproved": "Approved",
+  "excuseStatusRejected": "Rejected",
+  "excuseReviewNote": "Reviewer note",
+  "excuseWithdraw": "Withdraw excuse",
+  "excuseWithdrawn": "Excuse withdrawn",
+  "excuseWindowClosed": "The excuse window for this lecture has closed (14 days)",
+  "excuseReviewTitle": "Review excuses",
+  "excuseReviewEmpty": "No excuses awaiting review",
+  "excuseApprove": "Approve",
+  "excuseReject": "Reject",
+  "excuseReviewNoteHint": "A note shown to the student (optional)",
+  "excuseReviewed": "Decision saved",
+  "excusePendingCount": "Awaiting review: {count}",
+  "@excusePendingCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "requestsCard": "Requests",
+  "requestsCardHint": "Contact your department about your studies",
+  "requestsTitle": "My requests",
+  "requestsEmpty": "No requests yet",
+  "requestNewTitle": "New request",
+  "requestCategoryLabel": "Category",
+  "requestCategoryAcademic": "Academic matter",
+  "requestCategorySchedule": "Timetable and rooms",
+  "requestCategoryGrades": "Grade or assessment",
+  "requestCategoryDocuments": "Document or letter",
+  "requestCategoryOther": "Other",
+  "requestSubjectLabel": "Subject",
+  "requestBodyLabel": "Request details",
+  "requestSend": "Send request",
+  "requestCreated": "Your request was sent to your department",
+  "requestDetailTitle": "Request details",
+  "requestReplyHint": "Write your message…",
+  "requestSendReply": "Send",
+  "requestClosedNotice": "This request is closed; no more messages",
+  "requestStatusOpen": "Open",
+  "requestStatusInProgress": "In progress",
+  "requestStatusResolved": "Resolved",
+  "requestStatusClosed": "Closed",
+  "conversationEmpty": "No messages yet",
+
+  "identityCard": "Digital ID",
+  "identityCardHint": "A signed QR card that proves your identity in exams",
+  "identityTitle": "Your digital card",
+  "identityCardNote": "Show the card to your instructor or the hall gate. It renews automatically and old screenshots stop working.",
+  "identityValidFor": "Valid for {seconds} seconds",
+  "@identityValidFor": {
+    "placeholders": {
+      "seconds": {"type": "int"}
+    }
+  },
+  "identityRefreshButton": "Refresh card",
+  "identityVerifyTitle": "Verify a student card",
+  "identityVerifyHint": "Point the camera at the student's digital card",
+  "identityVerifyButton": "Verify",
+  "identityValidTitle": "Valid card",
+  "identityInvalidTitle": "Invalid card",
+  "identityStudentLabel": "Student",
+  "identityStudyTypeMorning": "Morning",
+  "identityStudyTypeEvening": "Evening",
+  "identityCardForStaffOnly": "Card verification is available to instructors and administration",
+  "identityExpiredError": "The card has expired; ask the student to refresh it",
+
+  "settingsCard": "Settings",
+  "settingsCardHint": "Appearance, language and two-step verification",
+  "settingsTitle": "Settings",
+  "settingsAppearance": "Appearance",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsThemeSystem": "System",
+  "settingsLanguage": "Language",
+  "settingsLanguageArabic": "العربية",
+  "settingsLanguageEnglish": "English",
+  "settingsSaved": "Settings saved",
+  "settingsNotifications": "Lecture notifications",
+  "settingsNotificationsHint": "A reminder 15 minutes before and tomorrow's digest",
+  "settingsNotificationsOn": "Enabled on this device",
+  "settingsNotificationsOff": "Not enabled",
+  "enableNotificationsButton": "Enable notifications",
+  "twoFactorTitle": "Two-step verification",
+  "twoFactorHint": "Extra protection for instructor and admin accounts via an authenticator app",
+  "twoFactorEnabled": "Enabled",
+  "twoFactorDisabled": "Disabled",
+  "twoFactorSetup": "Start setup",
+  "twoFactorSecretLabel": "Secret (enter it manually if the code cannot be scanned)",
+  "twoFactorCodeLabel": "App code (6 digits)",
+  "twoFactorEnable": "Enable",
+  "twoFactorDisable": "Disable",
+  "twoFactorPasswordLabel": "Password to confirm disabling",
+  "twoFactorEnabledMessage": "Two-step verification enabled",
+  "twoFactorDisabledMessage": "Two-step verification disabled",
+  "twoFactorNotAvailable": "Available for instructor and admin accounts only",
+  "twoFactorSetupHint": "Add the secret to Google Authenticator or any TOTP app, then enter the shown code.",
+  "dataFromCache": "Offline; showing saved data from {time}",
+  "@dataFromCache": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "offlineSavedHint": "Data refreshes automatically when the connection returns"
+}

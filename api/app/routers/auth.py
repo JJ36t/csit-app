@@ -14,6 +14,7 @@ from app.deps import get_current_user
 from app.errors import ApiError
 from app.models import Department, Device, FcmToken, Group, RefreshToken, Staff, Student, User
 from app.models.enums import DeviceStatus, UserRole, UserStatus
+from app.services import totp
 from app.services.audit import log_action
 from app.services.rate_limit import clear as clear_rate_limit
 from app.services.rate_limit import guard as rate_limit_guard
@@ -58,6 +59,49 @@ def _clear_login_failures(key: str) -> None:
     clear_rate_limit(key)
 
 
+def _enforce_totp(
+    db: Session,
+    user: User,
+    candidate: str | None,
+    *,
+    limit_key: str,
+    client_ip: str,
+) -> None:
+    """يتحقق من رمز TOTP عندما يكون مفعّلاً — ويستهلك الخطوة لمنع إعادة الاستخدام."""
+    if not user.totp_enabled:
+        return
+
+    code = (candidate or "").strip()
+    if not code:
+        raise ApiError(
+            401,
+            "totp_required",
+            "هذا الحساب محمي بالتحقق بخطوتين؛ أدخل الرمز من تطبيق المصادقة",
+            {"totp_required": True},
+        )
+
+    step = totp.verify(user.totp_secret or "", code)
+    if step is None:
+        _record_login_failure(limit_key)
+        log_action(
+            db,
+            actor=user,
+            action="login_failed",
+            entity="user",
+            entity_id=user.university_id,
+            after={"reason": "invalid_totp"},
+            ip=client_ip,
+            commit=True,
+        )
+        raise ApiError(401, "invalid_totp", "رمز التحقق غير صحيح أو انتهت صلاحيته")
+
+    if user.totp_last_step is not None and step <= user.totp_last_step:
+        _record_login_failure(limit_key)
+        raise ApiError(401, "totp_replayed", "أُعيد استخدام رمز سبق استعماله؛ انتظر الرمز التالي")
+
+    user.totp_last_step = step
+
+
 class DeviceIn(BaseModel):
     fingerprint: str = Field(min_length=8, max_length=255)
     model: str | None = Field(default=None, max_length=120)
@@ -67,6 +111,8 @@ class DeviceIn(BaseModel):
 class LoginIn(BaseModel):
     university_id: str = Field(min_length=3, max_length=20)
     password: str = Field(min_length=1, max_length=128)
+    # رمز تطبيق المصادقة الثنائية — مطلوب فقط لمن فعّلها
+    totp_code: str | None = Field(default=None, max_length=8)
     device: DeviceIn
     fcm_token: str | None = Field(default=None, max_length=255)
 
@@ -81,7 +127,11 @@ class ChangePasswordIn(BaseModel):
 
 
 def _bind_device(db: Session, user: User, body: DeviceIn) -> Device:
-    """جهاز نشط واحد لكل حساب: نفس البصمة تمر، وجهاز مختلف يحتاج إعادة ضبط من القسم."""
+    """جهاز نشط واحد لكل حساب، لكن البصمة ليست ملكاً دائماً لأول من سجّل.
+
+    بعد إلغاء الربط من القسم تصبح البصمة حرة: يمكن لحساب آخر أن يربط الجهاز
+    نفسه. أما بصمة نشطة لحساب آخر فلا تُنتزع (منع اختطاف الجهاز).
+    """
     active = list(
         db.scalars(
             select(Device).where(
@@ -107,11 +157,19 @@ def _bind_device(db: Session, user: User, body: DeviceIn) -> Device:
     )
     if existing is not None:
         if existing.user_id != user.id:
-            raise ApiError(
-                403,
-                "device_belongs_to_another_account",
-                "هذا الجهاز مرتبط بحساب آخر",
-            )
+            if existing.status == DeviceStatus.ACTIVE:
+                raise ApiError(
+                    403,
+                    "device_belongs_to_another_account",
+                    "هذا الجهاز مرتبط بحساب آخر نشط؛ يلزم إعادة ضبط الربط أولاً",
+                )
+            # جهاز أُلغي ربطه سابقاً: البصمة حرة ويُعاد استخدامها لهذا الحساب
+            existing.user_id = user.id
+            existing.status = DeviceStatus.ACTIVE
+            existing.bound_at = datetime.now(timezone.utc)
+            if body.model:
+                existing.model = body.model
+            return existing
         existing.status = DeviceStatus.ACTIVE
         existing.bound_at = datetime.now(timezone.utc)
         if body.model:
@@ -220,6 +278,9 @@ def login(body: LoginIn, request: Request, db: Session = Depends(get_db)) -> Log
         raise ApiError(401, "invalid_credentials", "الرقم الجامعي أو كلمة المرور غير صحيحة")
     if user.status != UserStatus.ACTIVE:
         raise ApiError(403, "account_inactive", "الحساب غير مفعّل؛ راجع قسمك")
+
+    # المصادقة الثنائية: تُفحص قبل ربط الجهاز كي لا يُكشف شيء لمن يملك كلمة المرور فقط
+    _enforce_totp(db, user, body.totp_code, limit_key=limit_key, client_ip=client_ip)
 
     try:
         device = _bind_device(db, user, body.device)
@@ -383,3 +444,107 @@ def change_password(
 @router.get("/me", response_model=UserProfile)
 def me(user: User = Depends(get_current_user), db: Session = Depends(get_db)) -> UserProfile:
     return build_profile(db, user)
+
+
+# ----------------------------- المصادقة الثنائية (TOTP) -----------------------------
+
+# الحساب الإداري والتدريسي هو ما يُحمى؛ الطالب يُكتفى له بربط الجهاز الواحد.
+TOTP_ROLES = (UserRole.INSTRUCTOR, UserRole.DEPARTMENT_HEAD, UserRole.COLLEGE_ADMIN)
+
+
+class TotpCodeIn(BaseModel):
+    code: str = Field(min_length=6, max_length=8)
+
+
+class TotpDisableIn(BaseModel):
+    password: str = Field(min_length=1, max_length=128)
+
+
+@router.get("/2fa/status")
+def totp_status(user: User = Depends(get_current_user)) -> dict:
+    return {
+        "enabled": bool(user.totp_enabled),
+        "available": user.role in TOTP_ROLES,
+        "confirmed_at": user.totp_confirmed_at.isoformat() if user.totp_confirmed_at else None,
+    }
+
+
+@router.post("/2fa/setup")
+def totp_setup(user: User = Depends(get_current_user), db: Session = Depends(get_db)) -> dict:
+    """يولّد سرّاً جديداً ويعرضه مرة واحدة (يُمسح ضوئياً أو يُدخل يدوياً)."""
+    if user.role not in TOTP_ROLES:
+        raise ApiError(403, "totp_not_available", "التحقق بخطوتين متاح للتدريسي والإدارة")
+    if user.totp_enabled:
+        raise ApiError(409, "totp_already_enabled", "التحقق بخطوتين مفعّل بالفعل؛ عطّله أولاً")
+
+    secret = totp.new_secret()
+    user.totp_secret = secret
+    user.totp_confirmed_at = None
+    user.totp_last_step = None
+    log_action(
+        db,
+        actor=user,
+        action="totp_setup_started",
+        entity="user",
+        entity_id=user.university_id,
+    )
+    db.commit()
+    return {
+        "secret": secret,
+        "otpauth_uri": totp.provisioning_uri(secret, user.university_id),
+        "period_seconds": 30,
+        "digits": 6,
+    }
+
+
+@router.post("/2fa/enable")
+def totp_enable(
+    body: TotpCodeIn,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    if not user.totp_secret:
+        raise ApiError(400, "totp_not_started", "ابدأ الإعداد أولاً لتوليد السرّ")
+    if user.totp_enabled:
+        raise ApiError(409, "totp_already_enabled", "التحقق بخطوتين مفعّل بالفعل")
+    step = totp.verify(user.totp_secret, body.code)
+    if step is None:
+        raise ApiError(400, "invalid_totp", "الرمز غير صحيح أو انتهت صلاحيته؛ جرّب الرمز الحالي")
+
+    user.totp_enabled = True
+    user.totp_confirmed_at = datetime.now(timezone.utc)
+    user.totp_last_step = step
+    log_action(
+        db,
+        actor=user,
+        action="totp_enabled",
+        entity="user",
+        entity_id=user.university_id,
+    )
+    db.commit()
+    return {"enabled": True}
+
+
+@router.post("/2fa/disable")
+def totp_disable(
+    body: TotpDisableIn,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    """التعطيل يتطلب كلمة المرور — جهاز مسروق غير مفتوح لا يستطيع إزالة الحماية."""
+    if not verify_password(body.password, user.password_hash):
+        raise ApiError(400, "wrong_password", "كلمة المرور غير صحيحة")
+
+    user.totp_enabled = False
+    user.totp_secret = None
+    user.totp_confirmed_at = None
+    user.totp_last_step = None
+    log_action(
+        db,
+        actor=user,
+        action="totp_disabled",
+        entity="user",
+        entity_id=user.university_id,
+    )
+    db.commit()
+    return {"enabled": False}

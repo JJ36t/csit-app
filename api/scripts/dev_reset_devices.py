@@ -20,7 +20,6 @@ from sqlalchemy import select  # noqa: E402
 from app.db import SessionLocal  # noqa: E402
 from app.models import Device, RefreshToken, User  # noqa: E402
 from app.models.enums import DeviceStatus  # noqa: E402
-from app.security import as_utc  # noqa: E402
 
 
 def main() -> None:
@@ -41,8 +40,8 @@ def main() -> None:
 
         devices = list(db.scalars(query))
         for device in devices:
+            # الحالة وحدها تكفي؛ لا عمود revoked_at في جدول الأجهزة
             device.status = DeviceStatus.REVOKED
-            device.revoked_at = now
 
         tokens = list(
             db.scalars(select(RefreshToken).where(RefreshToken.revoked_at.is_(None)))

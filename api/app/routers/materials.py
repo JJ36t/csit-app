@@ -8,8 +8,9 @@
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
 from fastapi.responses import FileResponse
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -22,6 +23,7 @@ from app.models.enums import MaterialKind
 from app.services.access import require_enrollment, require_offering_staff
 from app.services.audit import log_action
 from app.services.file_links import signed_path, verify
+from app.services.notifications import notify_offering_students
 from app.services.storage import delete_file, resolve_path, save_upload
 
 router = APIRouter(tags=["materials"])
@@ -126,6 +128,9 @@ async def create_material(
 @router.get("/offerings/{offering_id}/materials")
 def list_materials(
     offering_id: uuid.UUID,
+    updated_since: datetime | None = Query(
+        default=None, description="مزامنة جزئية: ما تغيّر بعد هذا الوقت فقط"
+    ),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> dict:
@@ -145,6 +150,8 @@ def list_materials(
     )
     if not is_staff:
         query = query.where(Material.is_published.is_(True))
+    if updated_since is not None:
+        query = query.where(Material.updated_at > updated_since)
     materials = list(db.scalars(query.order_by(Material.week_no, Material.created_at)))
 
     files = {
@@ -161,6 +168,7 @@ def list_materials(
         "offering_id": str(offering.id),
         "course_code": course.code if course else "",
         "course_name_ar": course.name_ar if course else "",
+        "server_time": datetime.now(timezone.utc).isoformat(),
         "items": [
             _material_payload(item, files.get(item.file_id)) for item in materials
         ],
@@ -227,3 +235,77 @@ def cleanup_material_file(db: Session, material: Material) -> None:
     delete_file(file_row.storage_key)
     db.delete(file_row)
     db.commit()
+
+
+class MaterialPatchIn(BaseModel):
+    """تعديل جزئي لمادة: العنوان/الأسبوع/الرابط/النشر — لا يُستبدل الملف."""
+
+    title: str | None = Field(default=None, min_length=2, max_length=300)
+    week_no: int | None = Field(default=None, ge=1, le=30)
+    is_published: bool | None = None
+    url: str | None = Field(default=None, max_length=500)
+
+
+@router.patch("/materials/{material_id}")
+def update_material(
+    material_id: uuid.UUID,
+    body: MaterialPatchIn,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    material = db.get(Material, material_id)
+    if material is None or material.deleted_at is not None:
+        raise ApiError(404, "material_not_found", "المادة غير موجودة")
+    offering = _offering_or_404(db, material.offering_id)
+    require_offering_staff(db, user, offering)
+
+    before = {
+        "title": material.title,
+        "week_no": material.week_no,
+        "is_published": bool(material.is_published),
+        "url": material.url,
+    }
+    became_published = False
+
+    if body.title is not None:
+        material.title = body.title.strip()
+    if body.week_no is not None:
+        material.week_no = body.week_no
+    if body.url is not None:
+        if material.kind == MaterialKind.PDF:
+            raise ApiError(400, "url_not_allowed", "مادة PDF لا تقبل رابطاً؛ استبدل الملف برفع جديد")
+        if not body.url.startswith(("http://", "https://")):
+            raise ApiError(400, "invalid_url", "الرابط يجب أن يبدأ بـhttp(s)://")
+        material.url = body.url
+    if body.is_published is not None and bool(material.is_published) != body.is_published:
+        material.is_published = body.is_published
+        became_published = body.is_published
+
+    if became_published:
+        course = db.get(Course, offering.course_id)
+        notify_offering_students(
+            db,
+            offering.id,
+            type_="material_published",
+            title="مادة جديدة في مقررك",
+            body=f"{material.title} — {course.name_ar if course else ''}",
+            data={"material_id": str(material.id), "offering_id": str(offering.id)},
+        )
+
+    log_action(
+        db,
+        actor=user,
+        action="material_updated",
+        entity="material",
+        entity_id=str(material.id),
+        before=before,
+        after={
+            "title": material.title,
+            "week_no": material.week_no,
+            "is_published": bool(material.is_published),
+            "url": material.url,
+        },
+    )
+    db.commit()
+    file_row = db.get(StoredFile, material.file_id) if material.file_id else None
+    return _material_payload(material, file_row)

@@ -1,0 +1,16 @@
+[Unit]
+Description=CSIT database backup (pg_dump + verify)
+Documentation=https://github.com/JJ36t/csit-app
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=csit
+Group=csit
+WorkingDirectory=/opt/csit/api
+EnvironmentFile=/etc/csit/api.env
+ExecStart=/opt/csit/venv/bin/python scripts/backup_db.py --out-dir /var/backups/csit
+# نسخة تحقق بعد كل نسخ: يستعيدها في قاعدة مؤقتة ويفشل إن كانت تالفة
+ExecStartPost=/opt/csit/venv/bin/python scripts/verify_restore.py --backup-dir /var/backups/csit
+Nice=10
+IOSchedulingClass=idle

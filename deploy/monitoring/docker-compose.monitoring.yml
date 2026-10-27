@@ -1,0 +1,26 @@
+# مراقبة التوفّر — Uptime Kuma على منفذ محلي (لا يُعرض للإنترنت)
+#
+#   docker compose -f deploy/monitoring/docker-compose.monitoring.yml up -d
+#
+# ثم افتح http://127.0.0.1:3001 من نفق SSH:
+#   ssh -L 3001:127.0.0.1:3001 csit@csit.qu.edu.iq
+# وأضف مراقبين:
+#   1) HTTP(s) — https://csit.qu.edu.iq/health كل 60 ثانية (يتحقق من revision).
+#   2) TCP — 5432 على localhost (قاعدة البيانات).
+#   3) HTTP(s) — https://csit.qu.edu.iq/api/v1/public/news (المسار العام).
+# تنبيه: بريد رئيس القسم + Telegram إن توفر.
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: csit-uptime-kuma
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - kuma-data:/app/data
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  kuma-data:

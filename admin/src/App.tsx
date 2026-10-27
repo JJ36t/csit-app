@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react';
 import { Avatar, Button, Card, Empty, Layout, Menu, Space, Tag, Typography } from 'antd';
 import {
   AuditOutlined,
+  CommentOutlined,
   DashboardOutlined,
   LogoutOutlined,
   NotificationOutlined,
+  FileProtectOutlined,
+  ReadOutlined,
   TableOutlined,
   TeamOutlined,
   TrophyOutlined,
@@ -18,6 +21,9 @@ import AnnouncementsPage from './pages/AnnouncementsPage';
 import UsersPage from './pages/UsersPage';
 import AuditPage from './pages/AuditPage';
 import DashboardPage from './pages/DashboardPage';
+import AcademicPage from './pages/AcademicPage';
+import ExcusesPage from './pages/ExcusesPage';
+import RequestsPage from './pages/RequestsPage';
 import { ApiError, getToken, request, setToken, type AdminUser } from './api';
 
 const { Header, Sider, Content } = Layout;
@@ -32,6 +38,9 @@ const roleLabels: Record<string, string> = {
 
 const sectionTitles: Record<string, string> = {
   dashboard: 'لوحة التحكم',
+  academic: 'الأكاديمية',
+  excuses: 'الأعذار',
+  requests: 'طلبات الطلبة',
   timetable: 'الجداول',
   announcements: 'الإعلانات',
   grades: 'الدرجات',
@@ -116,6 +125,9 @@ export default function App() {
             onClick={(info) => setActive(info.key)}
             items={[
               { key: 'students', icon: <TeamOutlined />, label: 'الطلاب' },
+              { key: 'academic', icon: <ReadOutlined />, label: 'الأكاديمية' },
+              { key: 'excuses', icon: <FileProtectOutlined />, label: 'الأعذار' },
+              { key: 'requests', icon: <CommentOutlined />, label: 'طلبات الطلبة' },
               { key: 'dashboard', icon: <DashboardOutlined />, label: 'لوحة التحكم' },
               { key: 'timetable', icon: <TableOutlined />, label: 'الجداول' },
               { key: 'announcements', icon: <NotificationOutlined />, label: 'الإعلانات' },
@@ -150,6 +162,9 @@ export default function App() {
           )}
           {active === 'grades' && <GradesPage canPublish={user.role === 'college_admin'} />}
           {active === 'dashboard' && canManageAcademic && <DashboardPage />}
+          {active === 'academic' && canManageAcademic && <AcademicPage />}
+          {active === 'excuses' && canManageAcademic && <ExcusesPage />}
+          {active === 'requests' && canManageAcademic && <RequestsPage />}
           {active === 'announcements' && canManageAcademic && <AnnouncementsPage />}
           {active === 'users' && canManageAcademic && <UsersPage />}
           {active === 'audit' && canManageAcademic && <AuditPage />}
@@ -157,6 +172,9 @@ export default function App() {
             active !== 'timetable' &&
             active !== 'grades' &&
             active !== 'dashboard' &&
+            active !== 'academic' &&
+            active !== 'excuses' &&
+            active !== 'requests' &&
             active !== 'announcements' &&
             active !== 'users' &&
             active !== 'audit' && (
@@ -168,7 +186,10 @@ export default function App() {
             (active === 'dashboard' ||
               active === 'announcements' ||
               active === 'users' ||
-              active === 'audit') && (
+              active === 'audit' ||
+              active === 'academic' ||
+              active === 'excuses' ||
+              active === 'requests') && (
               <Card title={sectionTitles[active] ?? active}>
                 <Empty description="هذه الشاشة متاحة لمدير الكلية أو رئيس القسم" />
               </Card>

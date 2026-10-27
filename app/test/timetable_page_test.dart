@@ -51,7 +51,9 @@ Future<void> _pump(WidgetTester tester, FakeTimetableApi api) async {
 
 void main() {
   testWidgets('تعرض محاضرات اليوم مع الوقت والقاعة', (tester) async {
-    final now = DateTime.now().toUtc();
+    // وقت ثابت بتوقيت بغداد (09:00) كي لا يعبر الاختبار منتصف الليل
+    final baghdad = DateTime.now().toUtc().add(const Duration(hours: 3));
+    final now = DateTime.utc(baghdad.year, baghdad.month, baghdad.day, 6, 0);
     final api = FakeTimetableApi(
       data: TimetableData(
         sessions: [

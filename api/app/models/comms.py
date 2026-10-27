@@ -8,6 +8,8 @@ from sqlalchemy import (
     JSON,
     DateTime,
     ForeignKey,
+    Index,
+    Integer,
     String,
     Text,
     UniqueConstraint,
@@ -97,6 +99,32 @@ class RequestMessage(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     sender_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
     body: Mapped[str] = mapped_column(Text)
     file_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("files.id"))
+
+
+class PushOutbox(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    """طابور إرسال إشعارات FCM — يُكتب في معاملة الإشعار نفسها ثم يُرسَل في الخلفية.
+
+    الفصل بين الكتابة والإرسال يمنع ضياع الإشعار عند تعطّل الشبكة،
+    ويضمن أن إعادة المحاولة لا تُنشئ إشعاراً مكرراً في صندوق الوارد.
+    الحالة: pending | sent | failed | skipped (انظر app/services/push.py).
+    """
+
+    __tablename__ = "push_outbox"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    title: Mapped[str] = mapped_column(String(300))
+    body: Mapped[str] = mapped_column(Text)
+    data: Mapped[Any] = mapped_column(JSON, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="pending", index=True)
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    next_attempt_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    last_error: Mapped[str | None] = mapped_column(String(300))
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    __table_args__ = (
+        # فهرس المرسل: يبحث دائماً عن (pending, next_attempt_at <= now)
+        Index("ix_push_outbox_dispatch", "status", "next_attempt_at"),
+    )
 
 
 class AuditLog(UUIDPrimaryKeyMixin, Base):

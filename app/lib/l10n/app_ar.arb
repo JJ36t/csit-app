@@ -13,6 +13,10 @@
   "unexpectedError": "حدث خطأ غير متوقع؛ أعد المحاولة",
   "sessionExpired": "انتهت الجلسة؛ يرجى تسجيل الدخول من جديد",
   "homeTitle": "الرئيسية",
+  "homeTodayLectures": "محاضرات اليوم",
+  "homeNoLectures": "لا محاضرات اليوم",
+  "homeLatestAnnouncement": "آخر إعلان",
+  "homeViewAll": "عرض الكل",
   "welcome": "أهلاً",
   "logoutButton": "تسجيل الخروج",
   "mustChangePasswordNotice": "يُطلب منك تغيير كلمة المرور الأولية",
@@ -164,5 +168,217 @@
   "timetableCard": "الجدول",
   "timetableCardHint": "محاضراتك وتغييراتها المؤرخة",
   "materialsCardHint": "ملفات المحاضرات وروابطها",
-  "gradesCardHint": "نتائجك المنشورة والمجموع الموزون"
+  "gradesCardHint": "نتائجك المنشورة والمجموع الموزون",
+  "gradeEntryTitle": "إدخال الدرجات",
+  "gradeEntryHint": "أدخل درجات التقييم كمسودة، والنشر يتم بموافقة الكلية",
+  "chooseOfferingLabel": "المادة",
+  "chooseAssessmentLabel": "التقييم",
+  "noAssessmentsYet": "لا تقييمات بعد — أنشئ تقييماً أولاً",
+  "newAssessmentButton": "تقييم جديد",
+  "assessmentNameLabel": "اسم التقييم",
+  "assessmentKindLabel": "النوع",
+  "maxScoreLabel": "الدرجة العظمى",
+  "weightPercentLabel": "الوزن %",
+  "createAssessmentButton": "إنشاء التقييم",
+  "assessmentCreated": "أُنشئ التقييم",
+  "gradedOfTotal": "أُدخلت {graded} من {total} درجة",
+  "@gradedOfTotal": {
+    "placeholders": {
+      "graded": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "saveDraftButton": "حفظ كمسودة",
+  "draftSaved": "حُفظت المسودة",
+  "publishGradesButton": "نشر الدرجات",
+  "publishNeedsAdmin": "النشر يتطلب موافقة مدير الكلية",
+  "publishedSuccess": "نُشرت الدرجات وأُشعر {count} طالباً",
+  "@publishedSuccess": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "scoreRangeError": "الدرجة يجب أن تكون بين 0 و{max}",
+  "@scoreRangeError": {
+    "placeholders": {
+      "max": {"type": "String"}
+    }
+  },
+  "assessmentLocked": "التقييم منشور — لا يمكن تعديل درجاته",
+  "assessmentPublished": "منشور",
+  "kindQuiz": "كوز",
+  "kindLab": "مختبر",
+  "kindMidterm": "نصفي",
+  "kindFinal": "نهائي",
+  "kindOther": "أخرى",
+  "assessmentWeightHint": "مجموع أوزان التقييمات لا يتجاوز 100%",
+
+  "loginTotpLabel": "رمز التحقق بخطوتين",
+  "loginTotpHint": "أدخل الرمز من تطبيق المصادقة (يتطلبه حساب التدريسي/الإدارة)",
+  "totpRequiredError": "هذا الحساب محمي بالتحقق بخطوتين؛ أدخل الرمز ثم أعد المحاولة",
+  "totpInvalidError": "رمز التحقق غير صحيح أو انتهت صلاحيته",
+
+  "announcementsCard": "الإعلانات",
+  "announcementsCardHint": "أخبار الكلية وقسمك وموادك",
+  "announcementsTitle": "الإعلانات",
+  "announcementsEmpty": "لا إعلانات منشورة حالياً",
+  "announcementPinned": "مثبَّت",
+  "announcementPriorityHigh": "مهم",
+  "announcementMarkedRead": "تم تعليم الإعلان كمقروء",
+  "announcementUnknownScope": "إعلان",
+
+  "inboxCard": "الإشعارات",
+  "inboxCardHint": "صندوق الوارد وتنبيهات الأجهزة",
+  "inboxTitle": "الإشعارات",
+  "inboxEmpty": "لا إشعارات بعد",
+  "markAllRead": "تعليم الكل كمقروء",
+  "unreadBadge": "{count} جديد",
+  "@unreadBadge": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "notificationsPermissionDenied": "لم يُمنح إذن الإشعارات؛ يمكنك متابعتها داخل التطبيق",
+  "notificationsEnabledMessage": "تم تفعيل إشعارات المحاضرات على هذا الجهاز",
+  "reminderLectureTitle": "محاضرة بعد 15 دقيقة",
+  "reminderLectureBody": "{course} — {room} الساعة {time}",
+  "@reminderLectureBody": {
+    "placeholders": {
+      "course": {"type": "String"},
+      "room": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
+  "reminderDigestTitle": "محاضرات الغد",
+  "reminderDigestBody": "{count} محاضرة تبدأ الساعة {time}",
+  "@reminderDigestBody": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "time": {"type": "String"}
+    }
+  },
+  "reminderDigestEmpty": "لا محاضرات غداً",
+  "reminderChannelName": "تذكيرات المحاضرات",
+  "reminderChannelDescription": "تذكير قبل المحاضرة وملخص محاضرات الغد",
+
+  "excusesCard": "الأعذار",
+  "excusesCardHint": "رفع عذر غياب ومتابعة قراره",
+  "excusesTitle": "أعذاري",
+  "excusesEmpty": "لا أعذار مرفوعة",
+  "excuseNewTitle": "عذر غياب جديد",
+  "excuseSessionLabel": "المحاضرة",
+  "excuseSelectSession": "اختر المحاضرة الغائبة",
+  "excuseNoSessions": "لا محاضرات مؤهلة لرفع عذر (لا غياب خلال 14 يوماً)",
+  "excuseReasonLabel": "سبب الغياب",
+  "excuseReasonHint": "اشرح السبب بإيجاز، وأرفق صورة التقرير إن وُجد",
+  "excuseAttach": "إرفاق صورة أو PDF",
+  "excuseAttachCamera": "التقاط صورة",
+  "excuseAttachGallery": "من المعرض",
+  "excuseAttachmentChosen": "تم اختيار المرفق",
+  "excuseSubmit": "إرسال العذر",
+  "excuseSubmitted": "أُرسل العذر للمراجعة",
+  "excuseStatusPending": "قيد المراجعة",
+  "excuseStatusApproved": "مقبول",
+  "excuseStatusRejected": "مرفوض",
+  "excuseReviewNote": "ملاحظة المراجع",
+  "excuseWithdraw": "سحب العذر",
+  "excuseWithdrawn": "تم سحب العذر",
+  "excuseWindowClosed": "انتهت مدة رفع العذر لهذه المحاضرة (14 يوماً)",
+  "excuseReviewTitle": "مراجعة الأعذار",
+  "excuseReviewEmpty": "لا أعذار تنتظر المراجعة",
+  "excuseApprove": "قبول",
+  "excuseReject": "رفض",
+  "excuseReviewNoteHint": "ملاحظة تظهر للطالب (اختياري)",
+  "excuseReviewed": "تم تسجيل القرار",
+  "excusePendingCount": "بانتظار المراجعة: {count}",
+  "@excusePendingCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "requestsCard": "الطلبات",
+  "requestsCardHint": "تواصل مع قسمك بشأن دراستك",
+  "requestsTitle": "طلباتي",
+  "requestsEmpty": "لا طلبات بعد",
+  "requestNewTitle": "طلب جديد",
+  "requestCategoryLabel": "التصنيف",
+  "requestCategoryAcademic": "مسألة أكاديمية",
+  "requestCategorySchedule": "الجدول والقاعات",
+  "requestCategoryGrades": "درجة أو تقييم",
+  "requestCategoryDocuments": "وثيقة أو تأييد",
+  "requestCategoryOther": "أخرى",
+  "requestSubjectLabel": "الموضوع",
+  "requestBodyLabel": "تفاصيل الطلب",
+  "requestSend": "إرسال الطلب",
+  "requestCreated": "أُرسل طلبك إلى قسمك",
+  "requestDetailTitle": "تفاصيل الطلب",
+  "requestReplyHint": "اكتب رسالتك…",
+  "requestSendReply": "إرسال",
+  "requestClosedNotice": "الطلب مغلق؛ لا يمكن إضافة رسائل",
+  "requestStatusOpen": "مفتوح",
+  "requestStatusInProgress": "قيد المعالجة",
+  "requestStatusResolved": "تم الحل",
+  "requestStatusClosed": "مغلق",
+  "conversationEmpty": "لا رسائل بعد",
+
+  "identityCard": "الهوية الرقمية",
+  "identityCardHint": "بطاقة QR موقّعة تُثبت هويتك في الامتحان",
+  "identityTitle": "بطاقتك الرقمية",
+  "identityCardNote": "اعرض البطاقة للتدريسي أو بوابة القاعة. تتجدد تلقائياً ولا تعمل لقطة الشاشة القديمة.",
+  "identityValidFor": "صالحة {seconds} ثانية",
+  "@identityValidFor": {
+    "placeholders": {
+      "seconds": {"type": "int"}
+    }
+  },
+  "identityRefreshButton": "تحديث البطاقة",
+  "identityVerifyTitle": "التحقق من بطاقة طالب",
+  "identityVerifyHint": "وجّه الكاميرا إلى بطاقة الطالب الرقمية",
+  "identityVerifyButton": "تحقق",
+  "identityValidTitle": "بطاقة صالحة",
+  "identityInvalidTitle": "بطاقة غير صالحة",
+  "identityStudentLabel": "الطالب",
+  "identityStudyTypeMorning": "صباحي",
+  "identityStudyTypeEvening": "مسائي",
+  "identityCardForStaffOnly": "التحقق من البطاقات متاح للتدريسي والإدارة",
+  "identityExpiredError": "انتهت صلاحية البطاقة؛ اطلب من الطالب تحديثها",
+
+  "settingsCard": "الإعدادات",
+  "settingsCardHint": "المظهر واللغة والتحقق بخطوتين",
+  "settingsTitle": "الإعدادات",
+  "settingsAppearance": "المظهر",
+  "settingsThemeLight": "فاتح",
+  "settingsThemeDark": "داكن",
+  "settingsThemeSystem": "حسب النظام",
+  "settingsLanguage": "اللغة",
+  "settingsLanguageArabic": "العربية",
+  "settingsLanguageEnglish": "English",
+  "settingsSaved": "تم حفظ الإعدادات",
+  "settingsNotifications": "إشعارات المحاضرات",
+  "settingsNotificationsHint": "تذكير قبل 15 دقيقة وملخص محاضرات الغد",
+  "settingsNotificationsOn": "مفعّلة على هذا الجهاز",
+  "settingsNotificationsOff": "غير مفعّلة",
+  "enableNotificationsButton": "تفعيل الإشعارات",
+  "twoFactorTitle": "التحقق بخطوتين",
+  "twoFactorHint": "حماية إضافية لحساب التدريسي والإدارة عبر تطبيق مصادقة",
+  "twoFactorEnabled": "مفعّل",
+  "twoFactorDisabled": "غير مفعّل",
+  "twoFactorSetup": "بدء الإعداد",
+  "twoFactorSecretLabel": "السرّ (أدخله يدوياً إن لم يقرأ الرمز)",
+  "twoFactorCodeLabel": "رمز التطبيق (6 أرقام)",
+  "twoFactorEnable": "تفعيل",
+  "twoFactorDisable": "تعطيل",
+  "twoFactorPasswordLabel": "كلمة المرور لتأكيد التعطيل",
+  "twoFactorEnabledMessage": "تم تفعيل التحقق بخطوتين",
+  "twoFactorDisabledMessage": "تم تعطيل التحقق بخطوتين",
+  "twoFactorNotAvailable": "متاح لحساب التدريسي والإدارة فقط",
+  "twoFactorSetupHint": "أضف السرّ إلى تطبيق Google Authenticator أو أي تطبيق TOTP ثم أدخل الرمز الظاهر.",
+  "dataFromCache": "تعذر الاتصال؛ تُعرض بيانات محفوظة من {time}",
+  "@dataFromCache": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "offlineSavedHint": "تُحدَّث البيانات تلقائياً عند عودة الاتصال"
 }

@@ -28,15 +28,24 @@
 - **المواد:** `GET /offerings` ثم ملفات المادة، وفتح PDF برابط موقّع أو روابط الفيديو عبر `url_launcher`.
 - **الدرجات:** التقييمات المنشورة + المجموع الموزون لكل مادة.
 
-`flutter analyze`: **0 ملاحظات** · `flutter test`: **43/43** · `flutter build web --release`: **نجح** · APK: **نجح**.
+✅ **N8 — V2 والتشغيل (27 ت10 2026):**
+- **الإشعارات:** `flutter_local_notifications` (تذكير قبل كل محاضرة 15 دقيقة + ملخص الغد 20:00، يُبنى من
+  الجدول في `core/notifications/reminder_plan.dart`) و`firebase_messaging` لتسجيل رمز الجهاز وعرض
+  إشعار المقدمة — كلاهما يعمل «بأفضل جهد» بلا تعطيل أي شاشة عند غياب إعداد Firebase.
+- **شاشات جديدة:** الإعلانات (بذاكرة محلية)، صندوق الإشعارات، الأعذار (رفع من الكاميرا/المعرض + مراجعة
+  للتدريسي)، الطلبات والمحادثة، البطاقة الرقمية مع عدّاد 3 دقائق، التحقق من البطاقة بالكاميرا،
+  والإعدادات (فاتح/داكن/حسب النظام، عربي/English، التحقق بخطوتين).
+- **الدخول:** حقل رمز 2FA يظهر عند طلب الخادم (`totp_required`).
+- **بلا إنترنت:** الإعلانات والمواد والجدول تُخزَّن محلياً وتُعرض مع لافتة «بيانات محفوظة».
+
+`flutter analyze`: **0 ملاحظات** · `flutter test`: **64/64**.
 
 ## الاعتماديات
 
-- الأساس: `dio`، `flutter_secure_storage`، `go_router`، `intl`، `cupertino_icons`.
-- الحضور (N1): `mobile_scanner` (قراءة QR)، `qr_flutter` (عرض رمز الجلسة للتدريسي)،
-  `geolocator` (موقع المسح، اختياري).
-- الجدول والمواد (N2): `shared_preferences` (ذاكرة الجدول المحلية)، `url_launcher` (فتح الملفات والروابط).
-- بقية اعتماديات الخطة (Drift، FCM، PDF) تُضاف مع مرحلتها.
+- الأساس: `dio`، `flutter_secure_storage`، `go_router`، `intl`، `cupertino_icons`، `shared_preferences`، `url_launcher`.
+- الحضور (N1): `mobile_scanner` (قراءة QR)، `qr_flutter` (عرض رمز الجلسة والبطاقة الرقمية)، `geolocator`.
+- N8: `flutter_local_notifications` + `timezone` + `flutter_timezone` (الجدولة المحلية)، `firebase_core` +
+  `firebase_messaging` (الدفع)، `image_picker` (صورة العذر).
 
 ## التشغيل
 
@@ -49,7 +58,9 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000
 - على السيرفر الجامعي: `--dart-define=API_BASE_URL=https://csit.qu.edu.iq`
 - المعرّف `applicationId = iq.edu.qu.csit` مثبَّت في `android/app/build.gradle.kts` (قرار رقم 7 — لا يتغير بعد النشر).
 - صلاحيات أندرويد المطلوبة (مضافة في `AndroidManifest.xml`): `CAMERA`، `ACCESS_FINE_LOCATION`،
-  `ACCESS_COARSE_LOCATION`. رفض الموقع لا يمنع المسح (يُعلَّم الحضور للمراجعة على الخادم).
+  `ACCESS_COARSE_LOCATION`، `POST_NOTIFICATIONS`، `RECEIVE_BOOT_COMPLETED`، `INTERNET`.
+  رفض الموقع لا يمنع المسح (يُعلَّم الحضور للمراجعة على الخادم).
+- `flutter gen-l10n` على ويندوز: إن فشل بـ«doesn't allow reading and writing» شغّل `attrib -R app\lib\l10n`.
 
 ## قواعد ملزمة من الخطة
 
@@ -88,3 +99,31 @@ flutter test
 - **الدرجات (4):** التقييمات والمجموع، بلا تقييمات، بلا مواد، وإعادة المحاولة.
 - **الذاكرة المحلية (2):** حفظ/قراءة الجدول، والذاكرة الفارغة.
 - **التخزين (2):** حفظ/مسح `device_id`، وثبات بصمة الجهاز.
+
+### مطابقة نموذج التصميم (design/screens.html) — 27 ت10 2026
+
+الشاشات الثماني في النموذج صارت كلها في التطبيق:
+
+| # | الشاشة في النموذج | الملف |
+|---|---|---|
+| 1 | تسجيل الدخول (+ رمز التحقق بخطوتين) | `features/auth/presentation/login_page.dart` |
+| 2 | الرئيسية (محاضرات اليوم + آخر إعلان + مداخل) | `features/home/presentation/home_page.dart` |
+| 3 | الجدول الأسبوعي | `features/timetable/presentation/timetable_page.dart` |
+| 4 | مسح الحضور | `features/attendance/presentation/scan_page.dart` |
+| 5 | قائمة الحاضرين + QR متجدد | `features/attendance/presentation/live_session_page.dart` |
+| 6 | المواد | `features/materials/presentation/*.dart` |
+| 7 | درجاتي | `features/grades/presentation/grades_page.dart` |
+| 8 | **إدخال الدرجات (تدريسي)** | `features/grades/presentation/grade_entry_page.dart` |
+
+**رموز التصميم** أُخذت حرفياً في `app/theme/app_theme.dart`: primary `#1F4E79`،
+secondary `#2E74B5`، خلفية `#F7F9FC`، حدود `#DCE4EE`، خطأ `#B3261E`، نجاح `#1B7A55`،
+نصف قطر 12، وحقول Outline، وشريط علوي 16 عريض بحدّ سفلي.
+
+**الأيقونة وشاشة البداية:** مولّدتان بـ`design/make_icon.py` (قبعة بيضاء + شرّابة ذهبية على تدرّج أزرق)، وخلفية البداية بلون الكلية، والنسخة `1.0.0+1`.
+
+**فتح الإشعار:** الضغط على تذكير محلي أو إشعار دفع يفتح صندوق الوارد عبر `rootNavigatorKey` — يعمل من أي شاشة.
+
+**اختلافات مقصودة (وليست نقصاً):**
+- «حفظ تلقائي» في النموذج استُبدل بحفظ صريح «حفظ كمسودة» — لا كتابة صامتة في قاعدة البيانات.
+- زر «نشر الدرجات» معطّل للتدريسي مع سبب ظاهر، لأن النشر بموافقة مدير الكلية (قرار الخطة).
+- «عرض بقية الطلاب» استُبدل بقائمة كاملة قابلة للتمرير بدل ترقيم داخل بطاقة.

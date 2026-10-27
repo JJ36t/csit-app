@@ -170,3 +170,35 @@ python scripts/verify_restore.py
 - **روابط التنزيل** موقّعة HMAC قصيرة العمر (10 دقائق افتراضياً)؛ الرابط نفسه إذن — لا يكشف مساراً ولا اسماً داخلياً.
 - **الإعلانات:** الجمهور يُحلّ من النطاق (كلية/قسم/مرحلة/شعبة/مادة)؛ المجدول يُخفي حتى `publish_at`، وينتهي بـ`expires_at`؛ النشر الفوري يُنشئ صندوق وارد لكل الجمهور.
 - **CORS** مفتوح لنطاقات localhost أثناء التطوير (`CORS_ORIGIN_REGEX`) — يبقى مغلقاً في الإنتاج حتى تُضاف أصول الموقع الرسمي.
+
+---
+
+## N8 — V2 والتشغيل (27 ت10 2026)
+
+**ترحيل `0005`:** جدول `push_outbox` + أعمدة `users.totp_*` + `absence_excuses.reviewed_at/review_note`.
+
+| المجموعة | النقاط |
+|---|---|
+| الأعذار | `POST /excuses` (multipart) · `GET /excuses` · `DELETE /excuses/{id}` · `GET /admin/excuses` · `POST /admin/excuses/{id}/review` |
+| الطلبات | `POST /requests` · `GET /requests` · `GET /requests/{id}` · `POST /requests/{id}/messages` · `PATCH /admin/requests/{id}` |
+| الهوية | `GET /me/identity-card` · `POST /identity/verify` |
+| عام | `GET /public/news` (بلا مصادقة) |
+| 2FA | `GET /auth/2fa/status` · `POST /auth/2fa/setup|enable|disable` · `POST /admin/users/{id}/2fa/reset` · حقل `totp_code` في الدخول |
+| الإدارة | `GET/POST /admin/groups` · `GET /admin/courses` · `GET/POST /admin/offerings` · `PATCH /materials/{id}` |
+| التقارير | `GET /admin/reports/attendance` · `/grades` (`?format=csv` بترميز UTF-8 مع BOM) |
+| مزامنة | `updated_since` في `/announcements` · `/notifications` · `/offerings/{id}/materials` + `server_time` |
+
+**الإشعارات:** `services/fcm.py` + `services/push.py` + `services/push_worker.py`.
+يُكتب الطابور داخل معاملة الإشعار، ويُفرَّغ كل 15 ثانية (يبدأ من `lifespan` في `app/main.py` عند
+`FCM_ENABLED=true`). تشغيل دورة واحدة يدوياً: `python -m app.services.push_worker`.
+
+**سكربتات جديدة:**
+```bash
+python scripts/demo_full_seed.py --reset   # بيانات عرض كاملة مؤرخة باليوم
+python scripts/smoke_demo.py               # 21 فحصاً على حسابات العرض
+python scripts/archive_term.py --dry-run   # أرشفة نهاية الفصل (ترقية/تخريج/إغلاق تسجيلات)
+```
+
+**حدود معروفة:** الاختبارات الـ128 ناجحة على SQLite وPostgreSQL 18.6.
+FCM لم يُرسَل منه إشعار حقيقي بلا حساب خدمة Firebase — يُختبر ببديل محقون في
+`tests/test_push.py`.

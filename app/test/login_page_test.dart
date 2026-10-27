@@ -15,6 +15,7 @@ class FakeAuthApi implements AuthApi {
   UserProfile? _profile;
   bool loggedOut = false;
   int loginCalls = 0;
+  String? lastTotpCode;
 
   static const defaultProfile = UserProfile(
     universityId: '20240001',
@@ -33,8 +34,10 @@ class FakeAuthApi implements AuthApi {
   Future<UserProfile> login({
     required String universityId,
     required String password,
+    String? totpCode,
   }) async {
     loginCalls++;
+    lastTotpCode = totpCode;
     final error = loginError;
     if (error != null) {
       throw error;

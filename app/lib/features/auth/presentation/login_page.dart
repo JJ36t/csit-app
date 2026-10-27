@@ -18,13 +18,17 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _idController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _totpController = TextEditingController();
   String? _error;
   bool _submitting = false;
+  // يظهر حقل الرمز فقط بعد أن يطلبه الخادم (حساب محمي بخطوتين)
+  bool _needsTotp = false;
 
   @override
   void dispose() {
     _idController.dispose();
     _passwordController.dispose();
+    _totpController.dispose();
     super.dispose();
   }
 
@@ -39,9 +43,17 @@ class _LoginPageState extends State<LoginPage> {
       await widget.session.login(
         universityId: _idController.text,
         password: _passwordController.text,
+        totpCode: _needsTotp ? _totpController.text : null,
       );
     } on ApiException catch (error) {
       if (!mounted) {
+        return;
+      }
+      if (error.code == 'totp_required') {
+        setState(() {
+          _needsTotp = true;
+          _error = l10n.totpRequiredError;
+        });
         return;
       }
       setState(() {
@@ -66,6 +78,9 @@ class _LoginPageState extends State<LoginPage> {
       case 'session_expired':
       case 'not_authenticated':
         return l10n.sessionExpired;
+      case 'invalid_totp':
+      case 'totp_replayed':
+        return l10n.totpInvalidError;
       default:
         return l10n.unexpectedError;
     }
@@ -150,6 +165,28 @@ class _LoginPageState extends State<LoginPage> {
                       validator: (value) =>
                           (value == null || value.isEmpty) ? l10n.fieldRequired : null,
                     ),
+                    if (_needsTotp) ...[
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        key: const Key('totpField'),
+                        controller: _totpController,
+                        keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.done,
+                        enabled: !busy,
+                        autofocus: true,
+                        onFieldSubmitted: (_) => _submit(),
+                        decoration: InputDecoration(
+                          labelText: l10n.loginTotpLabel,
+                          helperText: l10n.loginTotpHint,
+                          prefixIcon: const Icon(Icons.verified_user_outlined),
+                          border: const OutlineInputBorder(),
+                        ),
+                        validator: (value) =>
+                            (value == null || value.trim().isEmpty)
+                                ? l10n.fieldRequired
+                                : null,
+                      ),
+                    ],
                     const SizedBox(height: 16),
                     if (_error != null) ...[
                       Container(

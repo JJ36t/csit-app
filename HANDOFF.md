@@ -132,7 +132,7 @@
 | الفحص | الأمر | النتيجة عند كتابة الملف |
 |---|---|---|
 | اختبارات API على SQLite | `pytest tests -q` | **93/93** |
-| اختبارات API على PostgreSQL 18.6 | `DATABASE_URL=postgresql+psycopg://…` | **93/93** |
+| اختبارات API على PostgreSQL 18.6 | `DATABASE_URL=postgresql+psycopg://…` | **132/132** |
 | مسار Redis لحدّ المحاولات | `pytest tests/test_rate_limit_redis.py` | **4/4** بـfakeredis (لا خدمة Redis على الجهاز) |
 | الترحيلات على PostgreSQL | `alembic upgrade head` + `alembic check` | 0001–0004 · «No new upgrade operations detected» |
 | دورة الإرجاع | `alembic downgrade base` ثم `upgrade head` | نظيفة |
@@ -257,6 +257,7 @@ cd X:\app; flutter build apk --release
 `kotlin.incremental=false` و`kotlin.compiler.execution.strategy=in-process`
 (بلا هما يفشل Kotlin daemon بـ«different roots» عند تغيير جذر المسار).
 الناتج: `X:\app\build\app\outputs\flutter-apk\app-release.apk` — موقّع بمفتاح debug (للتجربة لا للنشر).
+الحجم بعد N8: **release 70.9MB** (Firebase + desugaring) · **debug 185MB** · زمن البناء الأول ~9 دقائق مع Gradle بارد.
 البديل عند تعذّر `subst`: نسخة على `C:\csit-build` بنفس الأوامر.
 
 ### 5.7 تشغيل الخدمات محلياً (عرض حي)
@@ -409,3 +410,37 @@ cd api; python scripts/dev_reset_devices.py S-100  # حساب واحد
 - **26 ت10 2026 (N4):** شاشات لوحة التحكم الثلاث (طلاب/جدول/درجات) + `GET /admin/timetable/{rooms,slots}` و`slot_id` في `/timetable` — **69/69** على SQLite، `npm run build` ناجح، `smoke_n4` أخضر، وتجربة يدوية بحساب `ADMIN-001`.
 - **26 ت10 2026 (N5):** Redis لحدّ المحاولات (برجوع آلي للذاكرة) + نسخ/استرجاع مُجرَّب (94.6KB · 5/0/1 · 0003) + `docker-compose`/Dockerfiles/Nginx + `/health` عميق — **80/80** على القاعدتين.
 - **26 ت10 2026 (شاشات اللوحة):** الإعلانات + المستخدمون + سجل التدقيق (ترحيل `0004`) + لوحة الملخص — **93/93** على القاعدتين، بناء اللوحة ناجح، وتجربة يدوية للأربع.
+
+---
+
+## 11) N8 — إكمال V2 والتشغيل (27 ت10 2026)
+
+**الحالة:** المحرّك + V2 مكتملان في الـAPI والتطبيق. المتبقي الحقيقي: تجربة الكاميرا على هاتف،
+تشغيل اختبارات PostgreSQL الجديدة، ثم N7 (Play مغلق).
+
+**ما أُضيف:**
+- **FCM حقيقي:** `services/fcm.py` (HTTP v1 بمفتاح حساب خدمة، OAuth2 مخزَّن، تصنيف أخطاء دائم/مؤقت)،
+  `services/push.py` (طابور `push_outbox` داخل معاملة الإشعار + تراجع أُسّي + حذف الرمز الميت)،
+  `services/push_worker.py` (دورة كل 15 ثانية داخل الخدمة)، ترحيل `0005`.
+- **تذكيرات محلية:** `flutter_local_notifications` + `reminder_plan.dart` (منطق خالص: 15 دقيقة قبل
+  المحاضرة + ملخص الغد 20:00) + `local_notifications.dart` (قناة أندرويد واحدة).
+- **V2:** أعذار (رفع/مراجعة/تحويل الحضور)، طلبات ومحادثة، هوية رقمية `CSIT1.*` موقّعة HMAC،
+  أخبار عامة، TOTP للتدريسي/الإدارة بمنع replay، ترجمة إنجليزية ووضع داكن، ذاكرة بلا إنترنت
+  للإعلانات والمواد.
+- **نقاط الإدارة:** شعب، مقررات، عروض (تسجيل تلقائي)، `PATCH /materials/{id}`، تقارير حضور/درجات
+  JSON+CSV، `updated_since` للمزامنة.
+- **بيانات العرض:** `scripts/demo_full_seed.py` (10 شعب، 18 مقرراً، 71 حساباً، جلسات هذا الأسبوع،
+  درجات، أعذار، طلبات) و`scripts/smoke_demo.py` (21 فحصاً).
+- **التشغيل:** Nginx TLS، systemd (API + نسخ يومي 02:30 بغداد)، Uptime Kuma، سياسة خصوصية،
+  دليل تشغيل `docs/RUNBOOK.md`، وسكربت أرشفة الفصل `scripts/archive_term.py`.
+
+**التحقق المنفَّذ:** API **132/132 SQLite وPostgreSQL** · `alembic check` نظيف بعد 0005 · Flutter **64/64** و`analyze`
+0 ملاحظات · `smoke_demo` 21/21 · بناء APK (النتيجة في القسم 5.6).
+**غير المتحقق:** الكاميرا على جهاز حقيقي،
+صور Docker، TLS فعلي.
+
+**سجل التغييرات:**
+- **27 ت10 2026 (تحقق PostgreSQL):** تشغيل كامل للاختبارات على PostgreSQL 18.6 — **132/132**، وترحيل `0005` على `csit`، وبيانات العرض + `smoke_demo` 21/21، وإصلاح `dev_reset_devices.py` (كان يستخدم عموداً غير موجود).
+- **27 ت10 2026 (إغلاق الفجوات):** شاشات الأعذار والطلبات وإعادة ضبط 2FA في اللوحة · إلغاء ملكية البصمة الدائمة (جهاز ملغى يُعاد ربطه بأي حساب) · `scripts/cleanup.py` + مؤقت أسبوعي · فتح الإشعار يوجّه لصندوق الوارد · أيقونة وشاشة بداية بهوية التصميم · النسخة `1.0.0` — **132/132** و**64/64**.
+- **27 ت10 2026:** N8 — FCM + تذكيرات + أعذار + طلبات + هوية رقمية + 2FA + تقارير + مزامنة جزئية
+  + إنجليزي/داكن + ذاكرة محلية + بيانات عرض + حزمة تشغيل — **132/132** و**64/64**.

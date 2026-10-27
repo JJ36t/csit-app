@@ -1,13 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- الشبكة: لازم في بناء release (قالب Flutter يضيفها في debug فقط) -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- إشعارات المحاضرات (أندرويد 13+) وإعادة جدولتها بعد إعادة التشغيل -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <!-- مسح رمز الحضور (mobile\_scanner) -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <!-- تحديد موقع المسح (geolocator) — الرفض لا يمنع المسح -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <application
-        android:label="csit"
+        android:label="علوم الحاسوب"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -64,13 +64,13 @@ class FakeMaterialsApi implements MaterialsApi {
   }
 
   @override
-  Future<List<MaterialItem>> materials(String offeringId) async {
+  Future<MaterialsData> materials(String offeringId) async {
     materialsCalls++;
     final failure = materialsError;
     if (failure != null) {
       throw failure;
     }
-    return _materials[offeringId] ?? const [];
+    return MaterialsData(items: _materials[offeringId] ?? const []);
   }
 }
 

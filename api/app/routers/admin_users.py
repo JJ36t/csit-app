@@ -211,3 +211,33 @@ def reset_password(
         "temporary_password": temporary,
         "sessions_revoked": sessions,
     }
+
+
+@router.post("/{university_id}/2fa/reset")
+def reset_totp(
+    university_id: str,
+    request: Request,
+    actor: User = Depends(require_roles(*MANAGER_ROLES)),
+    db: Session = Depends(get_db),
+) -> dict:
+    """إعادة ضبط المصادقة الثنائية عند فقدان الهاتف — بموافقة الإدارة وسجل تدقيق."""
+    target = _load_target(db, university_id, actor)
+    was_enabled = bool(target.totp_enabled)
+
+    target.totp_enabled = False
+    target.totp_secret = None
+    target.totp_confirmed_at = None
+    target.totp_last_step = None
+
+    log_action(
+        db,
+        actor=actor,
+        action="totp_reset",
+        entity="user",
+        entity_id=target.university_id,
+        before={"enabled": was_enabled},
+        after={"enabled": False},
+        ip=_client_ip(request),
+    )
+    db.commit()
+    return {"ok": True, "was_enabled": was_enabled}

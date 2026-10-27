@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, inspect
 
 API_DIR = Path(__file__).resolve().parents[1]
 
-EXPECTED_TABLES = 29  # كما في الخطة، القسم 8
+EXPECTED_TABLES = 30  # 29 في الخطة + push_outbox (إشعارات الدفع)
 
 
 def _run_alembic(db_url: str, *args: str) -> subprocess.CompletedProcess:

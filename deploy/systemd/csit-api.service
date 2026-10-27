@@ -1,0 +1,44 @@
+# خدمة الـAPI — تعمل بحساب csit وليس root، وتقرأ الأسرار من /etc/csit/api.env
+#
+#   sudo useradd --system --home /opt/csit --shell /usr/sbin/nologin csit
+#   sudo install -d -o csit -g csit /opt/csit/api /var/lib/csit/uploads
+#   sudo cp csit-api.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now csit-api
+
+[Unit]
+Description=CSIT College API (FastAPI)
+Documentation=https://github.com/JJ36t/csit-app
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=csit
+Group=csit
+WorkingDirectory=/opt/csit/api
+EnvironmentFile=/etc/csit/api.env
+# مستخدم واحد وعمال متعددون: طابور الإشعارات يعمل داخل كل عملية، والنسخ
+# الاحتياطي مجدول منفصلاً (csit-backup.timer)
+ExecStart=/opt/csit/venv/bin/python -m uvicorn app.main:app \
+    --host 127.0.0.1 --port 8000 --workers 2 --proxy-headers --forwarded-allow-ips=127.0.0.1
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGTERM
+
+# تحصين الخدمة (systemd sandboxing)
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/csit/uploads /opt/csit/api
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

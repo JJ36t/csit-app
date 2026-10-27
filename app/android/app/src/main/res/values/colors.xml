@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- لون هوية الكلية كما في design/screens.html -->
+    <color name="csit_primary">#1F4E79</color>
+    <color name="csit_primary_deep">#173D5E</color>
+</resources>

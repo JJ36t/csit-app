@@ -18,6 +18,7 @@ import {
   KeyOutlined,
   MobileOutlined,
   ReloadOutlined,
+  SafetyCertificateOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -26,6 +27,7 @@ import {
   listDepartments,
   resetUserDevice,
   resetUserPassword,
+  resetUserTotp,
   type AdminUserRow,
   type Department,
 } from '../api';
@@ -171,6 +173,23 @@ export default function UsersPage() {
     }
   };
 
+  const resetTotp = async (row: AdminUserRow): Promise<void> => {
+    setBusy(`totp:${row.university_id}`);
+    try {
+      const res = await resetUserTotp(row.university_id);
+      message.success(
+        res.was_enabled
+          ? 'أُعيد ضبط التحقق بخطوتين؛ يسجّل الدخول بكلمة المرور ثم يعيد الإعداد'
+          : 'التحقق بخطوتين لم يكن مفعّلاً لهذا الحساب',
+      );
+      await load();
+    } catch (e) {
+      message.error(failureText(e, 'تعذّر إعادة ضبط التحقق بخطوتين'));
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const copyPassword = async (): Promise<void> => {
     if (!secret) return;
     const copied = await copyText(secret.password);
@@ -231,7 +250,7 @@ export default function UsersPage() {
     {
       title: 'إجراءات',
       key: 'actions',
-      width: 210,
+      width: 300,
       render: (_: unknown, row: AdminUserRow) => {
         const deviceBusy = busy === `device:${row.university_id}`;
         const passwordBusy = busy === `password:${row.university_id}`;
@@ -265,6 +284,23 @@ export default function UsersPage() {
             >
               كلمة المرور
             </Button>
+            <Popconfirm
+              title={`إعادة ضبط التحقق بخطوتين لـ«${row.full_name_ar}»؟`}
+              description="استخدمها عند فقدان هاتف التدريسي. يُلغى السرّ ويُطلب منه إعادة الإعداد."
+              okText="تأكيد"
+              cancelText="إلغاء"
+              onConfirm={() => void resetTotp(row)}
+            >
+              <Button
+                size="small"
+                type="link"
+                icon={<SafetyCertificateOutlined />}
+                disabled={disabled}
+                loading={busy === `totp:${row.university_id}`}
+              >
+                التحقق
+              </Button>
+            </Popconfirm>
           </Space>
         );
       },

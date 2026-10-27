@@ -47,6 +47,24 @@ class Settings(BaseSettings):
     # CORS لتطوير الويب المحلي (Flutter web / لوحة التحكم)
     cors_origin_regex: str = r"https?://(localhost|127\.0\.0\.1)(:\d+)?"
 
+    # الهوية الرقمية: بطاقة QR موقّعة للامتحان (V2 في الخطة)
+    # السر مستقل عن JWT كي لا يكشف تدوير أحدهما الآخر؛ يُضبط من البيئة على السيرفر.
+    identity_secret: str = "dev-only-identity-card-secret-change-me"
+    identity_card_ttl_seconds: int = 180
+
+    # إشعارات الدفع FCM عبر HTTP v1 (حساب خدمة Firebase)
+    fcm_enabled: bool = False
+    fcm_project_id: str = ""
+    fcm_client_email: str = ""
+    # المحتوى الكامل للمفتاح الخاص (يفضَّل من البيئة) أو مسار ملف حساب الخدمة
+    fcm_private_key: str = ""
+    fcm_credentials_file: str = ""
+    # المهمة الخلفية التي تُفرِّغ الطابور — تُعطَّل تلقائياً في الاختبارات (fcm_enabled=False)
+    push_dispatch_enabled: bool = True
+    push_dispatch_interval_seconds: int = 15
+    push_max_attempts: int = 5
+    push_batch_size: int = 50
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

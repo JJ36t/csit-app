@@ -39,6 +39,7 @@ class SessionController extends ChangeNotifier {
   Future<UserProfile> login({
     required String universityId,
     required String password,
+    String? totpCode,
   }) async {
     _busy = true;
     notifyListeners();
@@ -46,6 +47,7 @@ class SessionController extends ChangeNotifier {
       final profile = await _api.login(
         universityId: universityId,
         password: password,
+        totpCode: totpCode,
       );
       _profile = profile;
       return profile;

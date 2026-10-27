@@ -550,3 +550,228 @@ export interface OverviewData {
 export async function getOverview(): Promise<OverviewData> {
   return request<OverviewData>('/api/v1/admin/overview');
 }
+
+// ----------------------------- الأكاديمية (N8) -----------------------------
+
+export interface TermInfo {
+  term_id: string;
+  name: string;
+  year_label: string;
+  start_date: string | null;
+  end_date: string | null;
+  is_current: boolean;
+}
+
+export async function listTerms(): Promise<{ items: TermInfo[] }> {
+  return request<{ items: TermInfo[] }>('/api/v1/admin/terms');
+}
+
+export interface AdminGroup {
+  group_id: string;
+  department_id: string;
+  department_code: string | null;
+  department_name_ar: string | null;
+  stage: number;
+  name: string;
+  study_type: string;
+  term_id: string;
+  term_name: string | null;
+}
+
+export async function listGroups(params: Record<string, string | number | undefined> = {}): Promise<{
+  items: AdminGroup[];
+}> {
+  const qs = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') qs.set(key, String(value));
+  });
+  return request<{ items: AdminGroup[] }>(`/api/v1/admin/groups?${qs.toString()}`);
+}
+
+export interface GroupInput {
+  department_id: string;
+  stage: number;
+  name: string;
+  study_type: string;
+  term_id: string;
+}
+
+export async function createGroup(body: GroupInput): Promise<AdminGroup> {
+  return request<AdminGroup>('/api/v1/admin/groups', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+export interface CourseInfo {
+  course_id: string;
+  code: string;
+  name_ar: string;
+  department_id: string;
+  stage: number;
+  units: number;
+  kind: string;
+}
+
+export async function listCourses(
+  params: Record<string, string | number | undefined> = {},
+): Promise<{ items: CourseInfo[] }> {
+  const qs = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') qs.set(key, String(value));
+  });
+  return request<{ items: CourseInfo[] }>(`/api/v1/admin/courses?${qs.toString()}`);
+}
+
+export interface AdminOffering {
+  offering_id: string;
+  course_id: string;
+  course_code: string;
+  course_name_ar: string;
+  group_id: string;
+  group_name: string;
+  stage: number;
+  study_type: string;
+  kind: string;
+  instructor_id: string | null;
+  instructor_name_ar: string | null;
+  enrolled: number;
+}
+
+export async function listAdminOfferings(
+  params: Record<string, string | number | undefined> = {},
+): Promise<{ items: AdminOffering[] }> {
+  const qs = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') qs.set(key, String(value));
+  });
+  return request<{ items: AdminOffering[] }>(`/api/v1/admin/offerings?${qs.toString()}`);
+}
+
+export interface OfferingInput {
+  course_id: string;
+  group_id: string;
+  instructor_id?: string | null;
+  session_kind?: string | null;
+}
+
+export async function createOffering(body: OfferingInput): Promise<AdminOffering> {
+  return request<AdminOffering>('/api/v1/admin/offerings', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+export async function downloadAttendanceReport(
+  offeringId: string,
+  courseCode: string,
+): Promise<void> {
+  await downloadFile(
+    `/api/v1/admin/reports/attendance?offering_id=${encodeURIComponent(offeringId)}&format=csv`,
+    `attendance-${courseCode.replace(/\s+/g, '_')}.csv`,
+  );
+}
+
+export async function downloadGradesReport(
+  offeringId: string,
+  courseCode: string,
+): Promise<void> {
+  await downloadFile(
+    `/api/v1/admin/reports/grades?offering_id=${encodeURIComponent(offeringId)}&format=csv`,
+    `grades-report-${courseCode.replace(/\s+/g, '_')}.csv`,
+  );
+}
+// ----------------------------- الأعذار (N8) -----------------------------
+
+export interface AdminExcuse {
+  excuse_id: string;
+  session_id: string;
+  session_date: string;
+  course_code: string;
+  course_name_ar: string;
+  student_name_ar: string | null;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  review_note: string | null;
+  reviewed_at: string | null;
+  attachment: { file_id: string; name: string; download_url: string } | null;
+}
+
+export async function listAdminExcuses(status = 'pending'): Promise<{
+  items: AdminExcuse[];
+  pending_total: number;
+}> {
+  return request<{ items: AdminExcuse[]; pending_total: number }>(
+    `/api/v1/admin/excuses?status=${encodeURIComponent(status)}`,
+  );
+}
+
+export async function reviewExcuse(
+  excuseId: string,
+  approve: boolean,
+  note?: string,
+): Promise<AdminExcuse> {
+  return request<AdminExcuse>(`/api/v1/admin/excuses/${excuseId}/review`, {
+    method: 'POST',
+    body: JSON.stringify({ status: approve ? 'approved' : 'rejected', note: note || null }),
+  });
+}
+
+// ----------------------------- الطلبات (N8) -----------------------------
+
+export interface AdminRequestRow {
+  request_id: string;
+  category: string;
+  category_label: string;
+  subject: string;
+  status: string;
+  assigned_to: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface AdminRequestMessage {
+  message_id: string;
+  sender_id: string;
+  body: string;
+  created_at: string | null;
+}
+
+export interface AdminRequestDetail extends AdminRequestRow {
+  messages: AdminRequestMessage[];
+}
+
+export async function listAdminRequests(status?: string): Promise<{ items: AdminRequestRow[] }> {
+  const qs = status ? `?status=${encodeURIComponent(status)}` : '';
+  return request<{ items: AdminRequestRow[] }>(`/api/v1/requests${qs}`);
+}
+
+export async function getAdminRequest(id: string): Promise<AdminRequestDetail> {
+  return request<AdminRequestDetail>(`/api/v1/requests/${id}`);
+}
+
+export async function replyAdminRequest(id: string, body: string): Promise<AdminRequestDetail> {
+  return request<AdminRequestDetail>(`/api/v1/requests/${id}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({ body }),
+  });
+}
+
+export async function updateAdminRequest(
+  id: string,
+  patch: { status?: string; assigned_to?: string },
+): Promise<AdminRequestDetail> {
+  return request<AdminRequestDetail>(`/api/v1/admin/requests/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
+  });
+}
+
+export async function resetUserTotp(
+  universityId: string,
+): Promise<{ ok: boolean; was_enabled: boolean }> {
+  return request<{ ok: boolean; was_enabled: boolean }>(
+    `/api/v1/admin/users/${encodeURIComponent(universityId)}/2fa/reset`,
+    { method: 'POST' },
+  );
+}

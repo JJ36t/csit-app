@@ -50,18 +50,24 @@ def my_notifications(
     unread_only: bool = Query(default=False),
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
+    updated_since: datetime | None = Query(
+        default=None, description="مزامنة جزئية: ما تغيّر بعد هذا الوقت فقط"
+    ),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> dict:
     query = select(Notification).where(Notification.user_id == user.id)
     if unread_only:
         query = query.where(Notification.read_at.is_(None))
+    if updated_since is not None:
+        query = query.where(Notification.updated_at > updated_since)
     rows = list(
         db.scalars(query.order_by(Notification.created_at.desc()).limit(limit).offset(offset))
     )
     return {
         "items": [_payload(row) for row in rows],
         "unread_count": _unread_count(db, user),
+        "server_time": datetime.now(timezone.utc).isoformat(),
     }
 
 

@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily CSIT backup at 02:30 Baghdad
+
+[Timer]
+# توقيت بغداد ثابت UTC+3 — systemd يعمل بـUTC، فالنسخ 23:30 من اليوم السابق
+OnCalendar=*-*-* 23:30:00 UTC
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

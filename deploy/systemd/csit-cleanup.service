@@ -1,0 +1,19 @@
+# خدمة تنظيف أسبوعية للبيانات التشغيلية القديمة
+#
+#   sudo cp csit-cleanup.* /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now csit-cleanup.timer
+
+[Unit]
+Description=CSIT operational data cleanup (push outbox, tokens, old excuse files)
+Documentation=https://github.com/JJ36t/csit-app
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=csit
+Group=csit
+WorkingDirectory=/opt/csit/api
+EnvironmentFile=/etc/csit/api.env
+ExecStart=/opt/csit/venv/bin/python scripts/cleanup.py
+Nice=10
+IOSchedulingClass=idle

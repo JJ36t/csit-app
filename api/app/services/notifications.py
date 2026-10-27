@@ -22,6 +22,9 @@ from app.models.enums import (
 )
 
 
+from app.services.push import enqueue_for_users
+
+
 def offering_student_ids(db: Session, offering_id: uuid.UUID) -> list[uuid.UUID]:
     return list(
         db.scalars(
@@ -103,6 +106,8 @@ def notify_users(
             )
         )
         created += 1
+    # الدفع إلى الأجهزة يُكتب في طابور داخل المعاملة نفسها (لا يضيع مع تعطّل الشبكة)
+    enqueue_for_users(db, user_ids, title=title, body=body, data=data)
     return created
 
 

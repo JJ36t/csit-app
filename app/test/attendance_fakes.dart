@@ -28,6 +28,7 @@ class StubAuthApi implements AuthApi {
   Future<UserProfile> login({
     required String universityId,
     required String password,
+    String? totpCode,
   }) async =>
       _profile ??= defaultProfile;
 

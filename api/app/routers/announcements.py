@@ -366,6 +366,9 @@ def delete_announcement(
 def my_announcements(
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
+    updated_since: datetime | None = Query(
+        default=None, description="مزامنة جزئية: ما تغيّر بعد هذا الوقت فقط"
+    ),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> dict:
@@ -375,6 +378,8 @@ def my_announcements(
         or_(Announcement.publish_at.is_(None), Announcement.publish_at <= now),
         or_(Announcement.expires_at.is_(None), Announcement.expires_at > now),
     ]
+    if updated_since is not None:
+        conditions.append(Announcement.updated_at > updated_since)
     visibility = _visibility_condition(db, user)
     if visibility is not None:
         conditions.append(visibility)
@@ -399,10 +404,11 @@ def my_announcements(
     ).all()
 
     return {
+        "server_time": _utc_now().isoformat(),
         "items": [
             _announcement_payload(row, is_read=bool(is_read))
             for row, is_read in rows
-        ]
+        ],
     }
 
 

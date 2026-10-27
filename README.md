@@ -79,6 +79,33 @@ csit-app/
 - **لوحة الملخص:** `GET /admin/overview` — الطلاب وتوزيعهم، جلسات اليوم وحضورها، التقييمات المنشورة/المسودات،
   والإعلانات النشطة/المجدولة، محصورة بقسم رئيس القسم.
 
+## المرحلة 10 — N8: إكمال V2 (27 تشرين الأول 2026)
+
+**إشعارات الدفع FCM (البند الحرج السابق):**
+- **مُرسِل حقيقي** عبر HTTP v1: توقيع JWT بمفتاح حساب الخدمة (RS256) ← رمز OAuth2 مُخزَّن حتى الانتهاء ← `messages:send` لكل جهاز، بلا حزمة firebase-admin.
+- **طابور معاملاتي** (`push_outbox`، ترحيل `0005`): يُكتب في معاملة الإشعار نفسها ثم تُفرّغه مهمة خلفية كل 15 ثانية، فلا يضيع إشعار مع تعطّل الشبكة ولا يتكرر في صندوق الوارد.
+- **سياسة الأخطاء:** حتى 5 محاولات بتراجع أُسّي (1→60 دقيقة)، والرمز المرفوض نهائياً (`UNREGISTERED`/404/400) يُحذف من القاعدة فوراً، وغياب الرمز يُعلَّم `skipped`.
+- **التطبيق:** `firebase_core` + `firebase_messaging` مع تهيئة «بأفضل جهد» — بلا `google-services.json` يبني ويعمل ويبقى صندوق الإشعارات الداخلي، وبإضافته يُسجَّل الرمز تلقائياً ويُعرض إشعار المقدمة.
+
+**تذكيرات محلية (بند الخطة ص17):** `flutter_local_notifications` بقناة واحدة: تذكير قبل كل محاضرة 15 دقيقة + ملخص لمحاضرات الغد الساعة 20:00، يُبنى من الجدول في `reminder_plan.dart` (منطق خالص مختبَر بلا منصة) ويُعاد جدولته عند كل فتح للرئيسية.
+
+**V2 مكتمل في الـAPI:**
+- **الأعذار:** رفع عذر بمرفق صورة/PDF (نافذة 14 يوماً، عذر واحد لكل جلسة، ولا عذر بلا غياب فعلي)، قائمة مراجعة بنطاق المادة/القسم، وقبول يحوّل سجل الحضور إلى «بعذر» مع تدقيق وإشعار وسبب الرفض للطالب.
+- **الطلبات والمحادثة:** إنشاء طلب بتصنيف، توجيه تلقائي لقسم الطالب، خيوط رسائل ثنائية الاتجاه، إسناد وتغيير حالة (مفتوح/قيد المعالجة/محلول/مغلق)، وإشعار الطرف الآخر.
+- **الهوية الرقمية:** بطاقة `CSIT1.<payload>.<HMAC>` قصيرة العمر (3 دقائق) تحمل الاسم/القسم/المرحلة/الشعبة، وتحقّق للتدريسي يرفض التزوير والانتهاء، مع تدقيق لكل تحقق.
+- **الأخبار العامة:** `GET /public/news` بلا مصادقة لإعلانات الكلية فقط.
+- **المصادقة الثنائية TOTP:** إعداد/تفعيل/تعطيل بكلمة مرور، وإلزام الرمز عند الدخول مع منع إعادة الاستخدام (خطوة مستهلكة) وإعادة ضبط إدارية.
+
+**نقاط الإدارة الناقصة (جدول الـAPI ص13):** `POST /admin/groups` · `POST /admin/offerings` (بتسجيل تلقائي لطلبة الشعبة) · `PATCH /materials/{id}` (بنشر يُشعر المسجَّلين) · `GET /admin/courses` · تقارير حضور ودرجات JSON/CSV (بـBOM لـExcel العربي) · `updated_since` للمزامنة الجزئية في الإعلانات والإشعارات والمواد.
+
+**التطبيق (شاشات V2 + الشاشة الثامنة في التصميم «إدخال الدرجات»):** الإعلانات (بذاكرة محلية)، صندوق الإشعارات، الأعذار (رفع من الكاميرا/المعرض + مراجعة للتدريسي)، الطلبات والمحادثة، البطاقة الرقمية مع عدّاد، التحقق من البطاقة بالكاميرا، الإعدادات (فاتح/داكن/حسب النظام + عربي/إنجليزي + التحقق بخطوتين)، وحقل رمز 2FA في الدخول. ذاكرة محلية للإعلانات والمواد (الجدول كان مغطى).
+
+**بيانات تجريبية للوقت الحالي:** `scripts/demo_full_seed.py` يبني 4 أقسام و10 شعب و18 مقرراً و18 عرضاً و71 حساباً وجدولاً كاملاً وجلسات هذا الأسبوع حتى اليوم وحضوراً تاريخياً ودرجات منشورة ومواد وإعلانات وأعذاراً وطلبات — بتواريخ اليوم كي تبدو الشاشات حية، ويقبل `--reset`.
+
+**التشغيل:** `deploy/nginx/csit.conf` (TLS/HSTS/حد رفع) · `deploy/systemd/csit-api.service` (بعزل systemd) · `csit-backup.timer` (02:30 بغداد) · `csit-cleanup.timer` (تنظيف أسبوعي للطابور والرموز والملفات القديمة) · `deploy/monitoring` (Uptime Kuma) · `docs/RUNBOOK.md` · `docs/privacy-policy-ar.md` + `deploy/privacy.html` · `scripts/archive_term.py` (ترقية المراحل/تخريج/إغلاق التسجيلات).
+
+**الهوية البصرية:** أيقونة التطبيق وشاشة البداية مولّدتان من نفس رموز التصميم (`design/make_icon.py`)، والنسخة `1.0.0`.
+
 ## نقاط الـAPI
 
 | النقطة | الوصف |
@@ -101,6 +128,17 @@ csit-app/
 | `GET /admin/audit` | سجل التدقيق بترشيح وترقيم (مدير الكلية) |
 | `GET /admin/overview` | أرقام لوحة الملخص (طلاب/حضور اليوم/درجات/إعلانات) |
 | `GET /notifications` · `/read-all` · `PUT /devices/fcm-token` | صندوق الإشعارات ورمز FCM |
+| `POST /excuses` · `GET /excuses` · `DELETE /excuses/{id}` | عذر الطالب: رفع بمرفق، متابعة، سحب |
+| `GET /admin/excuses` · `POST /admin/excuses/{id}/review` | قائمة المراجعة والقرار (قبول يحوّل الحضور إلى «بعذر») |
+| `POST /requests` · `GET /requests` · `GET /requests/{id}` · `POST /requests/{id}/messages` · `PATCH /admin/requests/{id}` | الطلبات والمحادثة والإسناد |
+| `GET /public/news` | أخبار الكلية بلا تسجيل |
+| `GET /me/identity-card` · `POST /identity/verify` | بطاقة QR موقّعة والتحقق منها |
+| `GET /auth/2fa/status` · `/setup` · `/enable` · `/disable` · `POST /admin/users/{id}/2fa/reset` | المصادقة الثنائية TOTP |
+| `GET /admin/groups` · `POST /admin/groups` · `GET /admin/courses` · `GET/POST /admin/offerings` | الشعب والمقررات والعروض (تسجيل تلقائي) |
+| `PATCH /materials/{id}` | تعديل/نشر مادة مع إشعار المسجَّلين |
+| `GET /admin/reports/attendance` · `/grades` (`format=csv`) | تقارير الحضور والدرجات |
+| `GET /admin/excuses` · `POST /admin/excuses/{id}/review` · `GET /requests` · `PATCH /admin/requests/{id}` | شاشات الأعذار والطلبات في اللوحة |
+| `updated_since` في `/announcements` · `/notifications` · `/offerings/{id}/materials` | مزامنة جزئية للهاتف |
 
 ## التشغيل
 
@@ -109,25 +147,27 @@ csit-app/
 **تطبيق الجوال (app/):** انظر [app/README.md](app/README.md) — `flutter pub get` ← `flutter gen-l10n` ← `flutter run`.
 **نموذج الشاشات:** [design/screens.html](design/screens.html) — افتحه في المتصفح.
 
-## حالة التحقق (نُفِّذ فعلياً — 26 تشرين الأول 2026)
+## حالة التحقق (نُفِّذ فعلياً — 26–27 تشرين الأول 2026)
 
 | الطبقة | ما نُفِّذ | النتيجة |
 |---|---|---|
-| api · SQLite | `pytest tests` | ✅ **93/93** (مصادقة، أجهزة، تدقيق، استيراد، حضور، جدول، عروض، درجات/مواد/إعلانات/إشعارات، مستخدمون، سجل تدقيق، ملخص، ترحيل، قيود، حدّ محاولات، health) |
-| api · PostgreSQL 18.6 | `pytest tests` | ✅ **93/93** على PostgreSQL أيضاً |
+| api · SQLite | `pytest tests` | ✅ **132/132** (المجموعات السابقة + أعذار، طلبات، هوية رقمية، 2FA، دفع FCM، تقارير، مزامنة، ترحيل 0005) |
+| api · PostgreSQL 18.6 | `pytest tests` | ✅ **132/132** على PostgreSQL أيضاً (27 ت10 2026) |
 | api · Redis | `pytest tests/test_rate_limit_redis.py` | ✅ **4/4** بـfakeredis (لا خدمة Redis على الجهاز) |
 | api · PostgreSQL | `backup_db.py` + `verify_restore.py` | ✅ نسخة 94.6KB ← استرجاع مطابق (5/0/1) ← `0003 (head)` |
 | api · PostgreSQL | `GET /health` حيّاً | ✅ 200 · `{"status":"ok","database":"ok","revision":"0003"}` |
 | نشر · Docker | `docker compose up` | ⚠️ **غير متحقق** — Docker غير مثبت على جهاز التطوير |
-| api · PostgreSQL | `alembic upgrade head` + `check` | ✅ الترحيلات 0001–0004 · لا انحراف |
+| api · SQLite | `scripts/demo_full_seed.py` + `scripts/smoke_demo.py` | ✅ 21 فحصاً حياتياً: جدول وجلسة اليوم ومواد ودرجات وإعلانات وإشعارات وهوية وأعذار وطلبات وتقارير CSV |
+| api · SQLite | `alembic upgrade head` + `check` بعد 0005 | ✅ لا انحراف في المخطط |
+| api · PostgreSQL | `alembic upgrade head` + `check` | ✅ 0001–**0005** على قاعدة `csit` بلا انحراف |
 | api · PostgreSQL | الفهرس الجزئي | ✅ `CREATE UNIQUE INDEX … (user_id) WHERE (status = 'active')` |
 | api · PostgreSQL | دورة `downgrade base` ← `upgrade head` | ✅ نظيفة (مع إسقاط أنواع Enum) |
 | api · PostgreSQL | فحص HTTP شامل (`smoke_e2e.py`) | ✅ مدير ← استيراد ← دخول طالب ← منع جهاز ثانٍ ← إعادة ضبط ← رفض رمز الطالب على الإدارة |
 | api · PostgreSQL | فحص N3 (`smoke_n3.py`) | ✅ تقييم ← درجة ← نشر ← درجة الطالب ← إعلان/إشعار ← مادة برابط موقّع |
 | api · SQLite (خدمة حيّة) | فحص N4 (`smoke_n4.py`) | ✅ طلاب/قالب ← تعارض قاعة ← حصة أسبوعية ← إلغاء مؤرّخ ← درجة ← نشر ← منع التعديل 409 ← تصدير 5KB |
-| app · Flutter 3.47.8 | `flutter analyze` / `flutter test` / `flutter build web` | ✅ 0 ملاحظات · **43/43** · بناء ناجح |
-| app · Android | `flutter build apk --release` (من `X:\app`) | ✅ **67.5MB** · موقّع debug (لم يُثبَّت على جهاز) |
-| admin | `npm run build` | ✅ بناء ناجح (تحذير حجم الحزمة متوقع) |
+| app · Flutter 3.47.8 | `flutter analyze` / `flutter test` | ✅ 0 ملاحظات · **64/64** |
+| app · Android | `flutter build apk --release` (من `X:\app`) | ✅ **70.9MB** · موقّع debug (لم يُثبَّت على جهاز) · debug 185MB |
+| admin | `npm run build` | ✅ بناء ناجح (تحذير حجم الحزمة متوقع) · صفحة «الأكاديمية» جديدة (شعب/عروض/تقارير CSV) |
 | admin | تجربة يدوية بحساب `ADMIN-001` | ✅ الطلاب/الجدول/الدرجات على خدمة حيّة (إنشاء قاعة، إنشاء تقييم، إدخال درجات، حفظ، نشر، إقفال الخلايا) |
 | git | `git log` | ✅ مستودع محلي مدفوع إلى `github.com/JJ36t/csit-app` |
 | CI | GitHub Actions | ✅ **نجح فعلياً 3/3** (API على PostgreSQL + Flutter + لوحة التحكم) |
@@ -141,7 +181,7 @@ csit-app/
 - كلمات المرور: bcrypt كلفة 12، وكلمات المرور الأولية للاستيراد كلفة 10 مع إجبار التغيير.
 - الموقع يُرسل لحظة المسح فقط ويُخزَّن مع السجل لأغراض المراجعة، والخارج عن النطاق يُعلَّم لا يُرفض.
 
-## هيكل قاعدة البيانات (29 جدولاً — القسم 8 من الخطة)
+## هيكل قاعدة البيانات (30 جدولاً: 29 من الخطة + `push_outbox`)
 
 الهوية والأجهزة: `users, students, staff, devices, refresh_tokens, fcm_tokens` · الأكاديمي: `departments, academic_years, terms, groups, courses, course_offerings, enrollments` · الجدول: `rooms, timetable_slots, timetable_changes, lecture_sessions` · الحضور: `attendance_records, absence_excuses` · المحتوى والدرجات: `files, materials, assessments, grades` · التواصل: `announcements, announcement_reads, notifications, requests, request_messages, audit_logs`
 

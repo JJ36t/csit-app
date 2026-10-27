@@ -10,13 +10,13 @@
 
 مشروع تخرّج/تطبيق رسمي لكلية علوم الحاسوب — جامعة القادسية: تطبيق Flutter + خلفية FastAPI/PostgreSQL + لوحة تحكم React.
 **المنجز والمتحقَّق:** المصادقة وربط الجهاز، استيراد الطلاب، الحضور (QR متجدد + موقع + قائمة لحظية)، الجدول، **الدرجات/المواد/الإعلانات/الإشعارات (API)**، و**شاشات الحضور والجدول والمواد والدرجات في التطبيق**، وأول **APK**.
-**التالي:** N7 — الاعتماد التجريبي (شعبة واحدة لأسبوعين و20 مختبِراً في Play المغلقة).
+**التالي:** تجربة الكاميرا على هاتف حقيقي، ثم N7 (شعبة واحدة لأسبوعين و20 مختبِراً في Play المغلقة).
 لوحة التحكم اكتملت (سبع شاشات). متبقٍّ من النشر: صور Docker (Docker غير مثبت) وTLS (يحتاج سيرفر الجامعة).
 
-الأرقام الحقيقية الآن: **API 93/93 على SQLite و93/93 على PostgreSQL** (ترحيلات 0001–0004) ·
-**Flutter 43/43** و`analyze` نظيف · **لوحة التحكم**: سبع شاشات، بناء ناجح، والأربع الجديدة مُجرَّبة يدوياً ·
-**نسخ/استرجاع مُجرَّب** (5/0/1 · 0003) · `/health` عميق (revision 0004) · `alembic` نظيف · **CI أخضر 3/3**.
-غير متحقق: صور Docker، Redis فعلي، TLS، وعرض الشاشات على سطح مكتب عريض.
+الأرقام الحقيقية الآن: **API 132/132 على SQLite** (ترحيلات 0001–0005؛ PostgreSQL: 132/132 أيضاً) ·
+**Flutter 64/64** و`analyze` نظيف · **لوحة التحكم**: سبع شاشات، بناء ناجح ·
+**نسخ/استرجاع مُجرَّب** (5/0/1) · `/health` عميق · `alembic` نظيف · **CI أخضر 3/3** · **بيانات عرض كاملة** (`demo_full_seed.py`).
+غير متحقق: صور Docker، Redis فعلي، TLS، وتجربة الكاميرا على هاتف حقيقي.
 
 ---
 
@@ -88,7 +88,7 @@ cd ../api; python scripts/backup_db.py; python scripts/verify_restore.py
 cd api
 python -m alembic upgrade head          # على قاعدة csit
 python scripts/seed.py                  # الأقسام الأربعة + السنة
-python scripts/demo_seed.py             # تدريسي/طالبان/مادة/حصة اليوم
+python scripts/demo_full_seed.py        # بيانات كاملة مؤرخة باليوم (10 شعب/18 مقرراً/71 حساباً)
 python scripts/create_admin.py ADMIN-001 "مدير الكلية" "Admin#2026"
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 
@@ -102,6 +102,7 @@ cd build\web; python -m http.server 8080 --bind 127.0.0.1
 ```
 
 **حسابات التجربة:** طالب `S-100` · تدريسي `T-100` (كلمة المرور `Test#12345`) · مدير `ADMIN-001` (`Admin#2026`).
+**بيانات العرض الكاملة:** `S-CS1-01` (طالب) · `HEAD-CS` (رئيس قسم) · `T-101` (تدريسي) — كلمة المرور `Test#12345`.
 **رسالة «هذا الحساب مرتبط بجهاز آخر»** = قاعدة الجهاز الواحد؛ الحل للتطوير: `python scripts/dev_reset_devices.py [رقم]`.
 
 ---
@@ -159,6 +160,11 @@ admin/src/   App.tsx, api.ts, pages/{LoginPage, StudentsPage, TimetablePage, Gra
     مفحوصة ملفياً فقط. و**pg_dump/pg_restore ليسا على PATH**: السكربتات تكتشفان `C:\Program Files\PostgreSQL\18\bin`.
 11. **Redis غير مثبت** محلياً: مسار Redis مغطّى بـ`fakeredis` في الاختبارات، وليس بخدمة حقيقية.
 12. **`audit_logs` بلا طابع زمني قبل ترحيل `0004`:** أي قاعدة قديمة تحتاج `alembic upgrade head` قبل شاشة سجل التدقيق، وإلا فشل الاستعلام على العمود الجديد.
+13. **مجلد `app/lib/l10n` قد يُعلَّم ReadOnly من OneDrive:** `flutter gen-l10n` يفشل برسالة «doesn't allow reading and writing» رغم أن الكتابة ممكنة. الحل: `attrib -R app\lib\l10n` ثم أعد الأمر.
+14. **`flutter_local_notifications` يحتاج core library desugaring:** مضاف في `app/android/app/build.gradle.kts` (`isCoreLibraryDesugaringEnabled` + `desugar_jdk_libs`). حذفه يُفشل البناء عند `checkDebugAarMetadata`.
+15. **Firebase بلا `google-services.json`:** البناء ينجح والتطبيق يعمل؛ `PushService.initialize` يرمي داخلياً ويُلتقط. لا تُضف إضافة `com.google.gms.google-services` قبل وضع الملف، وإلا فشل البناء.
+16. **بناء release داخل OneDrive يفشل أحياناً بـ`AccessDeniedException`** في `mergeReleaseNativeLibs`/`extractReleaseNativeSymbolTables` (مزامنة OneDrive تقفل المجلدات). الحل المجرَّب: انسخ `app` إلى `C:\csit-build\app` (بلا `build` و`.dart_tool`) وابنِ من هناك، ثم انسخ الـAPK. أوقف Gradle بـ`gradlew --stop` قبل حذف أي مجلد مقفل.
+17. **خادم قديم على المنفذ 8000:** إن ظهرت 404 لمسارات جديدة، اعرف العملية بـ`Get-NetTCPConnection -LocalPort 8000` وأوقفها ثم أعد `uvicorn`. `/health` لا يكشف قِدَم الكود (يقرأ revision من القاعدة فقط).
 
 ---
 

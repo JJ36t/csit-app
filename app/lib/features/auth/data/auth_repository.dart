@@ -10,6 +10,7 @@ import '../../../core/storage/token_store.dart';
 /// ملف المستخدم كما يعيده الخادم.
 class UserProfile {
   const UserProfile({
+    this.id = '',
     required this.universityId,
     required this.fullNameAr,
     required this.role,
@@ -19,6 +20,7 @@ class UserProfile {
     this.groupName,
   });
 
+  final String id;
   final String universityId;
   final String fullNameAr;
   final String role;
@@ -35,6 +37,7 @@ class UserProfile {
     final student = json['student'] as Map<String, dynamic>?;
     final department = student?['department'] as Map<String, dynamic>?;
     return UserProfile(
+      id: json['id'] as String? ?? '',
       universityId: json['university_id'] as String? ?? '',
       fullNameAr: json['full_name_ar'] as String? ?? '',
       role: json['role'] as String? ?? 'student',
@@ -51,6 +54,7 @@ abstract class AuthApi {
   Future<UserProfile> login({
     required String universityId,
     required String password,
+    String? totpCode,
   });
 
   Future<UserProfile> me();
@@ -83,6 +87,7 @@ class HttpAuthApi implements AuthApi {
   Future<UserProfile> login({
     required String universityId,
     required String password,
+    String? totpCode,
   }) async {
     final fingerprint = await _store.deviceFingerprint();
     try {
@@ -96,6 +101,7 @@ class HttpAuthApi implements AuthApi {
             // dart:io غير مدعوم على الويب — نرسل اسماً ثابتاً بدل Platform.
             'model': kIsWeb ? 'web' : Platform.operatingSystem,
           },
+          if (totpCode != null && totpCode.isNotEmpty) 'totp_code': totpCode.trim(),
         },
       );
       final body = response.data ?? const <String, dynamic>{};

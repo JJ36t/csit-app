@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""يجمع كل النماذج حتى ترى قاعدة البيانات (وAlembic) الجداول الـ29 كاملة."""
+"""يجمع كل النماذج حتى ترى قاعدة البيانات (وAlembic) الجداول الثلاثين كاملة."""
 from app.models.academic import (
     AcademicYear,
     Course,
@@ -16,6 +16,7 @@ from app.models.comms import (
     AnnouncementRead,
     AuditLog,
     Notification,
+    PushOutbox,
     Request,
     RequestMessage,
 )
@@ -62,6 +63,7 @@ __all__ = [
     "Announcement",
     "AnnouncementRead",
     "Notification",
+    "PushOutbox",
     "Request",
     "RequestMessage",
     "AuditLog",

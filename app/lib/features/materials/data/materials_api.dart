@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/network/authed_dio.dart';
@@ -79,22 +82,94 @@ class MaterialItem {
         fileName: json['file_name'] as String?,
         fileSize: json['file_size'] as int?,
       );
+
+  Map<String, dynamic> toJson() => {
+        'material_id': materialId,
+        'title': title,
+        'kind': kind,
+        'week_no': weekNo,
+        'is_published': isPublished,
+        'url': url,
+        'download_url': downloadUrl,
+        'file_name': fileName,
+        'file_size': fileSize,
+      };
+}
+
+/// نتيجة تحميل مواد مقرر مع مؤشر الذاكرة المحلية.
+class MaterialsData {
+  const MaterialsData({
+    required this.items,
+    this.fetchedAt,
+    this.fromCache = false,
+  });
+
+  final List<MaterialItem> items;
+  final DateTime? fetchedAt;
+  final bool fromCache;
+}
+
+/// تخزين محلي لمواد كل مقرر — يفتح الشاشة بلا إنترنت.
+abstract class MaterialsCache {
+  Future<void> save(String offeringId, List<MaterialItem> items, DateTime at);
+
+  Future<({List<MaterialItem> items, DateTime at})?> read(String offeringId);
+}
+
+class PrefsMaterialsCache implements MaterialsCache {
+  static const _prefix = 'csit.materials.cache.v1.';
+
+  @override
+  Future<void> save(String offeringId, List<MaterialItem> items, DateTime at) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      '$_prefix$offeringId',
+      jsonEncode({
+        'saved_at': at.toUtc().toIso8601String(),
+        'items': items.map((item) => item.toJson()).toList(),
+      }),
+    );
+  }
+
+  @override
+  Future<({List<MaterialItem> items, DateTime at})?> read(String offeringId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('$_prefix$offeringId');
+    if (raw == null) {
+      return null;
+    }
+    try {
+      final body = jsonDecode(raw) as Map<String, dynamic>;
+      final items = (body['items'] as List<dynamic>)
+          .whereType<Map<String, dynamic>>()
+          .map(MaterialItem.fromJson)
+          .toList();
+      return (items: items, at: DateTime.parse(body['saved_at'] as String));
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// واجهة المواد — تُختبر ببديل في الذاكرة.
 abstract class MaterialsApi {
   Future<List<OfferingSummary>> myOfferings();
 
-  Future<List<MaterialItem>> materials(String offeringId);
+  Future<MaterialsData> materials(String offeringId);
 }
 
 class HttpMaterialsApi implements MaterialsApi {
-  HttpMaterialsApi({required Dio dio, required TokenStore store})
-      : _dio = dio,
-        _authed = AuthedDio(dio: dio, store: store);
+  HttpMaterialsApi({
+    required Dio dio,
+    required TokenStore store,
+    MaterialsCache? cache,
+  })  : _dio = dio,
+        _authed = AuthedDio(dio: dio, store: store),
+        _cache = cache ?? PrefsMaterialsCache();
 
   final Dio _dio;
   final AuthedDio _authed;
+  final MaterialsCache _cache;
 
   Options _auth(String token) =>
       Options(headers: {'Authorization': 'Bearer $token'});
@@ -118,7 +193,7 @@ class HttpMaterialsApi implements MaterialsApi {
   }
 
   @override
-  Future<List<MaterialItem>> materials(String offeringId) async {
+  Future<MaterialsData> materials(String offeringId) async {
     try {
       final response = await _authed.send(
         (token) => _dio.get<Map<String, dynamic>>(
@@ -126,10 +201,26 @@ class HttpMaterialsApi implements MaterialsApi {
           options: _auth(token),
         ),
       );
-      return (response.data?['items'] as List<dynamic>? ?? [])
+      final items = (response.data?['items'] as List<dynamic>? ?? [])
           .whereType<Map<String, dynamic>>()
           .map(MaterialItem.fromJson)
           .toList();
+      final now = DateTime.now().toUtc();
+      await _cache.save(offeringId, items, now);
+      return MaterialsData(items: items, fetchedAt: now);
+    } on ApiException catch (error) {
+      if (error.statusCode == 401 || error.statusCode == 403) {
+        rethrow;
+      }
+      final cached = await _cache.read(offeringId);
+      if (cached == null) {
+        rethrow;
+      }
+      return MaterialsData(
+        items: cached.items,
+        fetchedAt: cached.at,
+        fromCache: true,
+      );
     } on DioException catch (error) {
       throw ApiException.fromDio(error);
     }

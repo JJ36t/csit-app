@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/platform/link_opener.dart';
+import '../../../core/utils/date_utils.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../auth/presentation/session.dart';
 import '../data/materials_api.dart';
@@ -30,7 +31,9 @@ class _OfferingMaterialsPageState extends State<OfferingMaterialsPage> {
 
   bool _loading = true;
   String? _error;
-  List<MaterialItem> _items = const [];
+  MaterialsData? _data;
+
+  List<MaterialItem> get _items => _data?.items ?? const [];
 
   @override
   void initState() {
@@ -44,12 +47,12 @@ class _OfferingMaterialsPageState extends State<OfferingMaterialsPage> {
       _error = null;
     });
     try {
-      final items = await widget.api.materials(widget.offering.offeringId);
+      final data = await widget.api.materials(widget.offering.offeringId);
       if (!mounted) {
         return;
       }
       setState(() {
-        _items = items;
+        _data = data;
         _loading = false;
       });
     } on ApiException catch (error) {
@@ -121,11 +124,35 @@ class _OfferingMaterialsPageState extends State<OfferingMaterialsPage> {
                     ? Center(child: Text(l10n.courseMaterialsEmpty))
                     : ListView.separated(
                         padding: const EdgeInsets.all(12),
-                        itemCount: _items.length,
+                        itemCount: _items.length + (_data!.fromCache ? 1 : 0),
                         separatorBuilder: (context, index) =>
                             const SizedBox(height: 8),
                         itemBuilder: (context, index) {
-                          final item = _items[index];
+                          if (_data!.fromCache && index == 0) {
+                            return Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.secondaryContainer,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.cloud_off_outlined, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      l10n.dataFromCache(
+                                        _data!.fetchedAt == null
+                                            ? ''
+                                            : formatHm(_data!.fetchedAt!),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                          final item = _items[index - (_data!.fromCache ? 1 : 0)];
                           return _MaterialTile(
                             item: item,
                             onOpen: () => _open(item),

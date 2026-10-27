@@ -40,6 +40,14 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
     must_change_password: Mapped[bool] = mapped_column(Boolean, default=False)
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
+    # المصادقة الثنائية (TOTP — RFC 6238) للتدريسي والإدارة.
+    # السر يُخزَّن Base32، ويبقى `totp_enabled` زائفاً حتى يؤكد المستخدم أول رمز.
+    totp_secret: Mapped[str | None] = mapped_column(String(64))
+    totp_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    totp_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # آخر خطوة زمنية استُهلكت — يمنع إعادة استخدام الرمز نفسه (replay)
+    totp_last_step: Mapped[int | None] = mapped_column(Integer)
+
 
 class Student(TimestampMixin, SoftDeleteMixin, Base):
     """طالب — علاقة 1:1 مع users (المفتاح الأساسي هو user_id نفسه)."""

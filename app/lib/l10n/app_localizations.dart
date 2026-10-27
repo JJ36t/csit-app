@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_ar.dart';
+import 'app_localizations_en.dart';
 
 // ignore_for_file: type=lint
 
@@ -92,7 +93,10 @@ abstract class AppLocalizations {
   ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('ar')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('ar'),
+    Locale('en')
+  ];
 
   /// No description provided for @appTitle.
   ///
@@ -171,6 +175,30 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'الرئيسية'**
   String get homeTitle;
+
+  /// No description provided for @homeTodayLectures.
+  ///
+  /// In ar, this message translates to:
+  /// **'محاضرات اليوم'**
+  String get homeTodayLectures;
+
+  /// No description provided for @homeNoLectures.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا محاضرات اليوم'**
+  String get homeNoLectures;
+
+  /// No description provided for @homeLatestAnnouncement.
+  ///
+  /// In ar, this message translates to:
+  /// **'آخر إعلان'**
+  String get homeLatestAnnouncement;
+
+  /// No description provided for @homeViewAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض الكل'**
+  String get homeViewAll;
 
   /// No description provided for @welcome.
   ///
@@ -705,6 +733,942 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'نتائجك المنشورة والمجموع الموزون'**
   String get gradesCardHint;
+
+  /// No description provided for @gradeEntryTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إدخال الدرجات'**
+  String get gradeEntryTitle;
+
+  /// No description provided for @gradeEntryHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل درجات التقييم كمسودة، والنشر يتم بموافقة الكلية'**
+  String get gradeEntryHint;
+
+  /// No description provided for @chooseOfferingLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'المادة'**
+  String get chooseOfferingLabel;
+
+  /// No description provided for @chooseAssessmentLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'التقييم'**
+  String get chooseAssessmentLabel;
+
+  /// No description provided for @noAssessmentsYet.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا تقييمات بعد — أنشئ تقييماً أولاً'**
+  String get noAssessmentsYet;
+
+  /// No description provided for @newAssessmentButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'تقييم جديد'**
+  String get newAssessmentButton;
+
+  /// No description provided for @assessmentNameLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسم التقييم'**
+  String get assessmentNameLabel;
+
+  /// No description provided for @assessmentKindLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'النوع'**
+  String get assessmentKindLabel;
+
+  /// No description provided for @maxScoreLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدرجة العظمى'**
+  String get maxScoreLabel;
+
+  /// No description provided for @weightPercentLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الوزن %'**
+  String get weightPercentLabel;
+
+  /// No description provided for @createAssessmentButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'إنشاء التقييم'**
+  String get createAssessmentButton;
+
+  /// No description provided for @assessmentCreated.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُنشئ التقييم'**
+  String get assessmentCreated;
+
+  /// No description provided for @gradedOfTotal.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُدخلت {graded} من {total} درجة'**
+  String gradedOfTotal(int graded, int total);
+
+  /// No description provided for @saveDraftButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ كمسودة'**
+  String get saveDraftButton;
+
+  /// No description provided for @draftSaved.
+  ///
+  /// In ar, this message translates to:
+  /// **'حُفظت المسودة'**
+  String get draftSaved;
+
+  /// No description provided for @publishGradesButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'نشر الدرجات'**
+  String get publishGradesButton;
+
+  /// No description provided for @publishNeedsAdmin.
+  ///
+  /// In ar, this message translates to:
+  /// **'النشر يتطلب موافقة مدير الكلية'**
+  String get publishNeedsAdmin;
+
+  /// No description provided for @publishedSuccess.
+  ///
+  /// In ar, this message translates to:
+  /// **'نُشرت الدرجات وأُشعر {count} طالباً'**
+  String publishedSuccess(int count);
+
+  /// No description provided for @scoreRangeError.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدرجة يجب أن تكون بين 0 و{max}'**
+  String scoreRangeError(String max);
+
+  /// No description provided for @assessmentLocked.
+  ///
+  /// In ar, this message translates to:
+  /// **'التقييم منشور — لا يمكن تعديل درجاته'**
+  String get assessmentLocked;
+
+  /// No description provided for @assessmentPublished.
+  ///
+  /// In ar, this message translates to:
+  /// **'منشور'**
+  String get assessmentPublished;
+
+  /// No description provided for @kindQuiz.
+  ///
+  /// In ar, this message translates to:
+  /// **'كوز'**
+  String get kindQuiz;
+
+  /// No description provided for @kindLab.
+  ///
+  /// In ar, this message translates to:
+  /// **'مختبر'**
+  String get kindLab;
+
+  /// No description provided for @kindMidterm.
+  ///
+  /// In ar, this message translates to:
+  /// **'نصفي'**
+  String get kindMidterm;
+
+  /// No description provided for @kindFinal.
+  ///
+  /// In ar, this message translates to:
+  /// **'نهائي'**
+  String get kindFinal;
+
+  /// No description provided for @kindOther.
+  ///
+  /// In ar, this message translates to:
+  /// **'أخرى'**
+  String get kindOther;
+
+  /// No description provided for @assessmentWeightHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'مجموع أوزان التقييمات لا يتجاوز 100%'**
+  String get assessmentWeightHint;
+
+  /// No description provided for @loginTotpLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمز التحقق بخطوتين'**
+  String get loginTotpLabel;
+
+  /// No description provided for @loginTotpHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل الرمز من تطبيق المصادقة (يتطلبه حساب التدريسي/الإدارة)'**
+  String get loginTotpHint;
+
+  /// No description provided for @totpRequiredError.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا الحساب محمي بالتحقق بخطوتين؛ أدخل الرمز ثم أعد المحاولة'**
+  String get totpRequiredError;
+
+  /// No description provided for @totpInvalidError.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمز التحقق غير صحيح أو انتهت صلاحيته'**
+  String get totpInvalidError;
+
+  /// No description provided for @announcementsCard.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإعلانات'**
+  String get announcementsCard;
+
+  /// No description provided for @announcementsCardHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'أخبار الكلية وقسمك وموادك'**
+  String get announcementsCardHint;
+
+  /// No description provided for @announcementsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإعلانات'**
+  String get announcementsTitle;
+
+  /// No description provided for @announcementsEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا إعلانات منشورة حالياً'**
+  String get announcementsEmpty;
+
+  /// No description provided for @announcementPinned.
+  ///
+  /// In ar, this message translates to:
+  /// **'مثبَّت'**
+  String get announcementPinned;
+
+  /// No description provided for @announcementPriorityHigh.
+  ///
+  /// In ar, this message translates to:
+  /// **'مهم'**
+  String get announcementPriorityHigh;
+
+  /// No description provided for @announcementMarkedRead.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تعليم الإعلان كمقروء'**
+  String get announcementMarkedRead;
+
+  /// No description provided for @announcementUnknownScope.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعلان'**
+  String get announcementUnknownScope;
+
+  /// No description provided for @inboxCard.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإشعارات'**
+  String get inboxCard;
+
+  /// No description provided for @inboxCardHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'صندوق الوارد وتنبيهات الأجهزة'**
+  String get inboxCardHint;
+
+  /// No description provided for @inboxTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإشعارات'**
+  String get inboxTitle;
+
+  /// No description provided for @inboxEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا إشعارات بعد'**
+  String get inboxEmpty;
+
+  /// No description provided for @markAllRead.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعليم الكل كمقروء'**
+  String get markAllRead;
+
+  /// No description provided for @unreadBadge.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} جديد'**
+  String unreadBadge(int count);
+
+  /// No description provided for @notificationsPermissionDenied.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يُمنح إذن الإشعارات؛ يمكنك متابعتها داخل التطبيق'**
+  String get notificationsPermissionDenied;
+
+  /// No description provided for @notificationsEnabledMessage.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تفعيل إشعارات المحاضرات على هذا الجهاز'**
+  String get notificationsEnabledMessage;
+
+  /// No description provided for @reminderLectureTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'محاضرة بعد 15 دقيقة'**
+  String get reminderLectureTitle;
+
+  /// No description provided for @reminderLectureBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'{course} — {room} الساعة {time}'**
+  String reminderLectureBody(String course, String room, String time);
+
+  /// No description provided for @reminderDigestTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'محاضرات الغد'**
+  String get reminderDigestTitle;
+
+  /// No description provided for @reminderDigestBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} محاضرة تبدأ الساعة {time}'**
+  String reminderDigestBody(int count, String time);
+
+  /// No description provided for @reminderDigestEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا محاضرات غداً'**
+  String get reminderDigestEmpty;
+
+  /// No description provided for @reminderChannelName.
+  ///
+  /// In ar, this message translates to:
+  /// **'تذكيرات المحاضرات'**
+  String get reminderChannelName;
+
+  /// No description provided for @reminderChannelDescription.
+  ///
+  /// In ar, this message translates to:
+  /// **'تذكير قبل المحاضرة وملخص محاضرات الغد'**
+  String get reminderChannelDescription;
+
+  /// No description provided for @excusesCard.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأعذار'**
+  String get excusesCard;
+
+  /// No description provided for @excusesCardHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفع عذر غياب ومتابعة قراره'**
+  String get excusesCardHint;
+
+  /// No description provided for @excusesTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أعذاري'**
+  String get excusesTitle;
+
+  /// No description provided for @excusesEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا أعذار مرفوعة'**
+  String get excusesEmpty;
+
+  /// No description provided for @excuseNewTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'عذر غياب جديد'**
+  String get excuseNewTitle;
+
+  /// No description provided for @excuseSessionLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'المحاضرة'**
+  String get excuseSessionLabel;
+
+  /// No description provided for @excuseSelectSession.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر المحاضرة الغائبة'**
+  String get excuseSelectSession;
+
+  /// No description provided for @excuseNoSessions.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا محاضرات مؤهلة لرفع عذر (لا غياب خلال 14 يوماً)'**
+  String get excuseNoSessions;
+
+  /// No description provided for @excuseReasonLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبب الغياب'**
+  String get excuseReasonLabel;
+
+  /// No description provided for @excuseReasonHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اشرح السبب بإيجاز، وأرفق صورة التقرير إن وُجد'**
+  String get excuseReasonHint;
+
+  /// No description provided for @excuseAttach.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرفاق صورة أو PDF'**
+  String get excuseAttach;
+
+  /// No description provided for @excuseAttachCamera.
+  ///
+  /// In ar, this message translates to:
+  /// **'التقاط صورة'**
+  String get excuseAttachCamera;
+
+  /// No description provided for @excuseAttachGallery.
+  ///
+  /// In ar, this message translates to:
+  /// **'من المعرض'**
+  String get excuseAttachGallery;
+
+  /// No description provided for @excuseAttachmentChosen.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم اختيار المرفق'**
+  String get excuseAttachmentChosen;
+
+  /// No description provided for @excuseSubmit.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال العذر'**
+  String get excuseSubmit;
+
+  /// No description provided for @excuseSubmitted.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُرسل العذر للمراجعة'**
+  String get excuseSubmitted;
+
+  /// No description provided for @excuseStatusPending.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد المراجعة'**
+  String get excuseStatusPending;
+
+  /// No description provided for @excuseStatusApproved.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقبول'**
+  String get excuseStatusApproved;
+
+  /// No description provided for @excuseStatusRejected.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرفوض'**
+  String get excuseStatusRejected;
+
+  /// No description provided for @excuseReviewNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة المراجع'**
+  String get excuseReviewNote;
+
+  /// No description provided for @excuseWithdraw.
+  ///
+  /// In ar, this message translates to:
+  /// **'سحب العذر'**
+  String get excuseWithdraw;
+
+  /// No description provided for @excuseWithdrawn.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم سحب العذر'**
+  String get excuseWithdrawn;
+
+  /// No description provided for @excuseWindowClosed.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت مدة رفع العذر لهذه المحاضرة (14 يوماً)'**
+  String get excuseWindowClosed;
+
+  /// No description provided for @excuseReviewTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'مراجعة الأعذار'**
+  String get excuseReviewTitle;
+
+  /// No description provided for @excuseReviewEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا أعذار تنتظر المراجعة'**
+  String get excuseReviewEmpty;
+
+  /// No description provided for @excuseApprove.
+  ///
+  /// In ar, this message translates to:
+  /// **'قبول'**
+  String get excuseApprove;
+
+  /// No description provided for @excuseReject.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفض'**
+  String get excuseReject;
+
+  /// No description provided for @excuseReviewNoteHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة تظهر للطالب (اختياري)'**
+  String get excuseReviewNoteHint;
+
+  /// No description provided for @excuseReviewed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تسجيل القرار'**
+  String get excuseReviewed;
+
+  /// No description provided for @excusePendingCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'بانتظار المراجعة: {count}'**
+  String excusePendingCount(int count);
+
+  /// No description provided for @requestsCard.
+  ///
+  /// In ar, this message translates to:
+  /// **'الطلبات'**
+  String get requestsCard;
+
+  /// No description provided for @requestsCardHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'تواصل مع قسمك بشأن دراستك'**
+  String get requestsCardHint;
+
+  /// No description provided for @requestsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلباتي'**
+  String get requestsTitle;
+
+  /// No description provided for @requestsEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا طلبات بعد'**
+  String get requestsEmpty;
+
+  /// No description provided for @requestNewTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب جديد'**
+  String get requestNewTitle;
+
+  /// No description provided for @requestCategoryLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'التصنيف'**
+  String get requestCategoryLabel;
+
+  /// No description provided for @requestCategoryAcademic.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسألة أكاديمية'**
+  String get requestCategoryAcademic;
+
+  /// No description provided for @requestCategorySchedule.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجدول والقاعات'**
+  String get requestCategorySchedule;
+
+  /// No description provided for @requestCategoryGrades.
+  ///
+  /// In ar, this message translates to:
+  /// **'درجة أو تقييم'**
+  String get requestCategoryGrades;
+
+  /// No description provided for @requestCategoryDocuments.
+  ///
+  /// In ar, this message translates to:
+  /// **'وثيقة أو تأييد'**
+  String get requestCategoryDocuments;
+
+  /// No description provided for @requestCategoryOther.
+  ///
+  /// In ar, this message translates to:
+  /// **'أخرى'**
+  String get requestCategoryOther;
+
+  /// No description provided for @requestSubjectLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الموضوع'**
+  String get requestSubjectLabel;
+
+  /// No description provided for @requestBodyLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفاصيل الطلب'**
+  String get requestBodyLabel;
+
+  /// No description provided for @requestSend.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال الطلب'**
+  String get requestSend;
+
+  /// No description provided for @requestCreated.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُرسل طلبك إلى قسمك'**
+  String get requestCreated;
+
+  /// No description provided for @requestDetailTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفاصيل الطلب'**
+  String get requestDetailTitle;
+
+  /// No description provided for @requestReplyHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب رسالتك…'**
+  String get requestReplyHint;
+
+  /// No description provided for @requestSendReply.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال'**
+  String get requestSendReply;
+
+  /// No description provided for @requestClosedNotice.
+  ///
+  /// In ar, this message translates to:
+  /// **'الطلب مغلق؛ لا يمكن إضافة رسائل'**
+  String get requestClosedNotice;
+
+  /// No description provided for @requestStatusOpen.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفتوح'**
+  String get requestStatusOpen;
+
+  /// No description provided for @requestStatusInProgress.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد المعالجة'**
+  String get requestStatusInProgress;
+
+  /// No description provided for @requestStatusResolved.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم الحل'**
+  String get requestStatusResolved;
+
+  /// No description provided for @requestStatusClosed.
+  ///
+  /// In ar, this message translates to:
+  /// **'مغلق'**
+  String get requestStatusClosed;
+
+  /// No description provided for @conversationEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا رسائل بعد'**
+  String get conversationEmpty;
+
+  /// No description provided for @identityCard.
+  ///
+  /// In ar, this message translates to:
+  /// **'الهوية الرقمية'**
+  String get identityCard;
+
+  /// No description provided for @identityCardHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'بطاقة QR موقّعة تُثبت هويتك في الامتحان'**
+  String get identityCardHint;
+
+  /// No description provided for @identityTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'بطاقتك الرقمية'**
+  String get identityTitle;
+
+  /// No description provided for @identityCardNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'اعرض البطاقة للتدريسي أو بوابة القاعة. تتجدد تلقائياً ولا تعمل لقطة الشاشة القديمة.'**
+  String get identityCardNote;
+
+  /// No description provided for @identityValidFor.
+  ///
+  /// In ar, this message translates to:
+  /// **'صالحة {seconds} ثانية'**
+  String identityValidFor(int seconds);
+
+  /// No description provided for @identityRefreshButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديث البطاقة'**
+  String get identityRefreshButton;
+
+  /// No description provided for @identityVerifyTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'التحقق من بطاقة طالب'**
+  String get identityVerifyTitle;
+
+  /// No description provided for @identityVerifyHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'وجّه الكاميرا إلى بطاقة الطالب الرقمية'**
+  String get identityVerifyHint;
+
+  /// No description provided for @identityVerifyButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحقق'**
+  String get identityVerifyButton;
+
+  /// No description provided for @identityValidTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'بطاقة صالحة'**
+  String get identityValidTitle;
+
+  /// No description provided for @identityInvalidTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'بطاقة غير صالحة'**
+  String get identityInvalidTitle;
+
+  /// No description provided for @identityStudentLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الطالب'**
+  String get identityStudentLabel;
+
+  /// No description provided for @identityStudyTypeMorning.
+  ///
+  /// In ar, this message translates to:
+  /// **'صباحي'**
+  String get identityStudyTypeMorning;
+
+  /// No description provided for @identityStudyTypeEvening.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسائي'**
+  String get identityStudyTypeEvening;
+
+  /// No description provided for @identityCardForStaffOnly.
+  ///
+  /// In ar, this message translates to:
+  /// **'التحقق من البطاقات متاح للتدريسي والإدارة'**
+  String get identityCardForStaffOnly;
+
+  /// No description provided for @identityExpiredError.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت صلاحية البطاقة؛ اطلب من الطالب تحديثها'**
+  String get identityExpiredError;
+
+  /// No description provided for @settingsCard.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإعدادات'**
+  String get settingsCard;
+
+  /// No description provided for @settingsCardHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'المظهر واللغة والتحقق بخطوتين'**
+  String get settingsCardHint;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإعدادات'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsAppearance.
+  ///
+  /// In ar, this message translates to:
+  /// **'المظهر'**
+  String get settingsAppearance;
+
+  /// No description provided for @settingsThemeLight.
+  ///
+  /// In ar, this message translates to:
+  /// **'فاتح'**
+  String get settingsThemeLight;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In ar, this message translates to:
+  /// **'داكن'**
+  String get settingsThemeDark;
+
+  /// No description provided for @settingsThemeSystem.
+  ///
+  /// In ar, this message translates to:
+  /// **'حسب النظام'**
+  String get settingsThemeSystem;
+
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In ar, this message translates to:
+  /// **'اللغة'**
+  String get settingsLanguage;
+
+  /// No description provided for @settingsLanguageArabic.
+  ///
+  /// In ar, this message translates to:
+  /// **'العربية'**
+  String get settingsLanguageArabic;
+
+  /// No description provided for @settingsLanguageEnglish.
+  ///
+  /// In ar, this message translates to:
+  /// **'English'**
+  String get settingsLanguageEnglish;
+
+  /// No description provided for @settingsSaved.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حفظ الإعدادات'**
+  String get settingsSaved;
+
+  /// No description provided for @settingsNotifications.
+  ///
+  /// In ar, this message translates to:
+  /// **'إشعارات المحاضرات'**
+  String get settingsNotifications;
+
+  /// No description provided for @settingsNotificationsHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'تذكير قبل 15 دقيقة وملخص محاضرات الغد'**
+  String get settingsNotificationsHint;
+
+  /// No description provided for @settingsNotificationsOn.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفعّلة على هذا الجهاز'**
+  String get settingsNotificationsOn;
+
+  /// No description provided for @settingsNotificationsOff.
+  ///
+  /// In ar, this message translates to:
+  /// **'غير مفعّلة'**
+  String get settingsNotificationsOff;
+
+  /// No description provided for @enableNotificationsButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفعيل الإشعارات'**
+  String get enableNotificationsButton;
+
+  /// No description provided for @twoFactorTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'التحقق بخطوتين'**
+  String get twoFactorTitle;
+
+  /// No description provided for @twoFactorHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'حماية إضافية لحساب التدريسي والإدارة عبر تطبيق مصادقة'**
+  String get twoFactorHint;
+
+  /// No description provided for @twoFactorEnabled.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفعّل'**
+  String get twoFactorEnabled;
+
+  /// No description provided for @twoFactorDisabled.
+  ///
+  /// In ar, this message translates to:
+  /// **'غير مفعّل'**
+  String get twoFactorDisabled;
+
+  /// No description provided for @twoFactorSetup.
+  ///
+  /// In ar, this message translates to:
+  /// **'بدء الإعداد'**
+  String get twoFactorSetup;
+
+  /// No description provided for @twoFactorSecretLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'السرّ (أدخله يدوياً إن لم يقرأ الرمز)'**
+  String get twoFactorSecretLabel;
+
+  /// No description provided for @twoFactorCodeLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمز التطبيق (6 أرقام)'**
+  String get twoFactorCodeLabel;
+
+  /// No description provided for @twoFactorEnable.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفعيل'**
+  String get twoFactorEnable;
+
+  /// No description provided for @twoFactorDisable.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعطيل'**
+  String get twoFactorDisable;
+
+  /// No description provided for @twoFactorPasswordLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور لتأكيد التعطيل'**
+  String get twoFactorPasswordLabel;
+
+  /// No description provided for @twoFactorEnabledMessage.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تفعيل التحقق بخطوتين'**
+  String get twoFactorEnabledMessage;
+
+  /// No description provided for @twoFactorDisabledMessage.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تعطيل التحقق بخطوتين'**
+  String get twoFactorDisabledMessage;
+
+  /// No description provided for @twoFactorNotAvailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'متاح لحساب التدريسي والإدارة فقط'**
+  String get twoFactorNotAvailable;
+
+  /// No description provided for @twoFactorSetupHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'أضف السرّ إلى تطبيق Google Authenticator أو أي تطبيق TOTP ثم أدخل الرمز الظاهر.'**
+  String get twoFactorSetupHint;
+
+  /// No description provided for @dataFromCache.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر الاتصال؛ تُعرض بيانات محفوظة من {time}'**
+  String dataFromCache(String time);
+
+  /// No description provided for @offlineSavedHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'تُحدَّث البيانات تلقائياً عند عودة الاتصال'**
+  String get offlineSavedHint;
 }
 
 class _AppLocalizationsDelegate
@@ -718,7 +1682,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['ar'].contains(locale.languageCode);
+      <String>['ar', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -729,6 +1693,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'ar':
       return AppLocalizationsAr();
+    case 'en':
+      return AppLocalizationsEn();
   }
 
   throw FlutterError(

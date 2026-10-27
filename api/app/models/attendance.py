@@ -72,3 +72,6 @@ class AbsenceExcuse(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
         SAEnum(ExcuseStatus), default=ExcuseStatus.PENDING
     )
     reviewed_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # ملاحظة المراجع تظهر للطالب مع القرار (سبب الرفض مثلاً)
+    review_note: Mapped[str | None] = mapped_column(String(500))
