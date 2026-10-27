@@ -165,6 +165,11 @@
   تطابق `users/attendance_records/grades/assessments`، ثم حذف المؤقتة.
 - **الواجهة عبر Nginx:** الصفحة والأصول 200، ودخول `ADMIN-001` من المتصفح عرض أرقام لوحة الملخص الحقيقية.
 - **سكربت الفحص:** `deploy/compose-smoke.ps1` (تشغيل المحرّك + build + زرع + دخول + ملخص + صفحة).
+- **Redis كخدمة اختيارية:** `docker compose --profile redis up -d` + `REDIS_URL=redis://redis:6379/0`؛
+  مُختبَر داخل الشبكة: 5 محاولات 401 ثم 429، والمفتاح `ratelimit:ADMIN-001|172.18.0.2` في حاوية redis
+  بقيمة 5 وTTL 58s، والدخول الصحيح صفّره. الافتراضي يبقى عدّاد الذاكرة (`.env` بلا REDIS_URL).
+- **تقوية المنفذ:** اللوحة صارت على `${HTTP_BIND:-127.0.0.1}:8080` بدل كل الواجهات، وAPI على 127.0.0.1:8000.
+- **CI:** وظيفة رابعة تبني صورتي API واللوحة على GitHub للتأكد من صلاحية Dockerfiles.
 
 ---
 
@@ -183,7 +188,7 @@
 | نسخ احتياطي + استرجاع | `backup_db.py` ثم `verify_restore.py` | نسخة 94.6KB ← استرجاع بلا أخطاء ← تطابق 5/0/1 ← `0003 (head)` ← حذف القاعدة المؤقتة |
 | `/health` حيّاً على PostgreSQL | `GET /health` | 200 · `{"status":"ok","database":"ok","revision":"0003"}` |
 | تجربة يدوية للشاشات الأربع الجديدة | `ADMIN-001` على خدمة حيّة | الملخص (3 طلاب/جلسة/تقييمان) · إعلان يُنشأ ثم يُحذف · 5 مستخدمين + كلمة مرور مؤقتة تُعرض مرة · تدقيق بأوقات بغداد وترشيح `password_reset` = سجل واحد |
-| حزمة Docker | `docker compose up -d --build` + `deploy/compose-smoke.ps1` | ✅ **3 خدمات healthy** (db/api/admin) · `/health` عبر Nginx: 200 و`revision 0004` · 503 `degraded` عند إيقاف القاعدة · الملفات المرفوعة تبقى بعد `restart` · نسخ/استرجاع 86.4KB بأعداد مطابقة · لوحة التحكم تعمل على 8080 · الصور: api 333MB · admin 75.3MB |
+| حزمة Docker | `docker compose up -d --build` + `deploy/compose-smoke.ps1` | ✅ **3 خدمات healthy** (db/api/admin) · `/health` عبر Nginx: 200 و`revision 0004` · 503 `degraded` عند إيقاف القاعدة · الملفات المرفوعة تبقى بعد `restart` · نسخ/استرجاع 86.4KB بأعداد مطابقة · لوحة التحكم تعمل على 8080 · الصور: api 333MB · admin 75.3MB · Redis (profile) 5→429 وتصفير · اللوحة على 127.0.0.1 |
 | Redis فعلي (5.0.14.1 محلي) | `scripts/check_redis.py` + هجوم دخول حقيقي | ✅ عدّاد 2 · TTL 60s · حجب · تصفير؛ وخمس محاولات 401 ثم **429** بالعربية مع مفتاح `ratelimit:<رقم>|<ip>` في Redis |
 | ترحيل 0004 على قاعدة فيها بيانات | SQLite (21 صفاً) + PostgreSQL (صف) | ✅ بعد إصلاح batch: العمود أُضيف، الصفوف حصلت على وقت، الفهارس باقية، و`downgrade` نظيف |
 | Flutter | `flutter analyze` / `flutter test` / `flutter build web --release` | 0 ملاحظات · **65/65** · بناء ناجح |
@@ -351,6 +356,8 @@ cd api; python scripts/dev_reset_devices.py S-100  # حساب واحد
 20. **سكربتات `smoke_*` تربط جهازاً للحساب** (قاعدة الجهاز الواحد): بعد تشغيلها يفشل دخول المدير من المتصفح بـ«مرتبط بجهاز آخر». الحل: `python scripts/dev_reset_devices.py` ثم الدخول من جديد.
 21. **SQLite يرفض `ADD COLUMN ... DEFAULT CURRENT_TIMESTAMP`** على جدول فيه صفوف: أي ترحيل يضيف عموداً بـ`server_default=func.now()` يجب أن يستخدم `op.batch_alter_table` على SQLite (انظر `0004` واختبار الانحدار).
 22. **`docker` يكتب تقدّم البناء وتنبيهات الإضافات على stderr**: مع `$ErrorActionPreference='Stop'` في PowerShell 5.1 يُعامَل ذلك كخطأ يُنهي السكربت. الحل: `2>&1 | Out-Host` أو `2>$null` مع التحقق من `$LASTEXITCODE`. وسكربتات `.ps1` العربية تحتاج **UTF-8 BOM** وإلا فشل تحليلها في 5.1.
+23. **`docker desktop start` يفشل بـ«unable to get LOCALAPPDATA»** في جلسات هذه البيئة الناقصة المتغيّرات:
+    عيّن `$env:LOCALAPPDATA="$env:USERPROFILE\AppData\Local"` (و`APPDATA`) قبل تشغيل Docker Desktop أو أوامره.
 
 ---
 
@@ -466,3 +473,4 @@ cd api; python scripts/dev_reset_devices.py S-100  # حساب واحد
 - **26 ت10 2026 (تطبيق/نشر):** شاشات الإعلانات والإشعارات والملف الشخصي في Flutter (65/65 · APK 67.8MB) + حزمة نشر systemd/Nginx بلا Docker.
 - **26 ت10 2026 (تحقق بيئي):** Redis حقيقي (5→429→تصفير) + محاولة Docker (مثبّت، محرّك معطّل) + إصلاح ترحيل `0004` على SQLite باختبار انحدار — **94/94** على القاعدتين.
 - **26 ت10 2026 (Docker):** WSL2 ثم حزمة compose كاملة (3 خدمات healthy · health 503/200 · بقاء الملفات · نسخ/استرجاع 86.4KB · لوحة على 8080) + سكربتا `compose-smoke` و`backup-compose`.
+- **27 ت10 2026 (تقوية النشر):** Redis كخدمة اختيارية في compose (5→429→تصفير) · ربط اللوحة على 127.0.0.1 · وظيفة CI تبني الصورتين.

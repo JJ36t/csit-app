@@ -102,6 +102,11 @@ cd X:\app; flutter build web --release --dart-define=API_BASE_URL=http://127.0.0
 cd build\web; python -m http.server 8080 --bind 127.0.0.1
 ```
 
+**أو المنظومة كلها بـDocker:** `Copy-Item .env.example .env` ثم املأ القيم ثم `docker compose up -d --build`
+— اللوحة على `http://127.0.0.1:8080` (مربوطة بالحلقة المحلية افتراضياً)، والـAPI على 127.0.0.1:8000.
+Redis اختياري: `docker compose --profile redis up -d` مع `REDIS_URL=redis://redis:6379/0`.
+فحص شامل: `deploy\compose-smoke.ps1` · نسخ احتياطي: `deploy\backup-compose.ps1 -Verify`.
+
 **حسابات التجربة:** طالب `S-100` · تدريسي `T-100` (كلمة المرور `Test#12345`) · مدير `ADMIN-001` (`Admin#2026`).
 **رسالة «هذا الحساب مرتبط بجهاز آخر»** = قاعدة الجهاز الواحد؛ الحل للتطوير: `python scripts/dev_reset_devices.py [رقم]`.
 
@@ -166,6 +171,8 @@ admin/src/   App.tsx, api.ts, pages/{LoginPage, StudentsPage, TimetablePage, Gra
     `op.batch_alter_table` على SQLite (كما في ترحيل `0004`)، وأضف اختبار انحدار على قاعدة فيها بيانات.
 15. **`docker` يكتب التقدّم/التنبيهات على stderr**: مع `ErrorActionPreference='Stop'` يُنهي السكربت في PowerShell 5.1.
     استخدم `2>&1 | Out-Host`، واكتب سكربتات `.ps1` العربية بـ**UTF-8 BOM**.
+16. **`docker desktop start` يحتاج `LOCALAPPDATA`**: في هذه الجلسات الناقصة المتغيّرات يفشل بـ«unable to get
+    LOCALAPPDATA» — عيّنه (و`APPDATA`) قبل تشغيل Docker Desktop.
 
 ---
 

@@ -103,3 +103,18 @@ jobs:
         run: |
           npm ci
           npm run build
+
+  images:
+    name: صور Docker — بناء (API + لوحة التحكم)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: بناء صورة API
+        run: docker build -t csit-api:ci api
+
+      - name: بناء صورة لوحة التحكم
+        run: docker build -t csit-admin:ci admin
+
+      - name: التحقق من حجم الصور
+        run: docker images --format 'table {{.Repository}}\t{{.Size}}'
